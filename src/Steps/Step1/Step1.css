@@ -1,0 +1,62 @@
+.card {
+    position: relative;
+    height: 400px; /* modifica le dimensioni a tuo piacimento */
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.1s;
+}
+
+@media (max-width: 602px) {
+    .card {
+      height: 250px;
+    }
+  }
+
+.card-image-cont {
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-content {
+    position: absolute;
+    bottom: 0;
+    background-color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: background-color 0.1s ease-in-out;
+}
+
+
+.card-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    bottom: 40px; 
+}
+
+.card:hover .card-content {
+    background-color: transparent;
+}
+
+.card-image {
+    transition: all 0.5s ease-in-out;
+    height: 75%;
+}
+
+.card:hover .card-title,
+.card:hover .card-button {
+    color: white;
+}
+
+.card:hover .card-image{
+    height: 100%;
+}
+
+.card:hover .card-button {
+    bottom: 50px; /* Posizione finale durante l'hover */
+}
+
+

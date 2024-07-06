@@ -1,0 +1,38 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.studio-img {
+    width: 100%;
+    height: auto;
+}
+
+button {
+    transition: background 0.1s ease;
+    background: linear-gradient(to right, #08B1DF, #6FC7DF);
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.item-cont {
+    transition: all 0.1s;
+    color: black;
+    background-color: #EDEDED;
+    padding: 7px 25px;
+    border-radius: 15px;
+    display: inline-block;
+    margin: 5px;
+    font-size: 13px;
+    margin-top: 10px
+}
+.item-cont:hover {
+    color: white;
+    background-color: black;
+    
+}

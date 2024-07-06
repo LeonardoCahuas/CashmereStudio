@@ -1,0 +1,118 @@
+/* Studios.css */
+.studios-header {
+    text-transform: uppercase;
+    color: #B1B1B1;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 30px;
+    font-weight: 900;
+    padding-top: 100px;
+    border-bottom: 1px solid rgb(233, 233, 233);
+    text-align: center;
+    width: 90vw;
+}
+
+.studio-section {
+    padding: 0px;
+    margin-bottom: 20px;
+}
+
+.studio-title {
+    color: black;
+    margin-bottom: 10px;
+}
+
+.studio-description {
+    color: gray;
+    margin-bottom: 30px;
+    margin-top: -20px;
+}
+
+.studio-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.button {
+    padding: 10px 20px;
+    border: 2px solid #08B1DF;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.1s;
+}
+
+.button:hover{
+    transform: scale(1.04);
+}
+
+.button-outline {
+    background: white;
+    color: #08B1DF;
+}
+.button-outline:hover {
+    background: white;
+    color: #08B1DF;
+}
+
+.button-filled {
+    background: linear-gradient(to left, #6FC7DF, #08B1DF);
+    color: white;
+}
+
+
+.studio-image {
+    width: 100vw;
+    height: auto;
+    display: block;
+}
+
+.studio-slider {
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+}
+
+.studio-slider .slick-prev,
+.studio-slider .slick-next {
+    width: 30px;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    color: white;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.studio-slider .slick-prev {
+    left: 10px;
+    z-index: 1;
+}
+
+.studio-slider .slick-next {
+    right: 10px;
+    z-index: 1;
+}
+
+.studio-slider .slick-dots {
+    bottom: 10px;
+}
+
+.studio-slider .slick-dots li {
+    margin: 0;
+}
+
+.studio-slider .slick-dots li button:before {
+    width: 30px;
+    height: 5px;
+    background: gray;
+    content: '';
+}
+
+.arrow-img:hover{
+    transform: scale(1.1);
+}
+.arrow-img{
+    transition: transform 0.2s ;
+}
+

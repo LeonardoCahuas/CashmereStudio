@@ -1,0 +1,30 @@
+.table-container {
+    margin-top: 20px;
+  }
+  
+  .table th, .table td {
+    vertical-align: middle;
+  }
+  
+  .table .actions {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .modal-header {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .modal-footer .btn-secondary {
+    background-color: #6c757d;
+  }
+  
+  .modal-footer .btn-danger {
+    background-color: #dc3545;
+  }
+  
+  .modal-footer .btn-primary {
+    background-color: #007bff;
+  }
+  

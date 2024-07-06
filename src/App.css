@@ -1,0 +1,14 @@
+#root {
+
+  margin: 0 auto;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+button{
+  transition: transform 0.1s ease;
+}
+
+button:hover{
+  transform: scale(1.04);
+}

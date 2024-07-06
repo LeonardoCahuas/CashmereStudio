@@ -1,0 +1,62 @@
+import React, { useState, useEffect } from 'react';
+import logo from '../../assets/cashlogocolor.png'; // Update this path to your actual logo file
+import './Footer.css'; // You can style this component in a separate CSS file
+
+const Footer = () => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 602);
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Call initially to set the correct state
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+    return (
+        <div className="footer-container bg-black">
+            <div className="footer-logo">
+                <img src={logo} alt="Logo" style={{ width: "60px" }} />
+            </div>
+            <div className="d-flex flex-column align-items-center justify-content-center">
+                <h3 className="text-center fs-2 text-white" style={{ fontWeight: 900 }}>CASHMERE STUDIO</h3>
+                <p className="text-white" style={{ marginTop: "-10px" }}>All rights reserved</p>
+            </div>
+
+            <div className="d-flex flex-row align-items-center justify-content-around" style={{ gap: "70px" }}>
+                {!isMobile && (
+                    <h3 className="text-center fs-5 text-white" style={{ margin: "0px" }}>FOLLOW US</h3>
+                )}
+                <div className='d-flex flex-row align-items-center justify-content-center' style={{gap:"10px"}}>
+                    <i className="fa-brands fa-instagram" style={{ width: "35px", fontSize: "30px", color: "white" }}></i>
+                    <p className="text-white" style={{ margin: "0px" }}>@cashmerestudiomilano</p>
+                </div>
+            </div>
+
+            {isMobile ? (
+                <div className="footer-credits-mobile mt-4">
+                    <div className="d-flex justify-content-between w-100 px-3" style={{ gap: "20px" }}>
+                        <a href="tel:+1234567890" className="footer-link">+1234567890</a>
+                        <a href="mailto:example@example.com" className="footer-link">example@example.com</a>
+                    </div>
+                    <div className="d-flex justify-content-center mt-2">
+                        <a href="https://www.google.com/maps?q=via+aziendale" target="_blank" rel="noopener noreferrer" className="footer-link text-center">Via dell'Azienda</a>
+                    </div>
+                </div>
+            ) : (
+                <div className="footer-credits">
+                    <a href="tel:+1234567890" className="footer-link">+1234567890</a>
+                    <a href="mailto:example@example.com" className="footer-link">example@example.com</a>
+                    <a href="https://www.google.com/maps?q=via+aziendale" target="_blank" rel="noopener noreferrer" className="footer-link">Via dell'Azienda</a>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default Footer;

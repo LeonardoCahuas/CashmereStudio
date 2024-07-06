@@ -1,0 +1,33 @@
+.studio {
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+    min-height: 150px;
+  }
+  
+  .studio.libero {
+    background-color: white;
+    color: black;
+  }
+  
+  .studio.occupato {
+    background-color: green;
+    color: white;
+  }
+  
+  .border {
+    border: 2px solid black;
+  }
+  
+  .rounded {
+    border-radius: 5px;
+  }
+  
+  .prenotazione p {
+    margin: 5px 0;
+  }
+  
+  .datetime-select {
+    text-align: center;
+  }
+  
