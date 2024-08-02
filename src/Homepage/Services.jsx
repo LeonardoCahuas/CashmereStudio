@@ -50,7 +50,7 @@ function Services({ service }) {
                     <div className="card-services flex-column align-items-center" key={i} style={{ width: isMobile ? '100%' : '30%', borderRight: i === 2 && !service && !isMobile ? "none" : "none", borderLeft: i === 2 && !service && !isMobile ? "none" : "none", padding: "30px", display: indexes[service] === i ? "none" : "flex" }}>
                         <img src={services[i]} style={{ height: "100px" }} alt={`Service ${i} image`} />
                         <h3 style={{ fontWeight: 900, marginTop: "30px", marginBottom: "30px" }}>{descriptions[i].title}</h3>
-                        <p className="text-center" style={{fontSize:"16px", color:"#B1B1B1"}}>{descriptions[i].desc}</p>
+                        <p className="text-center" style={{fontSize:"16px", color:"#B1B1B1", paddingBottom:"30px"}}>{descriptions[i].desc}</p>
                         <Link to={descriptions[i].to}>
                             <button className="book-button" style={{fontWeight:600}}>Scopri di più</button>
                         </Link>

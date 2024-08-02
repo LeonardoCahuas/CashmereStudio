@@ -10,7 +10,7 @@ function Header() {
 
     useEffect(() => {
         const fetchVideoUrl = async () => {
-            const videoRef = ref(storage, 'VIDEOHOME.mp4');
+            const videoRef = ref(storage, isMobile ? "TUTTO_VERTICALE.mp4" : 'VIDEOHOME.mp4');
             try {
                 const url = await getDownloadURL(videoRef);
                 setVideoUrl(url);
@@ -37,22 +37,25 @@ function Header() {
     }, []);
 
     return (
-        <div className="w-100 header bg-white">
-            {isMobile ? (
-                <img
-                    src={header}
-                    className="w-100"
-                    style={{ height: 'auto' }}
-                    alt="Header"
-                />
-            ) : (
+        <div className="w-100 header bg-black">
+        
                 <>
                     {videoUrl && (
-                        <video className="video-bg" autoPlay loop muted style={{width:"100vw"}}>
-                            <source src={videoUrl} type="video/mp4" />
-                            Il tuo browser non supporta il tag video.
-                        </video>
-                    )}
+                    <video 
+                        className="video-bg" 
+                        autoPlay 
+                        playsInline
+                        loop 
+                        muted 
+                        controls={false} 
+                        disablePictureInPicture 
+                        style={{width:"100vw"}}
+                        onContextMenu={(e) => e.preventDefault()}
+                    >
+                        <source src={videoUrl} type="video/mp4" />
+                        Il tuo browser non supporta il tag video.
+                    </video>
+                )}
                     <div
                         className="w-100"
                         style={{ height: '1000px', display: videoUrl ? 'none' : 'block', backgroundColor:"black" }}
@@ -60,7 +63,7 @@ function Header() {
                     >
                     </div>
                 </>
-            )}
+            
         </div>
     );
 }

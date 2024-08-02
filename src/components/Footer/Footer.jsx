@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../../assets/cashlogocolor.png'; // Update this path to your actual logo file
 import './Footer.css'; // You can style this component in a separate CSS file
 
@@ -20,6 +21,7 @@ const Footer = () => {
 
     return (
         <div className="footer-container bg-black">
+            
             <div className="footer-logo">
                 <img src={logo} alt="Logo" style={{ width: "60px" }} />
             </div>
@@ -32,16 +34,17 @@ const Footer = () => {
                 {!isMobile && (
                     <h3 className="text-center fs-5 text-white" style={{ margin: "0px" }}>FOLLOW US</h3>
                 )}
-                <div className='d-flex flex-row align-items-center justify-content-center' style={{gap:"10px"}}>
+                <div className='d-flex flex-row align-items-center justify-content-center' style={{ gap: "10px" }}>
                     <i className="fa-brands fa-instagram" style={{ width: "35px", fontSize: "30px", color: "white" }}></i>
                     <p className="text-white" style={{ margin: "0px" }}>@cashmerestudiomilano</p>
+                   
                 </div>
             </div>
 
             {isMobile ? (
                 <div className="footer-credits-mobile mt-4">
                     <div className="d-flex justify-content-between w-100 px-3" style={{ gap: "20px" }}>
-                        <a href="tel:+1234567890" className="footer-link">+1234567890</a>
+                        <a href="tel:+393514206294" className="footer-link">+39 351 420 6294</a>
                         <a href="mailto:example@example.com" className="footer-link">example@example.com</a>
                     </div>
                     <div className="d-flex justify-content-center mt-2">
@@ -50,11 +53,12 @@ const Footer = () => {
                 </div>
             ) : (
                 <div className="footer-credits">
-                    <a href="tel:+1234567890" className="footer-link">+1234567890</a>
-                    <a href="mailto:example@example.com" className="footer-link">example@example.com</a>
-                    <a href="https://www.google.com/maps?q=via+aziendale" target="_blank" rel="noopener noreferrer" className="footer-link">Via dell'Azienda</a>
+                    <a href="tel:+393514206294" className="footer-link">+39 351 420 6294</a>
+                    <a href="mailto:cashmerestudiomilano@gmail.com" className="footer-link">cashmerestudiomilano@gmail.com</a>
+                    <a href="https://www.google.com/maps?q=via+Oreste+Salomone+61+Milano" target="_blank" rel="noopener noreferrer" className="footer-link">Via Oreste Salomone 61</a>
                 </div>
             )}
+            
         </div>
     );
 }

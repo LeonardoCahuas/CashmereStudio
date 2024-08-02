@@ -58,7 +58,7 @@ function Book() {
     return (
         <div>
             <Navbar />
-            <div style={{paddingTop:isMobile ? "0px" : "100px"}}>
+            <div style={{paddingTop:isMobile ? "100px" : "100px"}}>
                 {
                     !stu && !bookingTime.start && !service && !userInfo.insta ?
                         <Step1 setStudio={setStudio} />
@@ -66,7 +66,7 @@ function Book() {
                             <Step2 studio={stu} setBooking={setBooking} goBack={goBack1} />
                             : stu && bookingTime.start && !service && !userInfo.insta ?
                                 <Step3 setService={setServices} goBack={goBack2} /> :
-                                <Step4 goBack={goBack3} onAddPrenotazione={addPrenotazione} selectedDay={bookingTime.day} selectedEnd={bookingTime.end} selectedStart={bookingTime.start} studio={stu} />
+                                <Step4 goBack={goBack3} onAddPrenotazione={addPrenotazione} selectedDay={bookingTime.day} selectedEnd={bookingTime.end} selectedStart={bookingTime.start} studio={stu} services={service} />
 
 
                 }

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ScrollToTop from '../../ScrollToTop';
 
-const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, studio, goBack }) => {
+const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, studio, goBack, services }) => {
     const [nomeUtente, setNomeUtente] = useState('');
     const [telefono, setTelefono] = useState('');
     const [email, setEmail] = useState('');
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+    const navigation = useNavigate()
 
     useEffect(() => {
         const handleResize = () => {
@@ -28,6 +29,7 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
         console.log("set inizio");
         console.log(selectedDay);
         console.log(inizio);
+        console.log(services)
 
         try {
             await onAddPrenotazione({
@@ -38,11 +40,14 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
                 email,
                 studio,
                 stato: 1,
+                services: services
             });
-            alert('Prenotazione aggiunta con successo!');
+            alert("Prenotazione richiesta con successo. Cashmere Studio ti confermerà l'appuntamento il prima possibile");
             setNomeUtente('');
             setTelefono('');
             setEmail('');;  // Redirect to /home after successful submission
+            navigation("/")
+
         } catch (error) {
             console.log(error);
             console.error("Errore nell'aggiunta della prenotazione: ", error.message);

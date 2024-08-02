@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import usePrenotazioni from '../../booking/useBooking';
 import { Modal, Button, Table, Pagination, Form } from 'react-bootstrap';
 import { deleteDoc, doc } from 'firebase/firestore';
@@ -16,9 +16,11 @@ const BookingModal = ({ show, onHide, prenotazione }) => (
           <p>Nome Utente: {prenotazione.nomeUtente}</p>
           <p>Email: {prenotazione.email}</p>
           <p>Telefono: {prenotazione.telefono}</p>
+          <div>Servizi: {prenotazione.services && prenotazione.services.map((servi) => <p>{servi}</p>)}</div>
           <p>Inizio: {prenotazione.inizio.toDate().toLocaleString()}</p>
           <p>Fine: {prenotazione.fine.toDate().toLocaleString()}</p>
           <p>Studio: {prenotazione.studio}</p>
+          <p>Fonico: {prenotazione.fonico}</p>
         </div>
       )}
     </Modal.Body>
@@ -49,8 +51,23 @@ const Bookings = () => {
   const [sortOrder, setSortOrder] = useState('asc');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedStudio, setSelectedStudio] = useState('');
+  const [usernameFilter, setUsernameFilter] = useState('');
   const { prenotazioni, loading, error, setPrenotazioni } = usePrenotazioni(new Date());
   const prenotazioniPerPage = 10;
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 602);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call initially to set the correct state
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleView = (prenotazione) => {
     setSelectedPrenotazione(prenotazione);
@@ -85,15 +102,16 @@ const Bookings = () => {
   const filteredPrenotazioni = sortedPrenotazioni.filter(p => {
     const matchesDate = selectedDate ? p.inizio.toDate().toDateString() === new Date(selectedDate).toDateString() : true;
     const matchesStudio = selectedStudio ? p.studio?.toString() === selectedStudio : true;
-    return matchesDate && matchesStudio;
+    const matchesUsername = usernameFilter ? p.nomeUtente.toLowerCase().includes(usernameFilter.toLowerCase()) : true;
+    return matchesDate && matchesStudio && matchesUsername;
   });
 
   const currentPrenotazioni = filteredPrenotazioni.slice(indexOfFirstPrenotazione, indexOfLastPrenotazione);
   const totalPages = Math.ceil(filteredPrenotazioni.length / prenotazioniPerPage);
 
   return (
-    <div className="container">
-      <h3 className="mt-3">Prenotazioni</h3>
+    <div className="">
+      <h3 className="">Prenotazioni</h3>
       <div className="controls">
         <Form.Group controlId="sortOrder">
           <Form.Label>Ordina per Data</Form.Label>
@@ -118,36 +136,48 @@ const Bookings = () => {
             <option value="2">Studio 2</option>
             <option value="3">Studio 3</option>
           </Form.Control>
+          <Form.Group controlId="usernameFilter">
+            <Form.Label>Filtra per Nome Utente</Form.Label>
+            <Form.Control
+              type="text"
+              value={usernameFilter}
+              onChange={(e) => setUsernameFilter(e.target.value)}
+            />
+          </Form.Group>
         </Form.Group>
       </div>
       {prenotazioni.length < 1 ? (
         <div>Loading...</div>
-      )  : (
+      ) : (
         <div>
           <Table striped bordered hover className="table-container">
             <thead>
               <tr>
-                <th>Nome Utente</th>
-                <th>Email</th>
+                <th>Nome Instagram</th>
                 <th>Telefono</th>
-                <th>Inizio</th>
-                <th>Fine</th>
-                <th>Studio</th>
+                {!isMobile && <th>Servizi</th>}
+                {!isMobile && <th>Email</th>}
+                {!isMobile && <th>Inizio</th>}
+                {!isMobile && <th>Fine</th>}
+                {!isMobile && <th>Studio</th>}
+                {!isMobile && <th>Fonico</th>}
                 <th>Azioni</th>
               </tr>
             </thead>
             <tbody>
               {currentPrenotazioni.map(prenotazione => (
                 <tr key={prenotazione.id}>
-                  <td>{prenotazione.nomeUtente}</td>
-                  <td>{prenotazione.email}</td>
-                  <td>{prenotazione.telefono}</td>
-                  <td>{prenotazione.inizio.toDate().toLocaleString()}</td>
-                  <td>{prenotazione.fine.toDate().toLocaleString()}</td>
-                  <td>{prenotazione.studio}</td>
-                  <td className="actions">
-                    <Button variant="primary" onClick={() => handleView(prenotazione)}>Visualizza</Button>
-                    <Button variant="danger" onClick={() => handleDelete(prenotazione)}>Elimina</Button>
+                  <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}>{prenotazione.nomeUtente}</a>}</td>
+                  <td>{isMobile ? <div><i class="fa fa-phone"></i>{prenotazione.telefono}</div> : prenotazione.telefono}</td>
+                  {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
+                  {!isMobile && <td>{prenotazione.email}</td>}
+                  {!isMobile && <td>{prenotazione.inizio.toDate().toLocaleString()}</td>}
+                  {!isMobile && <td>{prenotazione.fine.toDate().toLocaleString()}</td>}
+                  {!isMobile && <td>{prenotazione.studio}</td>}
+                  {!isMobile && <td>{prenotazione.fonico}</td>}
+                  <td className={`actions h-100  ${isMobile ? 'd-flex flex-column' : 'd-flex flex-column'} justify-content-center`}>
+                    <Button className="p-1" variant="primary" onClick={() => handleView(prenotazione)}>Visualizza</Button>
+                    <Button variant="danger" className="p-1" onClick={() => handleDelete(prenotazione)}>Elimina</Button>
                   </td>
                 </tr>
               ))}

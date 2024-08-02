@@ -14,7 +14,7 @@ const NextArrow = (props) => {
   return (
     <div
       className={`${className} slick-next flex-column align-items-center justify-content-center`}
-      style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: "20px" }}
+      style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", right:"-30px" }}
       onClick={onClick}
     >
       <i class="fa-solid fa-chevron-right" style={{ color: "black", fontSize: "40px", position: "absolute", right: '0px', backgroundColor: "white", width: "40px", height: "40px", borderRadius: "50%" }}></i>
@@ -27,7 +27,7 @@ const PrevArrow = (props) => {
   return (
     <div
       className={`${className} slick-next flex-column align-items-center justify-content-center`}
-      style={{ ...style, borderRadius: '50%', left: '10px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: "20px" }}
+      style={{ ...style, borderRadius: '50%', left: '10px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", left:"-0px"}}
       onClick={onClick}
     >
       <i class="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px", position: "absolute", right: '0px', backgroundColor: "white", width: "40px", height: "40px", borderRadius: "50%" }}></i>
@@ -148,42 +148,27 @@ const Step2 = ({ setBooking, goBack, studio }) => {
       (p) => getFormattedDate(new Date(p.inizio.seconds * 1000)) === selectedDay && p.studio == studio && p.stato == 2
     );
     let occupied = [];
-    let preoccupied = [];
 
-    // Raccogli gli slot che devono essere grigiati
+    // Collect slots that need to be marked as occupied
     selectedDayPrenotazioni.forEach((p) => {
       const startDate = new Date(p.inizio.seconds * 1000);
       const endDate = new Date(p.fine.seconds * 1000);
       const startHour = startDate.getHours();
       const endHour = endDate.getHours();
-      const startMinute = startDate.getMinutes();
-      const endMinute = endDate.getMinutes();
-      const startTime = startHour + startMinute / 60;
-      const endTime = endHour + endMinute / 60;
 
-      for (let hour = startTime; hour < endTime; hour += 0.5) {
+      for (let hour = startHour; hour < endHour; hour++) {
         occupied.push(hour);
-      }
-
-      // Aggiungi i quattro slot precedenti
-      for (let i = 0; i <= 1; i++) {
-        const precedingSlot = startTime - i * 0.5;
-        if (precedingSlot >= 10) {
-          preoccupied.push(precedingSlot);
-        }
       }
     });
 
     const isTimeAvailable = (time) => {
       if (!selectedStart) return true;
-      const [selectedStartHourPart, selectedStartMinutePart] = selectedStart.split(':');
-      const selectedStartHour = parseFloat(selectedStartHourPart) + (selectedStartMinutePart === '30' ? 0.5 : 0);
-      const [currentHourPart, currentMinutePart] = time.split(':');
-      const currentHour = parseFloat(currentHourPart) + (currentMinutePart === '30' ? 0.5 : 0);
+      const selectedStartHour = parseInt(selectedStart.split(':')[0], 10);
+      const currentHour = parseInt(time.split(':')[0], 10);
 
       if (currentHour <= selectedStartHour) return true;
 
-      for (let hour = selectedStartHour; hour <= currentHour; hour += 0.5) {
+      for (let hour = selectedStartHour; hour < currentHour; hour++) {
         if (occupied.includes(hour)) return false;
       }
       return true;
@@ -191,70 +176,49 @@ const Step2 = ({ setBooking, goBack, studio }) => {
 
     const isEndValid = (time) => {
       if (!selectedStart) return true;
-      const [selectedStartHourPart, selectedStartMinutePart] = selectedStart.split(':');
-      const selectedStartHour = parseFloat(selectedStartHourPart) + (selectedStartMinutePart === '30' ? 0.5 : 0);
-      const [currentHourPart, currentMinutePart] = time.split(':');
-      const currentHour = parseFloat(currentHourPart) + (currentMinutePart === '30' ? 0.5 : 0);
+      const selectedStartHour = parseInt(selectedStart.split(':')[0], 10);
+      const currentHour = parseInt(time.split(':')[0], 10);
 
-      return currentHour - selectedStartHour >= 1;
+      const isWithinMaxDuration = (currentHour - selectedStartHour) <= 4;
+      return currentHour - selectedStartHour >= 1 && isWithinMaxDuration;
     };
 
-    for (let hour = 10; hour < 22; hour += 0.5) {
-      const hourPart = Math.floor(hour);
-      const minutePart = hour % 1 === 0.5 ? '30' : '00';
-      const time = `${String(hourPart).padStart(2, '0')}:${minutePart}`;
+    for (let hour = 10; hour <= 22; hour++) {
+      const time = `${String(hour).padStart(2, '0')}:00`;
 
-      const isOccupied = selectedDayPrenotazioni.some((p) => {
-        const startDate = new Date(p.inizio.seconds * 1000);
-        const endDate = new Date(p.fine.seconds * 1000);
-        const startHour = startDate.getHours();
-        const endHour = endDate.getHours();
-        const startMinute = startDate.getMinutes();
-        const endMinute = endDate.getMinutes();
+      // Adjusting occupied slots if start time is selected
+      const adjustedOccupied = selectedStart ? occupied.map(h => h + 1) : occupied;
 
-        // Calcola l'ora di fine correttamente riducendo di mezz'ora
-
-
-        let endTime = endHour + (endMinute / 60);
-        if (endMinute >= 30) {
-          endTime -= 0.5;
-        } else {
-          endTime = endHour - 1 + 0.5;
-        }
-
-        let startTime = startHour + (endMinute / 60);
-        if (startMinute <= 30) {
-          startTime += 0.5;
-        } else {
-          startTime = endHour + 1 - 0.5;
-        }
-
-        return startTime <= hour && endTime > hour;
-      });
-
-      const isBooked = occupied.includes(hour);
-      const isPreBooked = preoccupied.includes(hour);
+      const isOccupied = adjustedOccupied.includes(hour);
       const isSelectedStart = selectedStart === time;
       const isSelectedEnd = selectedEnd === time;
-      const isSelectedRange = selectedStart && selectedEnd && time > selectedStart && time < selectedEnd;
+      const isSelectedRange = selectedStart && selectedEnd && hour > parseInt(selectedStart.split(':')[0], 10) && hour < parseInt(selectedEnd.split(':')[0], 10);
       const isClickable = isTimeAvailable(time);
       const canSelectEnd = isEndValid(time);
 
       const slotClass = (() => {
         if (isSelectedStart) return 'selected-start';
         if (isSelectedRange) return 'selected-range';
-        if (isBooked) return 'occupied';
-        if (isPreBooked && selectedEnd !== time && !selectedStart) return 'grayed';
+        if (isOccupied) return 'occupied';
         if (isSelectedEnd) return 'selected-end';
-        if (selectedStart && isPreBooked && isClickable) return '';
         return '';
       })();
+
+      const isSlotClickable = (
+        (!selectedStart) ||  // Non è stato selezionato l'inizio
+        (selectedStart && (isSelectedStart || isClickable && canSelectEnd))  // È stato selezionato l'inizio e l'ora è selezionata o è cliccabile
+      );
+
 
       slots.push(
         <div
           key={time}
           className={`slot ${slotClass}`}
-          onClick={() => ((!isOccupied && !isBooked && !isPreBooked && !selectedStart) || (selectedStart && isClickable && canSelectEnd)) && handleSlotClick(time)}
+          onClick={() => isSlotClickable && handleSlotClick(time)}
+          style={{
+            pointerEvents: isSlotClickable ? 'auto' : 'none',
+            opacity: isSlotClickable ? 1 : 0.5,
+          }}
         >
           {time}
         </div>
@@ -262,11 +226,10 @@ const Step2 = ({ setBooking, goBack, studio }) => {
     }
 
     slots.push(
-      <div className='d-flex flex-row align-items-center justify-content-center' onClick={() => annulla()} style={{ borderBottom: "2px solid black", paddingBottom: "0px" , gap:"4px" ,height:"30px", marginLeft:"20px"}}>
-        <i class="fa fa-close m-0" style={{ fontSize: "13px", marginRight: "0x" }}></i>
-        <p className='m-0 p-0'>Annulla</p>
-
-      </div>)
+      <div className=' slot d-flex flex-row align-items-center justify-content-center ripristina' onClick={() => annulla()} style={{ paddingBottom: "0px", gap: "4px", height: "30px", border: "1px solid black", paddingRight:"15px", paddingLeft:"15px" }}>
+        <p className='m-0 p-0'>Ripristina</p>
+      </div>
+    );
 
     return slots;
   };
@@ -286,13 +249,18 @@ const Step2 = ({ setBooking, goBack, studio }) => {
             {getMonthDays()
               .filter((day) => day)
               .map((day, index) => (
-                <div key={index} className="day-slide" style={{ width: '200px', backgroundColor: "transparent" }}>
+                <div key={index} className="day-slide" style={{backgroundColor: "transparent" }}>
                   <button
                     className={`day-button ${day.date === selectedDay ? 'selected' : ''} d-flex flex-column justify-content-center`}
                     onClick={() => setSelectedDay(day.date)}
-                    style={{ width: isMobile ? "150px" : '200px', backgroundColor: "white", border: day.date === selectedDay ? "2px solid #08B1DF" : "2px solid black", color: day.date === selectedDay ? "white" : "black", textAlign: "start" }}
+                    style={{ width: isMobile ? "150px" : '150px', backgroundColor: "white", border: day.date === selectedDay ? "2px solid #08B1DF" : "2px solid black", color: day.date === selectedDay ? "white" : "black", textAlign: "start", paddingTop:"15px", paddingBottom:"15px", height:"fit-content" }}
                   >
-                    <p className='text-start w-75 fs-5'>{`${giorniSettimana[new Date(day.date).getDay()]}`}</p><p className='text-start w-75 fs-5' style={{ fontWeight: 800, marginTop: "-20px" }}> {`${new Date(day.date).getDate()} ${months[new Date(day.date).getMonth()]}`}</p>
+                    <p className='text-start w-75 fs-5'>
+                      {`${giorniSettimana[new Date(day.date).getDay()]}`}
+                    </p>
+                    <p className='text-start w-75 fs-6' style={{ fontWeight: 800, marginTop: "-20px", marginBottom:'0px' }}>
+                      {`${new Date(day.date).getDate()} ${months[new Date(day.date).getMonth()]}`}
+                    </p>
                   </button>
                 </div>
               ))}
@@ -302,25 +270,27 @@ const Step2 = ({ setBooking, goBack, studio }) => {
           selectedDay &&
           <div className='d-flex flex-row align-items-start justify-content-between' style={{ width: "100%" }}>
             <div>
-              <h3 className="mb-3 mt-5">Seleziona fascia oraria </h3>
-              <p className='mb-3 mt-5'>(minimo 1 ora)</p>
-            </div>
+              <h3 className=" mt-5">Seleziona fascia oraria </h3>
+              <p className='mb-3' style={{marginTop:"-10px"}}>(minimo 1 ora)</p>
+              </div>
 
           </div>
         }
         {
           selectedDay && (
-            <p style={{ color: "lightgrey", fontWeight: 700, marginTop: "-15px", marginBottom: "50px" }}>({giorniSettimana[new Date(selectedDay).getDay()]} {new Date(selectedDay).getDate()} {months[new Date(selectedDay).getMonth()]})</p>
+            <p style={{ color: "lightgrey", fontWeight: 700, marginTop: "0px", marginBottom: "0px" }}>({giorniSettimana[new Date(selectedDay).getDay()]} {new Date(selectedDay).getDate()} {months[new Date(selectedDay).getMonth()]})</p>
           )
         }
         {
           selectedDay &&
           <div className={`slots-container ${isMobile ? "p-4" : ""} ${selectedStart && selectedEnd ? "" : "mb-4"}`}>{renderSlots()}</div>
         }
+        <p className='mb-3 mt-1'>(Per prenotazioni superiori alle 4 ore scrivici su Whatsapp al numero <b>351 420 6294</b> o su Instagram a: <b>@cashmerestudiomilano</b>)</p>
+            
         {
           selectedStart && selectedEnd && (
             <div className='w-100 d-flex flex-column align-items-center'>
-              <button className="btn btn-primary mt-4 mb-4" onClick={handleNextStep} disabled={!!!bookingTime.start} style={{ border: "1px solid #08B1DF", paddingTop: "12px", paddingBottom: "12px", paddingRight: "50px", paddingLeft: "50px", fontSize: "20px" , fontWeight:700}}>
+              <button className="btn btn-primary mt-4 mb-4" onClick={handleNextStep} disabled={!!!bookingTime.start} style={{ border: "1px solid #08B1DF", paddingTop: "12px", paddingBottom: "12px", paddingRight: "50px", paddingLeft: "50px", fontSize: "20px", fontWeight: 700 }}>
                 Avanti
               </button>
             </div>

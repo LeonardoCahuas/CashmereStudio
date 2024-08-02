@@ -169,6 +169,7 @@
 }
 .day-slide {
     width: 25%; /* Imposta la larghezza su 25% per mostrare 4 giorni contemporaneamente */
+    height: fit-content;
   }
   
   .slot {
@@ -304,5 +305,13 @@
   width: 100%;
 }
 
+.ripristina{
+  background-color: white;
+  transition: all 0.3s
+}
 
-  
+
+.ripristina:hover{
+  background-color: black;
+  color:white
+}

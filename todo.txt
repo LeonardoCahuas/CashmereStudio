@@ -1,0 +1,22 @@
+
+CASHMERE TODOS
+
+
+-grafica interna
+
+-seo immagini
+
+-seo meta tag
+
+-set titles
+
+-sitemap
+
+-robots
+
+-deploy e messa in prod
+
+-fonici
+
+-carica video
+

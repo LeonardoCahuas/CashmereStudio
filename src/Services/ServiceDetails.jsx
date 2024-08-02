@@ -43,12 +43,12 @@ function ServiceDetails({ service }) {
     return (
         <div style={{paddingTop:"80px"}}>
             <div className={`d-flex ${isMobile ? 'flex-column' : 'flex-row align-items-start'} bg-black`} style={{overflow:"hidden"}}>
-                <div style={{  width:"50%", overflow:"hidden", height:"100%" }}>
+                <div style={{  width: isMobile ? "100%" : "50%", overflow:"hidden", height:"100%" }}>
                     <img src={info[service].image} alt="Descrizione immagine" style={{ width: '100%'}} />
                 </div>
-                <div style={{ backgroundColor: 'black', color: 'white', height:"100%", width:"50%" }}>
-                    <div className={`text-start w-75`} style={{ margin: isMobile ? '0 auto' : '', padding: isMobile ? "20px" : "50px", paddingTop:"50px" , paddingBottom:"50px"  }}>
-                        <div className='d-flex flex-row align-items-center' style={{gap:"15px"}}><h1 style={{ fontWeight: 'bold', fontSize: "4em" }}>{info[service].title}</h1><img src={servicesimage[service]}  style={{height:"3em", marginBottom:"12px"}}/></div> 
+                <div style={{ backgroundColor: 'black', color: 'white', height:"100%", width: isMobile ? "100%" : "50%" }}>
+                    <div className={`text-start ${isMobile ? 'w-100 p-4' : 'w-75'}`} style={{ margin: isMobile ? '0 auto' : '', padding: isMobile ? "20px" : "50px", paddingTop:"50px" , paddingBottom:"50px"  }}>
+                        <div className='d-flex flex-row align-items-center' style={{gap:"15px"}}><h1 style={{ fontWeight: 'bold', fontSize:isMobile ? '2.8em' : "4em" }}>{info[service].title}</h1><img src={servicesimage[service]}  style={{height:"3em", marginBottom:"12px"}}/></div> 
                         <p style={{ fontWeight: 600, marginTop: "50px" }}>Descrizione:</p>
                         <p style={{ color: "grey" }}>{info[service].parag1}</p>
                         <p style={{ fontWeight: 600, marginTop: "100px" }}>{info[service].title2}</p>

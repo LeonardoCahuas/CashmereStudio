@@ -9,7 +9,7 @@ function Internal() {
         setLogged(isLog)
     }
     return (
-        <div style={{paddingTop: "200px"}}>
+        <div style={{paddingTop: "100px"}}>
             {
                 logged
                     ?

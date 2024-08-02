@@ -4,6 +4,7 @@ import { db } from '../firebase-config';
 
 const usePrenotazioni = (selectedDateTime) => {
   const [prenotazioni, setPrenotazioni] = useState([]);
+  const [fonici, setFonici] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,7 +27,26 @@ const usePrenotazioni = (selectedDateTime) => {
       }
     };
 
+    const fetchFonici = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const q = query(
+          collection(db, 'fonici')
+        );
+        const querySnapshot = await getDocs(q);
+        const foniciData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setFonici(foniciData);
+      } catch (err) {
+        console.log(err)
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPrenotazioni();
+    fetchFonici()
   }, [selectedDateTime]);
 
   const addPrenotazione = async (prenotazione) => {
@@ -37,11 +57,12 @@ const usePrenotazioni = (selectedDateTime) => {
     }
   };
 
-  const updatePrenotazioneStato = async (id, newStato) => {
+  const updatePrenotazioneStato = async (id, newStato, fonico) => {
     try {
       const prenotazioneRef = doc(db, 'prenotazioni', id);
       await updateDoc(prenotazioneRef, {
-        stato: newStato
+        stato: newStato,
+        fonico: fonico
       });
       // Aggiorna lo stato locale
       setPrenotazioni(prevPrenotazioni =>
@@ -54,7 +75,40 @@ const usePrenotazioni = (selectedDateTime) => {
     }
   };
 
-  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni,  updatePrenotazioneStato};
+  const eliminaPrenotazione = async (id) => {
+    try {
+      const prenotazioneRef = doc(db, 'prenotazioni', id);
+      await deleteDoc(prenotazioneRef);
+      setPrenotazioni(prevPrenotazioni =>
+        prevPrenotazioni.filter(prenotazione => prenotazione.id !== id)
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleSaveChanges = () => {
+    // Aggiungi logica per salvare le modifiche qui
+    console.log('Modifiche salvate');
+    setIsEditing(false);
+  };
+
+  // Funzione per modificare una prenotazione
+  const modificaPrenotazione = async (id, updatedPrenotazione) => {
+    try {
+      const prenotazioneRef = doc(db, 'prenotazioni', id);
+      await updateDoc(prenotazioneRef, updatedPrenotazione);
+      setPrenotazioni(prevPrenotazioni =>
+        prevPrenotazioni.map(prenotazione =>
+          prenotazione.id === id ? { ...prenotazione, ...updatedPrenotazione } : prenotazione
+        )
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni, updatePrenotazioneStato, fonici, eliminaPrenotazione, modificaPrenotazione };
 };
 
 export default usePrenotazioni;
