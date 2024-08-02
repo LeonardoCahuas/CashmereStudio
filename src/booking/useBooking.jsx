@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase-config';
 
 const usePrenotazioni = (selectedDateTime) => {
@@ -52,7 +52,9 @@ const usePrenotazioni = (selectedDateTime) => {
   const addPrenotazione = async (prenotazione) => {
     try {
       await addDoc(collection(db, 'prenotazioni'), prenotazione);
+      console.log("pren aggiunta con successo")
     } catch (err) {
+      console.log(err.message)
       setError(err.message);
     }
   };
@@ -82,7 +84,10 @@ const usePrenotazioni = (selectedDateTime) => {
       setPrenotazioni(prevPrenotazioni =>
         prevPrenotazioni.filter(prenotazione => prenotazione.id !== id)
       );
+
+      console.log("fatto")
     } catch (err) {
+      console.log(err.message)
       setError(err.message);
     }
   };
@@ -103,6 +108,8 @@ const usePrenotazioni = (selectedDateTime) => {
           prenotazione.id === id ? { ...prenotazione, ...updatedPrenotazione } : prenotazione
         )
       );
+
+      console.log("done that")
     } catch (err) {
       setError(err.message);
     }

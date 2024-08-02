@@ -9,6 +9,8 @@ import usePrenotazioni from '../../booking/useBooking';
 
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 
+const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0') + ':00');
+
 const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
 const giorniSettimana = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
 
@@ -25,6 +27,12 @@ const NextArrow = (props) => {
     );
 };
 
+
+const formatDateForInput = (date) => {
+    // Assumiamo che date sia un oggetto Date
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return localDate.toISOString().slice(0, 16);
+};
 const PrevArrow = (props) => {
     const { className, style, onClick } = props;
     return (
@@ -120,10 +128,23 @@ const Calendar = () => {
     const [selectedFonico, setSelectedFonico] = useState(0)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+    const [adding, setAdding] = useState(false)
+    const [newPrenStart, setNewPrenStart] = useState(
+        { day: "", time: "" }
+,    )
+    const [newPrenotazione, setNewPrenotazione] = useState({
+        nomeUtente: "",
+        inizio: "",
+        fine: "",
+        telefono: "",
+        studio: 0,
+        stato: 2,
+        services: []
+    })
 
 
 
-    const { prenotazioni, addPrenotazione, fonici } = usePrenotazioni(selectedDay);
+    const { prenotazioni, addPrenotazione, fonici, modificaPrenotazione, eliminaPrenotazione } = usePrenotazioni(selectedDay);
     const [username, setUsername] = useState('');
     const [phone, setPhone] = useState('');
 
@@ -142,9 +163,25 @@ const Calendar = () => {
 
     const handleChange = (event, newValue) => {
         setValue(newValue + 1);
+        setNewPrenotazione(prev => ({
+            ...prev,
+            studio: newValue + 1
+        }));
     };
 
+    const handleInputChange = (field, value) => {
+        setSelectedPrenotazione(prevState => ({
+            ...prevState,
+            [field]: value
+        }));
+
+
+        console.log(selectedPrenotazione)
+    };
+
+
     const handleShowModal = (prenotazione) => {
+        console.log(prenotazione)
         setSelectedPrenotazione(prenotazione);
         setShowModal(true);
     };
@@ -152,9 +189,11 @@ const Calendar = () => {
     const handleCloseModal = () => {
         setSelectedPrenotazione(null);
         setShowModal(false);
+        setIsEditing(false)
+        setShowDeleteConfirmation(false)
     };
 
-    const handleServiceModalClose = () => setServiceModalShow(false);
+    const handleServiceModalClose = () => setShowModal(false);
 
     const handleServiceModalOpen = () => setServiceModalShow(true);
 
@@ -170,11 +209,20 @@ const Calendar = () => {
     const handleConfirmDelete = () => {
         // Implementa la logica di eliminazione
         setShowDeleteConfirmation(false);
-        handleCloseModal(); // Chiude la finestra modale principale se è aperta
+        handleCloseModal();
+        eliminaPrenotazione(selectedPrenotazione.id)
     };
 
     const handleCancelDelete = () => {
         setShowDeleteConfirmation(false);
+    };
+
+    const handleHourChange = (event) => {
+        const value = event.target.value;
+        setNewPrenotazione(prev => ({
+            ...prev,
+            fine: value
+        }));
     };
 
 
@@ -183,14 +231,24 @@ const Calendar = () => {
         setSelectedFonico(fonico)
     }
 
+    const handleFonicoSelectionAdd = (fonico) => {
+        console.log(fonico)
+        setNewPrenotazione(prev => ({
+            ...prev,
+            fonico: fonico
+        }));
+    }
+
     const handleSlotClick = (date, hour) => {
-        const slot = `${date}T${hour}:00`;
-        if (selectedSlots.includes(slot)) {
-            setSelectedSlots(selectedSlots.filter(s => s !== slot));
+        const slot = new Date(`${date}T${String(hour).padStart(2, '0')}:00:00`);
+        if (selectedSlots.some(s => s.getTime() === slot.getTime())) {
+            setSelectedSlots(selectedSlots.filter(s => s.getTime() !== slot.getTime()));
         } else {
             setSelectedSlots([...selectedSlots, slot]);
         }
     };
+
+
 
     const handleNext = () => {
         if (selectedSlots.length) {
@@ -241,19 +299,127 @@ const Calendar = () => {
         // Aggiungi logica per salvare le modifiche qui
         console.log('Modifiche salvate');
         setIsEditing(false);
+        console.log(selectedPrenotazione)
+        modificaPrenotazione(selectedPrenotazione.id, selectedPrenotazione)
     };
 
     const handleEdit = () => {
         setIsEditing(true);
     };
 
-    const handleServiceChange = (e) => {
-        const value = e.target.value;
-        setServices(prevServices =>
-          e.target.checked ? [...prevServices, value] : prevServices.filter(service => service !== value)
-        );
-      };
+    const handleServiceChange = (service, checked) => {
+        setSelectedPrenotazione(prevState => ({
+            ...prevState,
+            services: checked
+                ? [...prevState.services, service]
+                : prevState.services.filter(s => s !== service)
+        }));
+    };
 
+
+    const addBook = (day, start) => {
+        console.log("adding pren")
+        console.log(day)
+        console.log(start)
+        setNewPrenStart(
+            {
+                day: day,
+                time: start
+            }
+        )
+        setAdding(true)
+    }
+
+    const handleNewInputChange = (field, value) => {
+        setNewPrenotazione(prevState => ({
+            ...prevState,
+            [field]: value
+        }));
+    };
+
+    const handleNewServiceChange = (service, isChecked) => {
+        setNewPrenotazione(prevState => {
+            const updatedServices = isChecked
+                ? [...prevState.services, service]
+                : prevState.services.filter(s => s !== service);
+
+            return {
+                ...prevState,
+                services: updatedServices
+            };
+        });
+    };
+
+
+    const handleSaveNewPrenotazione = () => {
+        try {
+            let startDate;
+            if (newPrenStart.day && typeof newPrenStart.day === 'object' && newPrenStart.day.date) {
+                const dateStr = newPrenStart.day.date;
+                const dateParts = dateStr.split('-');
+                if (dateParts.length === 3 && dateParts[0].length === 4 && dateParts[1].length === 2 && dateParts[2].length === 2) {
+                    const year = parseInt(dateParts[0], 10);
+                    const month = parseInt(dateParts[1], 10) - 1;
+                    const day = parseInt(dateParts[2], 10);
+                    startDate = new Date(year, month, day);
+                } else {
+                    throw new Error('Invalid start day format');
+                }
+            } else {
+                throw new Error('Invalid start day object or property missing');
+            }
+
+            if (isNaN(startDate.getTime())) {
+                throw new Error('Invalid start date');
+            }
+
+            const [startHour, startMinute] = (newPrenStart.time || '00:00').split(':').map(Number);
+            if (isNaN(startHour) || isNaN(startMinute)) {
+                throw new Error('Invalid start time format');
+            }
+            startDate.setHours(startHour, startMinute);
+
+            const [endHour, endMinute] = (newPrenotazione.fine || '00:00').split(':').map(Number);
+            if (isNaN(endHour) || isNaN(endMinute)) {
+                throw new Error('Invalid end time format');
+            }
+            const endDate = new Date(startDate);
+            endDate.setHours(endHour, endMinute);
+
+            for (let i = 0; i < (repeat || 1); i++) {
+                const newInizio = new Date(startDate);
+                const newFine = new Date(endDate);
+                newInizio.setDate(startDate.getDate() + i * 7);
+                newFine.setDate(endDate.getDate() + i * 7);
+
+                const newPrenotazioneWithTimestamps = {
+                    ...newPrenotazione,
+                    inizio: newInizio,
+                    fine: newFine,
+                };
+
+                console.log('Prenotazione salvata:', newPrenotazioneWithTimestamps);
+
+                addPrenotazione(newPrenotazioneWithTimestamps);
+            }
+
+            setNewPrenotazione({
+                nomeUtente: "",
+                inizio: "",
+                fine: "",
+                telefono: "",
+                studio: 0,
+                stato: 2,
+                services: []
+            });
+
+            setAdding(false);
+            handleServiceModalClose();
+
+        } catch (error) {
+            console.error('Error saving new reservation:', error);
+        }
+    };
 
     useEffect(() => {
         if (selectedDay) {
@@ -310,14 +476,7 @@ const Calendar = () => {
                                                     <b style={{ fontWeight: 900 }}>{booking.nomeUtente}</b>
                                                 </div>
                                             ) : (
-                                                <div
-
-                                                    style={{
-
-                                                        cursor: blockMode ? 'pointer' : 'default',
-                                                        color: "transparent"
-                                                    }}
-                                                >
+                                                <div style={{ cursor: blockMode ? 'pointer' : 'default', color: "transparent" }}>
                                                     {timeSlot}
                                                 </div>
                                             )}
@@ -331,6 +490,7 @@ const Calendar = () => {
             </div>
         );
     };
+
 
 
     const renderWeekly = () => {
@@ -360,28 +520,25 @@ const Calendar = () => {
                                         const slot = `${day.date}T${timeSlot}`;
                                         const bookings = prenotazioni.filter(pren => {
                                             const prenDate = pren.inizio.toDate();
+                                            const prenStart = prenDate.getHours();
+                                            const prenEnd = pren.fine.toDate().getHours();
                                             return pren.studio === value &&
                                                 getFormattedDate(prenDate) === day.date &&
-                                                prenDate.getHours() === hour;
+                                                prenStart <= hour && prenEnd > hour
                                         });
                                         return (
-                                            <td key={day.date} style={{ height: '60px', textAlign: 'center', backgroundColor: selectedSlots.includes(slot) ? '#f0ad4e' : 'white' }} onClick={blockMode ? () => handleSlotClick(day.date, hour) : null}>
+                                            <td key={day.date} style={{ height: '60px', textAlign: 'center', backgroundColor: selectedSlots.includes(slot) ? '#f0ad4e' : 'white' }}>
                                                 {bookings.length ? (
                                                     bookings.map(booking => (
-                                                        <div key={booking.id} style={{ backgroundColor: '#08B1DF', color: 'white', padding: '10px', borderRadius: '5px', marginBottom: '5px' }} onClick={() => handleShowModal(booking)}>
+                                                        <div key={booking.id} style={{ backgroundColor: '#08B1DF', color: 'white', padding: '10px', borderRadius: '5px', marginBottom: '5px' }} onClick={() => blockMode ? null : handleShowModal(booking)}>
                                                             <b style={{ fontWeight: 900, marginLeft: "10px" }} >{booking.nomeUtente}</b>
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <div
-
-                                                        style={{
-                                                            color: "transparent",
-                                                            cursor: blockMode ? 'pointer' : 'default'
-                                                        }}
-                                                    >
+                                                    <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(new Date(`${day.date}T${String(hour).padStart(2, '0')}:00:00`).getTime()) : addBook(day, timeSlot)}>
                                                         {timeSlot}
                                                     </div>
+
                                                 )}
                                             </td>
                                         );
@@ -394,6 +551,7 @@ const Calendar = () => {
             </div>
         );
     };
+
 
 
     const handleWeekChange = (direction) => {
@@ -412,9 +570,9 @@ const Calendar = () => {
         <div>
             <Box className="d-flex flex-row align-items-center justify-content-between" sx={{ borderBottom: 1, borderColor: 'divider', marginBottom: '20px' }}>
                 <Tabs onChange={handleChange} aria-label="basic tabs example">
-                    <Tab className='studiointernalbbutt' label="Studio1" style={{ background: value === 1 ? "black" : "white", color: value === 1 ? "white" : "black", border: "1px solid black" }} />
-                    <Tab label="Studio2" style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
-                    <Tab label="Studio3" style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
+                    <Tab className='studiointernalbbutt' label="Studio 1" style={{ background: value === 1 ? "black" : "white", color: value === 1 ? "white" : "black", border: "1px solid black" }} />
+                    <Tab label="Studio 2" style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
+                    <Tab label="Studio 3" style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
                 </Tabs>
                 <div className='d-flex flex-row align-items-center justify-content-center' style={{ gap: "20px" }}>
                     <MuiButton variant="contained" color="primary" onClick={toggleBlockMode} style={{ marginLeft: '20px' }}>
@@ -452,86 +610,221 @@ const Calendar = () => {
 
 
             {selectedPrenotazione && (
-            <Modal show={showModal} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        {showDeleteConfirmation ? 'Conferma Eliminazione' : 'Seleziona Servizi'}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {showDeleteConfirmation ? (
-                        <div>
-                            <p>Sei sicuro di voler eliminare?</p>
-                            <Button variant="danger" onClick={handleConfirmDelete}>Sì, elimina</Button>
-                            <Button variant="secondary" onClick={handleCancelDelete}>No, torna indietro</Button>
-                        </div>
-                    ) : (
+                <Modal show={showModal} onHide={handleCloseModal}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>
+                            {showDeleteConfirmation ? 'Conferma Eliminazione' : 'Seleziona Servizi'}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {showDeleteConfirmation ? (
+                            <div>
+                                <p>Sei sicuro di voler eliminare?</p>
+                                <Button variant="danger" onClick={handleConfirmDelete}>Sì, elimina</Button>
+                                <Button variant="secondary" onClick={handleCancelDelete}>No, torna indietro</Button>
+                            </div>
+                        ) : (
+                            <div>
+                                {isEditing ? (
+                                    <div>
+                                        <Form.Group controlId="formId">
+                                            <Form.Label>ID</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={selectedPrenotazione.id}
+                                                disabled
+                                            />
+                                        </Form.Group>
+                                        <Form.Group controlId="formNomeUtente">
+                                            <Form.Label>Nome Utente</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={selectedPrenotazione.nomeUtente}
+                                                onChange={(e) => handleInputChange('nomeUtente', e.target.value)}
+                                            />
+                                        </Form.Group>
+
+                                        <Form.Group controlId="formTelefono">
+                                            <Form.Label>Telefono</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={selectedPrenotazione.telefono}
+                                                onChange={(e) => handleInputChange('telefono', e.target.value)}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group controlId="formServizi">
+                                            <Form.Label>Servizi</Form.Label>
+                                            {['Production', 'Rec', 'MixAndMaster'].map(service => (
+                                                <Form.Check
+                                                    key={service}
+                                                    type="checkbox"
+                                                    label={service}
+                                                    value={service}
+                                                    checked={selectedPrenotazione.services.includes(service)}
+                                                    onChange={(e) => handleServiceChange(service, e.target.checked)}
+                                                />
+                                            ))}
+                                        </Form.Group>
+                                        <Form.Group controlId="formInizio">
+                                            <Form.Label>Inizio</Form.Label>
+                                            <Form.Control
+                                                type="datetime-local"
+                                                value={formatDateForInput(selectedPrenotazione.inizio.toDate())}
+                                                onChange={(e) => handleInputChange('inizio', parseISO(e.target.value))}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group controlId="formFine">
+                                            <Form.Label>Fine</Form.Label>
+                                            <Form.Control
+                                                type="datetime-local"
+                                                value={formatDateForInput(selectedPrenotazione.fine.toDate())}
+                                                onChange={(e) => handleInputChange('fine', parseISO(e.target.value))}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group controlId="formStudio">
+                                            <Form.Label>Studio</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={selectedPrenotazione.studio}
+                                                onChange={(e) => handleInputChange('studio', e.target.value)}
+                                            />
+                                        </Form.Group>
+
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <p>ID: {selectedPrenotazione.id}</p>
+                                        <p>Nome Utente: {selectedPrenotazione.nomeUtente}</p>
+                                        <p>Telefono: {selectedPrenotazione.telefono}</p>
+                                        <div className='d-flex flex-row align-items-center justify-content-start mb-3'>Servizi: <p className='text-white'>...</p> {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p key={servi} className="m-0">{servi}, {" "}</p>)}</div>
+                                        <p>Inizio: {selectedPrenotazione.inizio.toDate().toLocaleString()}</p>
+                                        <p>Fine: {selectedPrenotazione.fine.toDate().toLocaleString()}</p>
+                                        <p>Studio: {selectedPrenotazione.studio}</p>
+                                        <p>Stato: {selectedPrenotazione.stato}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </Modal.Body>
+
+
+                    <Modal.Footer>
+                        {showDeleteConfirmation ? (
+                            <>
+                                <Button variant="secondary" onClick={handleCancelDelete}>Annulla</Button>
+                            </>
+                        ) : (
+                            <>
+                                {!isEditing ? (
+                                    <>
+                                        <Button variant="secondary" onClick={handleEdit}>Modifica</Button>
+                                        <Button variant="danger" onClick={handleDelete}>Elimina</Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button variant="secondary" onClick={() => setIsEditing(false)}>Annulla</Button>
+                                        <Button variant="primary" onClick={handleSaveChanges}>Salva</Button>
+                                    </>
+                                )}
+                                <Button variant="secondary" onClick={handleServiceModalClose}>Chiudi</Button>
+                            </>
+                        )}
+                    </Modal.Footer>
+                </Modal>
+
+            )}
+
+            {adding && (
+                <Modal show={adding} onHide={() => setAdding(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Aggiungi Prenotazione</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
                         <Form>
-                            <Form.Group controlId="formServices">
-                                <Form.Label>Servizi</Form.Label>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    {['prod', 'Rec', 'Mix&Master'].map(service => (
-                                        <Form.Check
-                                            key={service}
-                                            type="checkbox"
-                                            label={service}
-                                            value={service}
-                                            checked={services.includes(service)}
-                                            disabled={!isEditing}
-                                            onChange={handleServiceChange}
-                                        />
-                                    ))}
-                                </div>
-                            </Form.Group>
-                            <Form.Group controlId="formUsername">
+                            <Form.Group controlId="formNomeUtente">
                                 <Form.Label>Nome Utente</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Nome Utente"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    disabled={!isEditing}
+                                    value={newPrenotazione.nomeUtente}
+                                    onChange={(e) => handleNewInputChange('nomeUtente', e.target.value)}
                                 />
                             </Form.Group>
-                            <Form.Group controlId="formPhoneNumber">
-                                <Form.Label>Numero di Telefono</Form.Label>
+                            <Form.Group controlId="formTelefono">
+                                <Form.Label>Telefono</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Numero di Telefono"
-                                    value={phoneNumber}
-                                    onChange={(e) => setPhoneNumber(e.target.value)}
-                                    disabled={!isEditing}
+                                    value={newPrenotazione.telefono}
+                                    onChange={(e) => handleNewInputChange('telefono', e.target.value)}
                                 />
                             </Form.Group>
-                            {/* Aggiungi ulteriori campi se necessario */}
-                        </Form>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    {showDeleteConfirmation ? (
-                        <>
-                            <Button variant="secondary" onClick={handleCancelDelete}>Annulla</Button>
-                        </>
-                    ) : (
-                        <>
-                            {!isEditing ? (
-                                <>
-                                    <Button variant="secondary" onClick={handleEdit}>Modifica</Button>
-                                    <Button variant="danger" onClick={handleDelete}>Elimina</Button>
-                                </>
-                            ) : (
-                                <>
-                                    <Button variant="secondary" onClick={() => setIsEditing(false)}>Annulla</Button>
-                                    <Button variant="primary" onClick={handleSaveChanges}>Salva</Button>
-                                </>
-                            )}
-                            <Button variant="secondary" onClick={handleServiceModalClose}>Chiudi</Button>
-                        </>
-                    )}
-                </Modal.Footer>
-            </Modal>
+                            <Form.Group controlId="formServizi">
+                                <Form.Label>Servizi</Form.Label>
+                                {['Produzione', 'Rec', 'MixAndMaster'].map(service => (
+                                    <Form.Check
+                                        key={service}
+                                        type="checkbox"
+                                        label={service}
+                                        checked={newPrenotazione.services.includes(service)}
+                                        onChange={(e) => handleNewServiceChange(service, e.target.checked)}
+                                    />
+                                ))}
+                            </Form.Group>
 
+                            <Form.Group controlId="formHour">
+                                <Form.Label>Fine</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={newPrenotazione.fine}
+                                    onChange={(e) => handleHourChange(e)}
+                                >
+                                    {hours.map(hour => (
+                                        <option key={hour} value={hour}>
+                                            {hour}
+                                        </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+
+                            <Form.Group controlId="formStudio">
+                                <Form.Label>Studio</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={newPrenotazione.studio}
+                                    onChange={(e) => handleNewInputChange('studio', e.target.value)}
+                                >
+                                    {[1, 2, 3].map(studio => (
+                                        <option key={studio} value={studio}>
+                                            {studio}
+                                        </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+
+                            <select onChange={(e) => handleFonicoSelectionAdd(e.target.value)}>
+                                {
+                                    fonici.map((fonico) => (
+                                        <option key={fonico.id} value={fonico.id}>
+                                            {fonico.nome}
+                                        </option>
+                                    ))
+                                }
+                            </select>
+
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setAdding(false)}>
+                            Annulla
+                        </Button>
+                        <Button variant="primary" onClick={handleSaveNewPrenotazione}>
+                            Salva Prenotazione
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             )}
+
 
             <Modal show={serviceModalShow} onHide={handleServiceModalClose}>
                 <Modal.Header closeButton>

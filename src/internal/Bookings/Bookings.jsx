@@ -52,7 +52,8 @@ const Bookings = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedStudio, setSelectedStudio] = useState('');
   const [usernameFilter, setUsernameFilter] = useState('');
-  const { prenotazioni, loading, error, setPrenotazioni } = usePrenotazioni(new Date());
+  const [selectedFonico, setSelectedFonico] = useState(null)
+  const { prenotazioni, loading, error, setPrenotazioni, fonici } = usePrenotazioni(new Date());
   const prenotazioniPerPage = 10;
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
 
@@ -102,8 +103,9 @@ const Bookings = () => {
   const filteredPrenotazioni = sortedPrenotazioni.filter(p => {
     const matchesDate = selectedDate ? p.inizio.toDate().toDateString() === new Date(selectedDate).toDateString() : true;
     const matchesStudio = selectedStudio ? p.studio?.toString() === selectedStudio : true;
+    const matchesFonico = selectedFonico ? p.fonico === selectedFonico : true;
     const matchesUsername = usernameFilter ? p.nomeUtente.toLowerCase().includes(usernameFilter.toLowerCase()) : true;
-    return matchesDate && matchesStudio && matchesUsername;
+    return matchesDate && matchesStudio && matchesUsername && matchesFonico;
   });
 
   const currentPrenotazioni = filteredPrenotazioni.slice(indexOfFirstPrenotazione, indexOfLastPrenotazione);
@@ -136,6 +138,15 @@ const Bookings = () => {
             <option value="2">Studio 2</option>
             <option value="3">Studio 3</option>
           </Form.Control>
+          <Form.Label>Filtra per fonico</Form.Label>
+          <Form.Control as="select" onChange={(e) => setSelectedFonico(e.target.value)} value={selectedFonico}>
+            <option value="">tutti</option>
+            {fonici.map((fonico) => (
+              <option key={fonico.id} value={fonico.id}>
+                {fonico.nome}
+              </option>
+            ))}
+          </Form.Control>
           <Form.Group controlId="usernameFilter">
             <Form.Label>Filtra per Nome Utente</Form.Label>
             <Form.Control
@@ -156,7 +167,6 @@ const Bookings = () => {
                 <th>Nome Instagram</th>
                 <th>Telefono</th>
                 {!isMobile && <th>Servizi</th>}
-                {!isMobile && <th>Email</th>}
                 {!isMobile && <th>Inizio</th>}
                 {!isMobile && <th>Fine</th>}
                 {!isMobile && <th>Studio</th>}
@@ -170,7 +180,6 @@ const Bookings = () => {
                   <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}>{prenotazione.nomeUtente}</a>}</td>
                   <td>{isMobile ? <div><i class="fa fa-phone"></i>{prenotazione.telefono}</div> : prenotazione.telefono}</td>
                   {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
-                  {!isMobile && <td>{prenotazione.email}</td>}
                   {!isMobile && <td>{prenotazione.inizio.toDate().toLocaleString()}</td>}
                   {!isMobile && <td>{prenotazione.fine.toDate().toLocaleString()}</td>}
                   {!isMobile && <td>{prenotazione.studio}</td>}

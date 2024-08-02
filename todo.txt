@@ -2,11 +2,7 @@
 CASHMERE TODOS
 
 
--grafica interna
-
 -seo immagini
-
--seo meta tag
 
 -set titles
 
@@ -19,4 +15,10 @@ CASHMERE TODOS
 -fonici
 
 -carica video
+
+-whatsapp
+
+-orari utc
+
+-slider salto
 

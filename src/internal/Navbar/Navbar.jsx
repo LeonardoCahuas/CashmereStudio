@@ -61,7 +61,7 @@ export function NavbarAdmin({ setCont }) {
                 </button>
             </div>
             <div className='w-50'>
-                <Link className={`navlogo w-100 d-flex flex-column ${isHome ? 'align-items-center' : 'align-items-end'}`} style={{paddingRight: isHome ? "0px" : "20px"}}>
+                <Link className={`navlogo w-100 d-flex flex-column ${ 'align-items-end'}`} style={{paddingRight:  "20px"}}>
                     <img src={logo} style={{ width: "25%" }} alt="Logo" />
                 </Link>
             </div>

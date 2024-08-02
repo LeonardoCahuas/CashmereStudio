@@ -1,277 +1,322 @@
 import React, { useState, useEffect } from 'react';
 import usePrenotazioni from '../../booking/useBooking';
-import Slider from 'react-slick';
-import { Table, Button, Modal, Form } from 'react-bootstrap';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import { Modal, Button, Table, Pagination, Form, Row, Col, Card, Container } from 'react-bootstrap';
+import { deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../../firebase-config';
 
-const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
-const giorniSettimana = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
-
-const NextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div
-      className={`${className} slick-next`}
-      style={{ ...style, borderRadius: '50%', display: "flex", alignItems: "center", justifyContent: "center" }}
-      onClick={onClick}
-    >
-      <i className="fa-solid fa-chevron-right" style={{ color: "black", fontSize: "40px" }}></i>
-    </div>
-  );
+const calcolaOre = (inizio, fine) => {
+  if (!inizio || !fine) return 0;
+  const inizioDate = inizio.toDate();
+  const fineDate = fine.toDate();
+  const differenzaMs = fineDate - inizioDate;
+  return differenzaMs / (1000 * 60 * 60);
 };
 
-const getMonthDays = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const day = today.getDate();
-  const endDate = new Date(year, month, day + 27); // Data 28 giorni dopo
-  const daysInMonth = Math.min(Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)), 28);
-  const firstDayOfMonth = today.getDay(); // Ottieni il giorno della settimana del primo giorno del mese
-  const days = [];
 
-  for (let i = 0; i < daysInMonth; i++) {
-      const date = new Date(year, month, day + i);
-      days.push({
-          label: `${giorniSettimana[date.getDay()]} ${date.getDate()}/${date.getMonth() + 1}`,
-          date: getFormattedDate(date),
-      });
-  }
-
-  // Aggiungi giorni vuoti per allineare i giorni correttamente nella settimana
-  for (let i = 0; i < firstDayOfMonth; i++) {
-      days.unshift(null);
-  }
-
-  return days;
+const calcolaOrePerFonico = (prenotazioni, fonici) => {
+  return fonici.map(fonico => {
+    const prenotazioniFonico = prenotazioni.filter(p => p.fonico === fonico.id);
+    return {
+      fonico: fonico.nome,
+      ore: calcolaTotaleOre(prenotazioniFonico),
+    };
+  });
 };
 
-const PrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div
-      className={`${className} slick-prev`}
-      style={{ ...style, borderRadius: '50%', display: "flex", alignItems: "center", justifyContent: "center" }}
-      onClick={onClick}
-    >
-      <i className="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px" }}></i>
-    </div>
-  );
+const calcolaOrePerMese = (prenotazioni) => {
+  return prenotazioni.reduce((acc, prenotazione) => {
+    const mese = prenotazione.inizio.toDate().toLocaleString('it-IT', { month: 'long', year: 'numeric' });
+    const ore = calcolaOre(prenotazione.inizio, prenotazione.fine);
+    if (!acc[mese]) acc[mese] = 0;
+    acc[mese] += ore;
+    return acc;
+  }, {});
 };
 
-const settings = {
-  dots: false,
-  infinite: false,
-  speed: 500,
-  slidesToShow: 1,
-  slidesToScroll: 2,
-  nextArrow: <NextArrow />,
-  prevArrow: <PrevArrow />,
-  className: 'custom-slider',
-  rows: 1
-};
+const BookingModal = ({ show, onHide, prenotazione }) => (
+  <Modal show={show} onHide={onHide} centered>
+    <Modal.Header closeButton>
+      <Modal.Title>Dettagli Prenotazione</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      {prenotazione && (
+        <Container>
+          <Row><Col><strong>Nome Utente:</strong> {prenotazione.nomeUtente}</Col></Row>
+          <Row><Col><strong>Email:</strong> {prenotazione.email}</Col></Row>
+          <Row><Col><strong>Telefono:</strong> {prenotazione.telefono}</Col></Row>
+          <Row><Col><strong>Servizi:</strong> {prenotazione.services?.join(', ')}</Col></Row>
+          <Row><Col><strong>Inizio:</strong> {prenotazione.inizio.toDate().toLocaleString()}</Col></Row>
+          <Row><Col><strong>Fine:</strong> {prenotazione.fine.toDate().toLocaleString()}</Col></Row>
+          <Row><Col><strong>Studio:</strong> {prenotazione.studio}</Col></Row>
+          <Row><Col><strong>Fonico:</strong> {prenotazione.fonico}</Col></Row>
+          <Row><Col><strong>Ore Totali:</strong> {calcolaOre(prenotazione.inizio, prenotazione.fine)} ore</Col></Row>
+        </Container>
+      )}
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={onHide}>Chiudi</Button>
+    </Modal.Footer>
+  </Modal>
+);
 
-const getFormattedDate = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+const ConfirmDeleteModal = ({ show, onHide, onDelete }) => (
+  <Modal show={show} onHide={onHide} centered>
+    <Modal.Header closeButton>
+      <Modal.Title>Conferma Eliminazione</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>Sei sicuro di voler eliminare questa prenotazione?</Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={onHide}>Annulla</Button>
+      <Button variant="danger" onClick={onDelete}>Elimina</Button>
+    </Modal.Footer>
+  </Modal>
+);
 
-const getWeekDays = () => {
-  const today = new Date();
-  const currentDay = today.getDay();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - currentDay + 1); // Lunedì della settimana corrente
-  const weekDays = [];
-
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(startOfWeek);
-    date.setDate(startOfWeek.getDate() + i);
-    weekDays.push({
-      label: `${giorniSettimana[date.getDay()]} ${date.getDate()}/${date.getMonth() + 1}`,
-      date: getFormattedDate(date),
-    });
-  }
-
-  return weekDays;
-};
-
-const Fonici = () => {
-  const { prenotazioni, fonici } = usePrenotazioni();
-  const [selectedFonicoId, setSelectedFonicoId] = useState(null);
-  const [totalHours, setTotalHours] = useState(0);
-  const [currentPrenotazioni, setCurrentPrenotazioni] = useState([]);
-  const [view, setView] = useState('weekly');
-  const [currentWeek, setCurrentWeek] = useState(getWeekDays());
-  const [showModal, setShowModal] = useState(false);
+const Bookings = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedPrenotazione, setSelectedPrenotazione] = useState(null);
-  const [selectedDay, setSelectedDay] = useState(getFormattedDate(new Date()));
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [selectedStudio, setSelectedStudio] = useState('');
+  const [usernameFilter, setUsernameFilter] = useState('');
+  const [selectedFonico, setSelectedFonico] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const { prenotazioni, setPrenotazioni, fonici } = usePrenotazioni();
+  const prenotazioniPerPage = 10;
 
-  useEffect(() => {
-    if (selectedFonicoId !== null) {
-      // Filtra le prenotazioni per il fonico selezionato
-      const fonicoPrenotazioni = prenotazioni.filter(
-        (p) => p.fonicoId === selectedFonicoId
-      );
-
-      // Calcola le ore totali
-      const total = fonicoPrenotazioni.reduce((sum, p) => {
-        const inizio = p.inizio.toDate();
-        const fine = p.fine.toDate();
-        const ore = (fine - inizio) / (1000 * 60 * 60); // Conversione da millisecondi a ore
-        return sum + ore;
-      }, 0);
-      setTotalHours(total);
-      setCurrentPrenotazioni(fonicoPrenotazioni);
-    }
-  }, [selectedFonicoId, prenotazioni]);
-
-  const handleWeekChange = (direction) => {
-    const newWeek = currentWeek.map(day => {
-      const date = new Date(day.date);
-      date.setDate(date.getDate() + direction * 7);
-      return {
-        label: `${giorniSettimana[date.getDay()]} ${date.getDate()}/${date.getMonth() + 1}`,
-        date: getFormattedDate(date),
-      };
-    });
-    setCurrentWeek(newWeek);
+  // Calcolo delle ore totali
+  const calcolaTotaleOre = (prenotazioni) => {
+    return prenotazioni.reduce((total, prenotazione) => total + calcolaOre(prenotazione.inizio, prenotazione.fine), 0);
   };
 
-  const handleShowModal = (prenotazione) => {
+  // Calcolo delle ore totali per fonico
+  const orePerFonico = fonici.map(fonico => {
+    const prenotazioniFonico = prenotazioni.filter(p => p.fonico === fonico.id);
+    return {
+      fonico: fonico.nome,
+      ore: calcolaTotaleOre(prenotazioniFonico),
+    };
+  });
+
+  // Calcolo delle ore totali per mese
+  const orePerMese = prenotazioni.reduce((acc, prenotazione) => {
+    const mese = prenotazione.inizio.toDate().toLocaleString('it-IT', { month: 'long', year: 'numeric' });
+    const ore = calcolaOre(prenotazione.inizio, prenotazione.fine);
+    if (!acc[mese]) acc[mese] = 0;
+    acc[mese] += ore;
+    return acc;
+  }, {});
+
+  // Calcolo delle ore per fonico per mese
+  const orePerFonicoPerMese = fonici.map(fonico => {
+    const orePerMese = prenotazioni.reduce((acc, prenotazione) => {
+      if (prenotazione.fonico === fonico.id) {
+        const mese = prenotazione.inizio.toDate().toLocaleString('it-IT', { month: 'long', year: 'numeric' });
+        const ore = calcolaOre(prenotazione.inizio, prenotazione.fine);
+        if (!acc[mese]) acc[mese] = 0;
+        acc[mese] += ore;
+      }
+      return acc;
+    }, {});
+    return {
+      fonico: fonico.nome,
+      orePerMese: orePerMese,
+    };
+  });
+
+  const handleView = (prenotazione) => {
     setSelectedPrenotazione(prenotazione);
-    setShowModal(true);
+    setShowViewModal(true);
   };
 
-  const handleCloseModal = () => {
-    setSelectedPrenotazione(null);
-    setShowModal(false);
+  const handleDelete = (prenotazione) => {
+    setSelectedPrenotazione(prenotazione);
+    setShowDeleteModal(true);
   };
 
-  const renderWeekly = () => {
-    return (
-        <div className="w-100 d-flex flex-column custom-slider-container overflow-scroll">
-            <Table striped bordered hover className="table-container">
-                <thead>
-                    <tr>
-                        <th style={{ width: '80px' }}>Orario</th>
-                        {currentWeek.map(day => (
-                            <th key={day.date} style={{ textAlign: 'center', backgroundColor: day.date === selectedDay ? '#08B1DF' : 'white', color: day.date === selectedDay ? 'white' : 'black' }}>
-                                {day.label}
-                            </th>
+  const confirmDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'prenotazioni', selectedPrenotazione.id));
+      setPrenotazioni(prenotazioni.filter(p => p.id !== selectedPrenotazione.id));
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error('Errore nell\'eliminazione della prenotazione:', error);
+    }
+  };
+
+  // Filtraggio delle prenotazioni
+  const filteredPrenotazioni = prenotazioni.filter(p => {
+    const matchesFonico = selectedFonico ? p.fonico === selectedFonico : true;
+    const matchesUsername = usernameFilter ? p.nomeUtente.toLowerCase().includes(usernameFilter.toLowerCase()) : true;
+    return matchesFonico && matchesUsername;
+  });
+
+  const currentPrenotazioni = filteredPrenotazioni.slice((currentPage - 1) * prenotazioniPerPage, currentPage * prenotazioniPerPage);
+  const totalPages = Math.ceil(filteredPrenotazioni.length / prenotazioniPerPage);
+
+  return (
+    <Container className="bookings-container">
+      <h3 className="text-center my-4">Gestione Prenotazioni</h3>
+      <Row className="controls mb-4">
+        <Col>
+          <Form.Group controlId="sortOrder">
+            <Form.Label>Ordina per Data</Form.Label>
+            <Form.Control as="select" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+              <option value="asc">Crescente</option>
+              <option value="desc">Decrescente</option>
+            </Form.Control>
+          </Form.Group>
+        </Col>
+        <Col>
+          <Form.Group controlId="selectedFonico">
+            <Form.Label>Filtra per Fonico</Form.Label>
+            <Form.Control as="select" value={selectedFonico} onChange={(e) => setSelectedFonico(e.target.value)}>
+              <option value="">Tutti i Fonici</option>
+              {fonici.map(fonico => (
+                <option key={fonico.id} value={fonico.id}>{fonico.nome}</option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+        </Col>
+        <Col>
+          <Form.Group controlId="usernameFilter">
+            <Form.Label>Filtra per Nome Utente</Form.Label>
+            <Form.Control
+              type="text"
+              value={usernameFilter}
+              onChange={(e) => setUsernameFilter(e.target.value)}
+            />
+          </Form.Group>
+        </Col>
+        <Col>
+          <Form.Group controlId="selectedMonth">
+            <Form.Label>Filtra per Mese</Form.Label>
+            <Form.Control as="select" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+              <option value="">Tutti i Mesi</option>
+              {Object.keys(orePerMese).map((mese, index) => (
+                <option key={index} value={mese}>{mese}</option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <Row className="statistics mb-4">
+        <Col>
+          <Card>
+            <Card.Body>
+              <h3>Statistiche Generali</h3>
+              <Card.Text>
+                <strong>Ore Totali:</strong> {calcolaTotaleOre(prenotazioni)} ore
+              </Card.Text>
+              <Card.Text>
+                <strong>Ore per Fonico:</strong>
+                <ul>
+                  {orePerFonico.map((item, index) => (
+                    <li key={index}>{item.fonico}: {item.ore} ore</li>
+                  ))}
+                </ul>
+              </Card.Text>
+              <Card.Text>
+                <strong>Ore per Mese:</strong>
+                <ul>
+                  {Object.entries(orePerMese).map(([mese, ore], index) => (
+                    <li key={index}>{mese}: {ore} ore</li>
+                  ))}
+                </ul>
+              </Card.Text>
+              <Card.Text>
+                <strong>Ore per Fonico per Mese:</strong>
+                <ul>
+                  {orePerFonicoPerMese.map((item, index) => (
+                    <li key={index}>
+                      {item.fonico}: 
+                      <ul>
+                        {Object.entries(item.orePerMese).map(([mese, ore], idx) => (
+                          <li key={idx}>{mese}: {ore} ore</li>
                         ))}
-                    </tr>
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row className="mb-4">
+        <Col>
+          <Card>
+            <Card.Body>
+              <Card.Title>Ore per Fonico</Card.Title>
+              <Table striped bordered hover responsive>
+                <thead>
+                  <tr>
+                    <th>Fonico</th>
+                    <th>Ore Totali</th>
+                    <th>Utenti</th>
+                  </tr>
                 </thead>
                 <tbody>
-                    {Array.from({ length: 15 }, (_, i) => {
-                        const hour = i + 10;
-                        const timeSlot = `${String(hour).padStart(2, '0')}:00`;
-                        return (
-                            <tr key={timeSlot}>
-                                <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle' }}>
-                                    {timeSlot}
-                                </td>
-                                {currentWeek.map(day => {
-                                    const slot = `${day.date}T${timeSlot}`;
-                                    const bookings = prenotazioni.filter(pren => {
-                                        const prenDate = pren.inizio.toDate();
-                                        return getFormattedDate(prenDate) === day.date &&
-                                            prenDate.getHours() === hour;
-                                    });
-                                    return (
-                                        <td key={day.date} style={{ height: '60px', textAlign: 'center', backgroundColor:  'transparent' }}>
-                                            {bookings.length 
-                                            ? (
-                                                bookings.map(booking => (
-                                                    <div key={booking.id} style={{ backgroundColor: '#08B1DF', color: 'white', padding: '10px', borderRadius: '5px', marginBottom: '5px' }}>
-                                                        <b style={{ fontWeight: 900, marginLeft: "10px" }}>{booking.nomeUtente}</b>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div
-                                                    style={{
-                                                        color: "transparent",
-                                                    }}
-                                                >
-                                                    {timeSlot}
-                                                </div>
-                                            )}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        );
-                    })}
+                  {orePerFonico.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.fonico}</td>
+                      <td>{item.ore} ore</td>
+                      <td>{[...new Set(prenotazioni.filter(p => p.fonico === item.fonico).map(p => p.nomeUtente))].join(', ')}</td>
+                    </tr>
+                  ))}
                 </tbody>
-            </Table>
-        </div>
-    );
-};
+              </Table>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
 
-  return (
-    <div>
-      <h1>Lista dei Fonici</h1>
-      <div className="d-flex flex-wrap">
-        {fonici.map(fonico => (
-          <Button
-            key={fonico.id}
-            variant="primary"
-            onClick={() => setSelectedFonicoId(fonico.id)}
-            style={{ margin: '5px' }}
-          >
-            {fonico.nome}
-          </Button>
-        ))}
-      </div>
+      <Row>
+        <Col>
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Studio</th>
+                <th>Nome Utente</th>
+                <th>Fonico</th>
+                <th>Ore</th>
+                <th>Azioni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentPrenotazioni.map((prenotazione) => (
+                <tr key={prenotazione.id}>
+                  <td>{prenotazione.inizio.toDate().toLocaleString()}</td>
+                  <td>{prenotazione.studio}</td>
+                  <td>{prenotazione.nomeUtente}</td>
+                  <td>{fonici.find(f => f.id === prenotazione.fonico)?.nome}</td>
+                  <td>{calcolaOre(prenotazione.inizio, prenotazione.fine)}</td>
+                  <td>
+                    <Button variant="primary" onClick={() => handleView(prenotazione)}>Vedi</Button>
+                    <Button variant="danger" onClick={() => handleDelete(prenotazione)}>Elimina</Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <Pagination className="justify-content-center">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <Pagination.Item key={i + 1} active={i + 1 === currentPage} onClick={() => setCurrentPage(i + 1)}>
+                {i + 1}
+              </Pagination.Item>
+            ))}
+          </Pagination>
+        </Col>
+      </Row>
 
-      {selectedFonicoId !== null && (
-        <div>
-          <h2>Dettagli per il fonico selezionato</h2>
-          <p>Ore totali prenotate: {totalHours.toFixed(2)}</p>
-          <div style={{ marginBottom: '20px' }}>
-            <Button onClick={() => handleWeekChange(-1)}>Settimana Precedente</Button>
-            <Button onClick={() => handleWeekChange(1)}>Settimana Successiva</Button>
-          </div>
-          {renderWeekly()}
-        </div>
-      )}
-
-      {selectedPrenotazione && (
-        <Modal show={showModal} onHide={handleCloseModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>Dettagli Prenotazione</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form>
-              <Form.Group controlId="formPrenotazioneId">
-                <Form.Label>ID Prenotazione</Form.Label>
-                <Form.Control type="text" readOnly value={selectedPrenotazione.id} />
-              </Form.Group>
-              <Form.Group controlId="formPrenotazioneUtente">
-                <Form.Label>Nome Utente</Form.Label>
-                <Form.Control type="text" readOnly value={selectedPrenotazione.nomeUtente} />
-              </Form.Group>
-              <Form.Group controlId="formPrenotazioneInizio">
-                <Form.Label>Inizio</Form.Label>
-                <Form.Control type="text" readOnly value={selectedPrenotazione.inizio.toDate().toLocaleString()} />
-              </Form.Group>
-              <Form.Group controlId="formPrenotazioneFine">
-                <Form.Label>Fine</Form.Label>
-                <Form.Control type="text" readOnly value={selectedPrenotazione.fine.toDate().toLocaleString()} />
-              </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Chiudi
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      )}
-    </div>
+      <BookingModal show={showViewModal} onHide={() => setShowViewModal(false)} prenotazione={selectedPrenotazione} />
+      <ConfirmDeleteModal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} onDelete={confirmDelete} />
+    </Container>
   );
 };
 
-export default Fonici;
+export default Bookings;
