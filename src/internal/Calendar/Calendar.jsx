@@ -41,7 +41,7 @@ const PrevArrow = (props) => {
             style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", left: "-0px" }}
             onClick={onClick}
         >
-            <i className="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px", left: '0px', backgroundColor: "white", width: "40px", height: "40px", borderRadius: '50%', position: "absolute", top: "-0px", left: "-2.5px" }}></i>
+            <i className="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px",  backgroundColor: "white", width: "40px", height: "40px", borderRadius: '50%', position: "absolute", top: "-0px", left: "-2.5px" }}></i>
         </div>
     );
 };
@@ -51,7 +51,7 @@ const settings = {
     infinite: false,
     speed: 500,
     slidesToShow: 1,
-    slidesToScroll: 2,
+    slidesToScroll: 0.5,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
     className: 'custom-slider',
@@ -87,6 +87,8 @@ const getMonthDays = () => {
     for (let i = 0; i < firstDayOfMonth; i++) {
         days.unshift(null);
     }
+
+
 
     return days;
 };
@@ -142,7 +144,10 @@ const Calendar = () => {
         services: []
     })
 
-
+    const findFonico = (id) => {
+        const fonico = fonici.find((fon) => fon.id == id)
+        return fonico.nome
+    }
 
     const { prenotazioni, addPrenotazione, fonici, modificaPrenotazione, eliminaPrenotazione } = usePrenotazioni(selectedDay);
     const [username, setUsername] = useState('');
@@ -238,6 +243,14 @@ const Calendar = () => {
             fonico: fonico
         }));
     }
+    
+    const handleFonicoSelectionEdit = (fonico) => {
+        console.log(fonico)
+        setSelectedPrenotazione(prev => ({
+            ...prev,
+            fonico: fonico
+        }));
+    }
 
     const handleSlotClick = (date, hour) => {
         const slot = new Date(`${date}T${String(hour).padStart(2, '0')}:00:00`);
@@ -247,8 +260,6 @@ const Calendar = () => {
             setSelectedSlots([...selectedSlots, slot]);
         }
     };
-
-
 
     const handleNext = () => {
         if (selectedSlots.length) {
@@ -517,17 +528,17 @@ const Calendar = () => {
                                         {timeSlot}
                                     </td>
                                     {currentWeek.map(day => {
-                                        const slot = `${day.date}T${timeSlot}`;
+                                        const slot = new Date(`${day.date}T${timeSlot}`);
                                         const bookings = prenotazioni.filter(pren => {
                                             const prenDate = pren.inizio.toDate();
                                             const prenStart = prenDate.getHours();
                                             const prenEnd = pren.fine.toDate().getHours();
                                             return pren.studio === value &&
                                                 getFormattedDate(prenDate) === day.date &&
-                                                prenStart <= hour && prenEnd > hour
+                                                prenStart <= hour && prenEnd > hour;
                                         });
                                         return (
-                                            <td key={day.date} style={{ height: '60px', textAlign: 'center', backgroundColor: selectedSlots.includes(slot) ? '#f0ad4e' : 'white' }}>
+                                            <td key={day.date} style={{ height: '60px', textAlign: 'center', backgroundColor: selectedSlots.some(s => s.getTime() === slot.getTime()) ? '#f0ad4e' : 'white' }}>
                                                 {bookings.length ? (
                                                     bookings.map(booking => (
                                                         <div key={booking.id} style={{ backgroundColor: '#08B1DF', color: 'white', padding: '10px', borderRadius: '5px', marginBottom: '5px' }} onClick={() => blockMode ? null : handleShowModal(booking)}>
@@ -535,7 +546,7 @@ const Calendar = () => {
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(new Date(`${day.date}T${String(hour).padStart(2, '0')}:00:00`).getTime()) : addBook(day, timeSlot)}>
+                                                    <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(day.date, hour) : addBook(day, timeSlot)}>
                                                         {timeSlot}
                                                     </div>
 
@@ -551,6 +562,7 @@ const Calendar = () => {
             </div>
         );
     };
+
 
 
 
@@ -689,6 +701,15 @@ const Calendar = () => {
                                                 onChange={(e) => handleInputChange('studio', e.target.value)}
                                             />
                                         </Form.Group>
+                                        <select onChange={(e) => handleFonicoSelectionEdit(e.target.value)}>
+                                            {
+                                                fonici.map((fonico) => (
+                                                    <option key={fonico.id} value={fonico.id} selected={selectedPrenotazione.fonico == fonico.id}>
+                                                        {fonico.nome}
+                                                    </option>
+                                                ))
+                                            }
+                                        </select>
 
                                     </div>
                                 ) : (
@@ -701,6 +722,7 @@ const Calendar = () => {
                                         <p>Fine: {selectedPrenotazione.fine.toDate().toLocaleString()}</p>
                                         <p>Studio: {selectedPrenotazione.studio}</p>
                                         <p>Stato: {selectedPrenotazione.stato}</p>
+                                        <p>Fonico: {findFonico(selectedPrenotazione.fonico)}</p>
                                     </div>
                                 )}
                             </div>
@@ -827,7 +849,7 @@ const Calendar = () => {
 
 
             <Modal show={serviceModalShow} onHide={handleServiceModalClose}>
-                <Modal.Header closeButton>
+                <Modal.Header>
                     <Modal.Title>Seleziona Servizi</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -912,7 +934,7 @@ const Calendar = () => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleServiceModalClose}>Chiudi</Button>
+                    <Button variant="secondary" onClick={() => setServiceModalShow(false)}>Chiudi</Button>
                     <Button variant="primary" onClick={handleInsert} disabled={selectedFonico == 0}>Inserisci</Button>
                 </Modal.Footer>
             </Modal>

@@ -6,10 +6,16 @@ import stu2 from "../../assets/stu3.png"
 import stu3 from "../../assets/stu3.png"
 
 const Studio = ({ occupato, prenotazione, index }) => {
+
+  const findFonico = (id) => {
+    const fonico = fonici.find((fon) => fon.id == id)
+    return fonico.nome
+  }
+  const { fonici } = usePrenotazioni()
   return (
     <div className={`studio ${occupato ? 'occupato' : 'libero'} border rounded w-100`}>
       <div>
-        <img className='w-100' src={index == 1 ? stu1 : index == 2 ? stu2 : stu3} />
+        <img className='w-100' src={index == 1 ? stu1 : index == 2 ? stu2 : stu3} alt={`Foto Studio ${index}`} />
         <div className='d-flex flex-row align-items-center justify-content-between pt-3'>
           <h5 style={{ color:occupato ? "#08B1DF" : "black", fontWeight:900 }}>
             Studio {index}
@@ -32,7 +38,7 @@ const Studio = ({ occupato, prenotazione, index }) => {
               <p><p style={{color:"grey"}}>Inizio:</p> { occupato && prenotazione.inizio.toDate().toLocaleString()}</p>
               <p><p style={{color:"grey"}}>Fine:</p> { occupato && prenotazione.fine.toDate().toLocaleString()}</p>
               <p><p style={{color:"grey"}}>Telefono:</p> { occupato && prenotazione.telefono}</p>
-              <p><p style={{color:"grey"}}>Fonico:</p> { occupato && prenotazione.fonico}</p>
+              <p><p style={{color:"grey"}}>Fonico:</p> { occupato && findFonico(prenotazione.fonico)}</p>
             </div>
         
          

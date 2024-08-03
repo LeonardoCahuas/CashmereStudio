@@ -93,7 +93,6 @@ const usePrenotazioni = (selectedDateTime) => {
   };
 
   const handleSaveChanges = () => {
-    // Aggiungi logica per salvare le modifiche qui
     console.log('Modifiche salvate');
     setIsEditing(false);
   };
@@ -115,7 +114,31 @@ const usePrenotazioni = (selectedDateTime) => {
     }
   };
 
-  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni, updatePrenotazioneStato, fonici, eliminaPrenotazione, modificaPrenotazione };
+  const setDisponibilita = async (fonicoId, disponibilita) => {
+    try {
+      // Aggiorna lo stato locale
+      setFonici((prevFonici) =>
+        prevFonici.map(fonico =>
+          fonico.id === fonicoId
+            ? { ...fonico, disp: disponibilita }
+            : fonico
+        )
+      );
+  
+      // Aggiorna il database
+      const fonicoRef = doc(db, 'fonici', fonicoId);
+      await updateDoc(fonicoRef, {
+        disp: disponibilita
+      });
+  
+      console.log("Disponibilità aggiornata per il fonico con ID:", fonicoId);
+    } catch (err) {
+      console.error("Errore durante l'aggiornamento della disponibilità:", err.message);
+    }
+  };
+
+
+  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni, updatePrenotazioneStato, fonici, eliminaPrenotazione, modificaPrenotazione, setDisponibilita };
 };
 
 export default usePrenotazioni;

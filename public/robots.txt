@@ -1,0 +1,13 @@
+User-agent: Googlebot
+Disallow: /private/
+Disallow: /temp/
+Allow: /public-allowed/
+
+User-agent: Bingbot
+Disallow: /no-bing/
+
+User-agent: *
+Disallow: /hidden/
+Disallow: /temporary/
+Allow: /open/
+Sitemap: https://cashmerestudio.it/sitemap.xml

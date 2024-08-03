@@ -23,7 +23,7 @@ const Footer = () => {
         <div className="footer-container bg-black">
             
             <div className="footer-logo">
-                <img src={logo} alt="Logo" style={{ width: "60px" }} />
+                <img src={logo} alt="Logo Cashmere Studio" style={{ width: "60px" }} />
             </div>
             <div className="d-flex flex-column align-items-center justify-content-center">
                 <h3 className="text-center fs-2 text-white" style={{ fontWeight: 900 }}>CASHMERE STUDIO</h3>

@@ -2,23 +2,9 @@
 CASHMERE TODOS
 
 
--seo immagini
-
--set titles
-
--sitemap
-
--robots
-
--deploy e messa in prod
-
--fonici
-
--carica video
-
 -whatsapp
 
--orari utc
+-aggiusta fonici
 
--slider salto
+-aggiusta stile
 

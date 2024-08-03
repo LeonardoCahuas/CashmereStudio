@@ -52,7 +52,7 @@ const NextArrow = (props) => {
             style={{ ...style, borderRadius: '50%', right: '50px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
             onClick={onClick}
         >
-            <img src={next} className="arrow-img" style={{ width: "50px", height: "50px", position: "absolute", right: '0px' }} />
+            <img src={next} className="arrow-img" alt="Icona freccia" style={{ width: "50px", height: "50px", position: "absolute", right: '0px' }} />
         </div>
     );
 };
@@ -65,7 +65,7 @@ const PrevArrow = (props) => {
             style={{ ...style, borderRadius: '50%', left: '50px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", backgroundColor: "black" }}
             onClick={onClick}
         >
-            <img src={prev} className="arrow-img" style={{ width: "50px", height: "50px", position: "absolute", right: '0px' }} />
+            <img src={prev} className="arrow-img" alt="Icona freccia" style={{ width: "50px", height: "50px", position: "absolute", right: '0px' }} />
         </div>
     );
 };

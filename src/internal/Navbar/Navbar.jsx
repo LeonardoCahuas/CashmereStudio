@@ -35,7 +35,7 @@ export function NavbarAdmin({ setCont }) {
             <Container style={{ margin: "0px", width: "100vw", paddingLeft: "85px", paddingRight: "10px", paddingTop: "15px", paddingBottom: "15px" }}>
                 <Link to="/" style={{ width: "13vw", margin: "0px" }}>
                     <BootstrapNavbar.Brand>
-                        <img src={logo} alt="Logo" className="d-inline-block align-top" style={{ width: "50px" }} />
+                        <img src={logo} alt="Logo Cashmere Studio" className="d-inline-block align-top" style={{ width: "50px" }} />
                     </BootstrapNavbar.Brand>
                 </Link>
                 <BootstrapNavbar.Collapse id="basic-navbar-nav">
@@ -62,7 +62,7 @@ export function NavbarAdmin({ setCont }) {
             </div>
             <div className='w-50'>
                 <Link className={`navlogo w-100 d-flex flex-column ${ 'align-items-end'}`} style={{paddingRight:  "20px"}}>
-                    <img src={logo} style={{ width: "25%" }} alt="Logo" />
+                    <img src={logo} style={{ width: "25%" }} alt="Logo Cashmere Studio" />
                 </Link>
             </div>
             <div className="collapse navbar-collapse navbar-collapse-fullscreen" id="navbarNavDropdown">

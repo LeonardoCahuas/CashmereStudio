@@ -115,7 +115,7 @@ export function Navbar({ isHome }) {
             <Container style={{ margin: "0px", width: "100vw", paddingLeft: "85px", paddingRight: "10px", paddingTop: "15px", paddingBottom: "15px" }}>
                 <Link to="/" style={{ width: "13vw", margin: "0px" }}>
                     <BootstrapNavbar.Brand>
-                        <img src={logo} alt="Logo" className="d-inline-block align-top" style={{ width: "50px" }} />
+                        <img src={logo} alt="Logo Cashmere Studio" className="d-inline-block align-top" style={{ width: "50px" }} />
                     </BootstrapNavbar.Brand>
                 </Link>
                 <BootstrapNavbar.Collapse id="basic-navbar-nav">
@@ -124,29 +124,29 @@ export function Navbar({ isHome }) {
                         <NavDropdown title="Studi" id="studio-dropdown" className="mx-3">
                             {[1, 2, 3].map((i) => (
                                 <NavDropdown.Item as={Link} to={`/studio${i}`} key={i}>
-                                    <img src={cashblue} style={{ width: "23px", marginRight: "10px" }} />    Studio {i}
+                                    <img src={cashblue} alt="Logo Cashmere Studio"   style={{ width: "23px", marginRight: "10px" }} />    Studio {i}
                                 </NavDropdown.Item>
                             ))}
                         </NavDropdown>
                         <NavDropdown title="Servizi" id="services-dropdown" className="mx-3">
                             {[1, 2, 3].map((i) => (
                                 <NavDropdown.Item as={Link} to={descriptions[i].to} key={i}>
-                                    <img src={descriptions[i].img} style={{ width: descriptions[i].to == "/rec" ? "17px" : descriptions[i].to == "/prod" ? "15px" : "20px", marginRight: descriptions[i].to == "/mixmaster" ? "12px" : "15px" }} />{descriptions[i].title}
+                                    <img src={descriptions[i].img} style={{ width: descriptions[i].to == "/rec" ? "17px" : descriptions[i].to == "/prod" ? "15px" : "20px", marginRight: descriptions[i].to == "/mixmaster" ? "12px" : "15px" }} alt="Servizio Cashmere Studio"  />{descriptions[i].title}
                                 </NavDropdown.Item>
                             ))}
                         </NavDropdown>
                         <NavDropdown title="Contatti" id="contact-dropdown" className="mx-3" style={{ display: "flex", flexDirection: "row", gap: "100px" }}>
                             <NavDropdown.Item href="https://maps.google.com/?q=Via+Oreste+Salomone+61+Milano">
-                                <img src={pos} style={{ width: "17px", marginRight: "10px" }} /> Posizione
+                                <img src={pos} style={{ width: "17px", marginRight: "10px" }} alt="Icona Posizione"  /> Posizione
                             </NavDropdown.Item>
                             <NavDropdown.Item href="tel:+393514206294" >
-                                <img src={cell} style={{ width: "17px", marginRight: "10px" }} /> Telefono
+                                <img src={cell} style={{ width: "17px", marginRight: "10px" }} alt="Icona telefono" /> Telefono
                             </NavDropdown.Item>
                             <NavDropdown.Item href="mailto:cashmerestudiomilano@gmail.com">
-                                <img src={mail} style={{ width: "17px", marginRight: "10px" }} /> Email
+                                <img src={mail} style={{ width: "17px", marginRight: "10px" }} alt="Icona email"/> Email
                             </NavDropdown.Item>
                             <NavDropdown.Item href="https://instagram.com/cashmerestudiomilano">
-                                <img src={insta} style={{ width: "16px", marginRight: "10px" }} /> Instagram
+                                <img src={insta} style={{ width: "16px", marginRight: "10px" }} alt="Icona Instagram"/> Instagram
                             </NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
@@ -174,7 +174,7 @@ export function Navbar({ isHome }) {
             </div>
             <div className='w-50'>
                 <Link to="/" className={`navlogo w-100 d-flex flex-column ${isHome ? 'align-items-center' : 'align-items-end'}`} style={{paddingRight: isHome ? "0px" : "20px"}}>
-                    <img src={logo} style={{ width: "25%" }} alt="Logo" />
+                    <img src={logo} style={{ width: "25%" }} alt="Logo Cashmere Studio" />
                 </Link>
             </div>
             {isHome &&
@@ -205,7 +205,7 @@ export function Navbar({ isHome }) {
                                         <div className="w-50 d-flex flex-column align-items-left mt-4 mb-3" style={{ gap: "30px", paddingLeft: "20px" }}>
                                             {studios.slice(1, 4).map((studio, index) => (
                                                 <Link to={`/studio${index + 1}`} className="w-100 d-flex flex-row align-items-center justify-content-center" style={{ gap: "30px", textDecoration: "none", }} key={index}>
-                                                    <img src={studio} alt={`Studio ${index + 1}`} style={{ width: "25%" }} />
+                                                    <img src={studio} alt={`Studio ${index + 1}`} style={{ width: "25%" }}/>
                                                     <span style={{ color: "white", fontWeight: 100, fontSize: "18px" }}>Studio {index + 1}</span>
                                                 </Link>
                                             ))}
@@ -227,7 +227,7 @@ export function Navbar({ isHome }) {
                                                 <Link to={descriptions[i].to} style={{ textDecoration: "none" }}>
                                                     <div className="card-services d-flex flex-row align-items-center" key={i} style={{ padding: i === 2 ? "10px" : "10px", width: "100%", gap: "30px" }}>
                                                         <div className='w-25'>
-                                                            <img src={services[i]} style={{ height: "35px" }} alt={`Service ${i}`} />
+                                                            <img src={services[i]} style={{ height: "35px" }} alt={`Servizio ${i}`} />
                                                         </div>
                                                         <h3 style={{ fontSize: "18px", color: "white", textDe: "black", marginTop: "12px" }}>{descriptions[i].title}</h3>
 
