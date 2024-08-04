@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import usePrenotazioni from '../../booking/useBooking';
-import { Modal, Button, Table, Pagination, Form, Row, Col, Card, Container } from 'react-bootstrap';
+import { Modal, Button, Table, Pagination, Form, Row, Col, Card, Container, ListGroup } from 'react-bootstrap';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 import FonicoCalendar from '../FonicoCalendar/FonicoCalendar';
@@ -24,8 +24,10 @@ const Bookings = () => {
   const [selectedMonth, setSelectedMonth] = useState('');
   const [statSelectedFonico, setStatSelectedFonico] = useState('');
   const [statSelectedMonth, setStatSelectedMonth] = useState('');
-  const { prenotazioni, setPrenotazioni, fonici } = usePrenotazioni();
+  const { prenotazioni, setPrenotazioni, fonici, addFonico, eliminaFonico } = usePrenotazioni();
   const prenotazioniPerPage = 10;
+  const [showInput, setShowInput] = useState(false);
+const [newFonicoName, setNewFonicoName] = useState('');
 
   // Calcolo delle ore totali
   const calcolaTotaleOre = (prenotazioni) => {
@@ -118,50 +120,85 @@ const Bookings = () => {
     };
   });
 
-  
+  const handleAddFonico = () => {
+    addFonico(newFonicoName)
+    setShowInput(false)
+};
+
+const handleDeleteFonico = (id) => {
+    eliminaFonico(id)
+};
+
+
+
 
   return (
-    <div style={{ marginTop: '20px', margin:'0px', width:"100%", display:"flex", flexDirection:"column", alignItems:"center" }}>
+    <div style={{ marginTop: '20px', margin: '0px', width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Gestione Prenotazioni</h3>
-      
-      <Row className="statistics mb-4 w-100 d-flex flex-column align-items-center" style={{ justifyContent: 'space-between' }}>
-        <Col xs={12} md={4}>
-          <div style={{ padding: '20px', marginBottom: '20px', backgroundColor: '#f0f0f0', borderRadius: '10px' }}>
-            <h4>Statistiche Generali</h4>
-            <Form.Group controlId="statSelectedFonico" style={{ marginTop: '10px' }}>
-              <Form.Label>Filtra per Fonico</Form.Label>
-              <Form.Control as="select" value={statSelectedFonico} onChange={(e) => setStatSelectedFonico(e.target.value)} style={{ marginBottom: '10px', borderRadius: '5px' }}>
-                <option value="">Tutti i Fonici</option>
-                {fonici.map(fonico => (
-                  <option key={fonico.id} value={fonico.id}>{fonico.nome}</option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-            <Form.Group controlId="statSelectedMonth" style={{ marginTop: '10px' }}>
-              <Form.Label>Filtra per Mese</Form.Label>
-              <Form.Control as="select" value={statSelectedMonth} onChange={(e) => setStatSelectedMonth(e.target.value)} style={{ marginBottom: '10px', borderRadius: '5px' }}>
-                <option value="">Tutti i Mesi</option>
-                {Object.keys(orePerMese).map((mese, index) => (
-                  <option key={index} value={mese}>{mese}</option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-            <div style={{ marginTop: '20px' }}>
-              <div style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
-                <strong>Ore Totali:</strong> {calcolaTotaleOreStat(filteredStatPrenotazioni)} ore
-              </div>
-              {orePerFonicoPerMeseStat.map((item, index) => (
-                <div key={index} style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
-                  <strong>{item.fonico}:</strong> {Object.entries(item.orePerMese).map(([mese, ore], i) => (
-                    <div key={i}>{mese}: {ore} ore</div>
-                  ))}
-                </div>
-              ))}
+      <div className='w-100 d-flex flex-row'>
+        <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width:"50%" }}>
+          <h4>Gestione Fonici</h4>
+          <Button variant="primary" onClick={() => setShowInput(true)}>Aggiungi Fonico</Button>
+          {showInput && (
+            <div style={{ marginTop: '10px' }}>
+              <Form.Control
+                type="text"
+                placeholder="Nome del Fonico"
+                value={newFonicoName}
+                onChange={(e) => setNewFonicoName(e.target.value)}
+                style={{ marginBottom: '10px' }}
+              />
+              <Button variant="success" onClick={handleAddFonico}>Aggiungi</Button>
             </div>
-          </div>
-        </Col>
-      </Row>
+          )}
+          <ListGroup style={{ marginTop: '10px' }}>
+            {fonici.map(fonico => (
+              <ListGroup.Item key={fonico.id}>
+                {fonico.nome}
+                <Button variant="danger" style={{ float: 'right' }} onClick={() => handleDeleteFonico(fonico.id)}>Rimuovi</Button>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </div>
 
+        <Row className="statistics mb-4 w-100 d-flex flex-column align-items-center w-50" style={{ justifyContent: 'space-between' }}>
+          <Col xs={12} md={4}>
+            <div style={{ padding: '20px', marginBottom: '20px', backgroundColor: '#f0f0f0', borderRadius: '10px' }}>
+              <h4>Statistiche Generali</h4>
+              <Form.Group controlId="statSelectedFonico" style={{ marginTop: '10px' }}>
+                <Form.Label>Filtra per Fonico</Form.Label>
+                <Form.Control as="select" value={statSelectedFonico} onChange={(e) => setStatSelectedFonico(e.target.value)} style={{ marginBottom: '10px', borderRadius: '5px' }}>
+                  <option value="">Tutti i Fonici</option>
+                  {fonici.map(fonico => (
+                    <option key={fonico.id} value={fonico.id}>{fonico.nome}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group controlId="statSelectedMonth" style={{ marginTop: '10px' }}>
+                <Form.Label>Filtra per Mese</Form.Label>
+                <Form.Control as="select" value={statSelectedMonth} onChange={(e) => setStatSelectedMonth(e.target.value)} style={{ marginBottom: '10px', borderRadius: '5px' }}>
+                  <option value="">Tutti i Mesi</option>
+                  {Object.keys(orePerMese).map((mese, index) => (
+                    <option key={index} value={mese}>{mese}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
+                  <strong>Ore Totali:</strong> {calcolaTotaleOreStat(filteredStatPrenotazioni)} ore
+                </div>
+                {orePerFonicoPerMeseStat.map((item, index) => (
+                  <div key={index} style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
+                    <strong>{item.fonico}:</strong> {Object.entries(item.orePerMese).map(([mese, ore], i) => (
+                      <div key={i}>{mese}: {ore} ore</div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </div>
       <Row className='w-100'>
         <Col xs={12}>
           <div style={{ padding: '20px', marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
@@ -227,7 +264,7 @@ const Bookings = () => {
           </div>
         </Col>
       </Row>
-      <FonicoCalendar/>
+      <FonicoCalendar />
 
       <BookingModal show={showViewModal} onHide={() => setShowViewModal(false)} prenotazione={selectedPrenotazione} />
       <ConfirmDeleteModal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} onDelete={confirmDelete} />
