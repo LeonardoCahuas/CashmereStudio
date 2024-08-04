@@ -62,7 +62,7 @@ function StudioDetails({ index }) {
                 <div className='studio-img' style={{ width: '100%', height: isMobile ? 'auto' : 'auto' }}>
 
                     <video className="video-bg" autoPlay loop playsInline muted style={{ width: "100vw", backgroundColor: "black" }}>
-                        <source src={index == 1 && isMobile ? studio1 : index == 2 && isMobile ? studio2 : index == 3 && isMobile ? studio3 : index == 1 && !isMobile ? studio1m : index == 2 && !isMobile ? studio2m : index == 3 && !isMobile ? studio3m : studio2m} type="video/mp4" />
+                        <source src={index == 1 && !isMobile ? studio1 : index == 2 && !isMobile ? studio2 : index == 3 && !isMobile ? studio3 : index == 1 && isMobile ? studio1m : index == 2 && isMobile ? studio2m : index == 3 && isMobile ? studio3m : studio2m} type="video/mp4" />
                         Il tuo browser non supporta il tag video.
                     </video>
 
