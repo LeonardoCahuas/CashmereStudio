@@ -3,8 +3,8 @@ import { storage, ref, getDownloadURL } from '../../firebase-config';
 import header from '../../assets/mem.png';
 import header2 from '../../assets/cashead.png';
 import './Header.css'; // Assumi che Header.css contenga gli stili necessari
-import videodesk from '../../assets/videos/VIDEOHOME.mp4'
-import videomob from '../../assets/videos/TUTTO_VERTICALE.mp4'
+import videodesk from '../../../src/assets/Videos/VIDEOHOME.mp4'
+import videomob from '../../../src/assets/Videos/TUTTO_VERTICALE.mp4'
 function Header() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
     const [videoUrl, setVideoUrl] = useState('');
