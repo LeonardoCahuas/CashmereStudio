@@ -6,6 +6,9 @@ import { Link } from 'react-router-dom';
 import studio1 from "../../src/assets/Videos/Studio1.mp4"
 import studio2 from "../../src/assets/Videos/Studio2.mp4"
 import studio3 from "../../src/assets/Videos/Studio3.mp4"
+import studio1m from "../../src/assets/Videos/Studio1_VERTICALE.mp4"
+import studio2m from "../../src/assets/Videos/Studio2_VERTICALE.mp4"
+import studio3m from "../../src/assets/Videos/Studio3_VERTICALE.mp4"
 
 function StudioDetails({ index }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -41,7 +44,7 @@ function StudioDetails({ index }) {
 
     return (
         <div style={{ paddingTop: "100px" }}>
-            <div style={{ width: '100vw', backgroundColor: 'white', paddingTop: isMobile ? "30px"  : '15px', paddingBottom: '15px', paddingLeft: isMobile ? '20px' : '70px', paddingRight: isMobile ? '20px' : '70px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center' }}>
+            <div style={{ width: '100vw', backgroundColor: 'white', paddingTop: isMobile ? "30px" : '15px', paddingBottom: '15px', paddingLeft: isMobile ? '20px' : '70px', paddingRight: isMobile ? '20px' : '70px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center' }}>
                 <div className='text-start'>
                     <h5 style={{ color: 'black', fontWeight: 900, fontSize: "17px" }}>Studio {index}</h5>
                     <div className='d-flex flex-row' style={{ gap: "10px" }}>
@@ -57,12 +60,12 @@ function StudioDetails({ index }) {
             </div>
             <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
                 <div className='studio-img' style={{ width: '100%', height: isMobile ? 'auto' : 'auto' }}>
-               
-                        <video className="video-bg" autoPlay loop playsInline muted style={{ width: "100vw", backgroundColor: "black" }}>
-                            <source src={index == 1 ? studio1 : index == 2 ? studio2 : index == 3  ? studio3 : studio2} type="video/mp4" />
-                            Il tuo browser non supporta il tag video.
-                        </video>
-                
+
+                    <video className="video-bg" autoPlay loop playsInline muted style={{ width: "100vw", backgroundColor: "black" }}>
+                        <source src={index == 1 && isMobile ? studio1 : index == 2 && isMobile ? studio2 : index == 3 && isMobile ? studio3 : index == 1 && !isMobile ? studio1m : index == 2 && !isMobile ? studio2m : index == 3 && !isMobile ? studio3m : studio2m} type="video/mp4" />
+                        Il tuo browser non supporta il tag video.
+                    </video>
+
                     <div
                         className="w-100"
                         style={{ height: '1000px', display: videoUrl ? 'none' : 'block', backgroundColor: "black" }}
@@ -95,7 +98,7 @@ function StudioDetails({ index }) {
                 </ul>
                 <div className='w-100'>
                     <h4 style={{ fontSize: "20px", fontWeight: 700, width: "100%", textAlign: isMobile ? "center" : "left", marginTop: "50px" }}>Descrizione</h4>
-                    <p style={{ color: 'grey',  textAlign: isMobile ?  "center" : "left", borderBottom: isMobile ? "1px solid black" : "none", paddingBottom: isMobile ? "50px" : "auto", width:"100%" }}>
+                    <p style={{ color: 'grey', textAlign: isMobile ? "center" : "left", borderBottom: isMobile ? "1px solid black" : "none", paddingBottom: isMobile ? "50px" : "auto", width: "100%" }}>
                         {info[index].description}
                     </p>
                 </div>
