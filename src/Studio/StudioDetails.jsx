@@ -3,6 +3,9 @@ import info from './info';
 import { storage, ref, getDownloadURL } from '../firebase-config';
 import './Studio.css'; // Make sure to create this CSS file and add the necessary styles
 import { Link } from 'react-router-dom';
+import studio1 from "../../src/assets/Videos/Studio1.mp4"
+import studio2 from "../../src/assets/Videos/Studio2.mp4"
+import studio3 from "../../src/assets/Videos/Studio3.mp4"
 
 function StudioDetails({ index }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -54,12 +57,12 @@ function StudioDetails({ index }) {
             </div>
             <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
                 <div className='studio-img' style={{ width: '100%', height: isMobile ? 'auto' : 'auto' }}>
-                    {videoUrl && (
+               
                         <video className="video-bg" autoPlay loop playsInline muted style={{ width: "100vw", backgroundColor: "black" }}>
-                            <source src={videoUrl} type="video/mp4" />
+                            <source src={index == 1 ? studio1 : index == 2 ? studio2 : index == 3  ? studio3 : studio2} type="video/mp4" />
                             Il tuo browser non supporta il tag video.
                         </video>
-                    )}
+                
                     <div
                         className="w-100"
                         style={{ height: '1000px', display: videoUrl ? 'none' : 'block', backgroundColor: "black" }}
