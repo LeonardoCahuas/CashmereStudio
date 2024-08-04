@@ -137,8 +137,38 @@ const usePrenotazioni = (selectedDateTime) => {
     }
   };
 
+  const addFonico = async (fonico) => {
+    try {
+      await addDoc(collection(db, 'fonici'), fonico);
+      console.log("Fonico aggiunto con successo");
+      
+      // Aggiorna lo stato locale
+      setFonici(prevFonici => [...prevFonici, { id: doc.id, ...fonico }]);
+    } catch (err) {
+      console.log(err.message);
+      setError(err.message);
+    }
+  };
 
-  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni, updatePrenotazioneStato, fonici, eliminaPrenotazione, modificaPrenotazione, setDisponibilita };
+  const eliminaFonico = async (id) => {
+    try {
+      const fonicoRef = doc(db, 'fonici', id);
+      await deleteDoc(fonicoRef);
+      
+      // Aggiorna lo stato locale
+      setFonici(prevFonici => prevFonici.filter(fonico => fonico.id !== id));
+  
+      console.log("Fonico eliminato con successo");
+    } catch (err) {
+      console.log(err.message);
+      setError(err.message);
+    }
+  };
+  
+  
+
+
+  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni, updatePrenotazioneStato, fonici, eliminaPrenotazione, modificaPrenotazione, setDisponibilita, addFonico, eliminaFonico };
 };
 
 export default usePrenotazioni;

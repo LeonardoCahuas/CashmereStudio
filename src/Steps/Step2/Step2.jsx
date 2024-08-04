@@ -27,7 +27,7 @@ const PrevArrow = (props) => {
   return (
     <div
       className={`${className} slick-next flex-column align-items-center justify-content-center`}
-      style={{ ...style, borderRadius: '50%', left: '10px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", left:"-0px"}}
+      style={{ ...style, borderRadius: '50%',  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", left:"-0px"}}
       onClick={onClick}
     >
       <i class="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px", position: "absolute", right: '0px', backgroundColor: "white", width: "40px", height: "40px", borderRadius: "50%" }}></i>

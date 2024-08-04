@@ -130,7 +130,10 @@ const FonicoCalendar = () => {
                                         height: '40px',
                                         width: "200px",
                                         backgroundColor: getCellColor(date, hourIndex + 10),
-                                        cursor: editingDisponibilita ? 'pointer' : 'default'
+                                        cursor: editingDisponibilita ? 'pointer' : 'default',
+                                        display:"flex",
+                                        flexDirection:"row",
+                                        alignItems:"center"
                                     }}
                                     onClick={() => editingDisponibilita && handleSetDisponibilita(date, hourIndex + 10)}
                                 >
@@ -182,7 +185,7 @@ const FonicoCalendar = () => {
         });
 
         return prenotazioniForSlot.map((p, index) => (
-            <div key={index} style={{ backgroundColor: 'grey', margin: '2px', color: 'white' }}>
+            <div key={index} style={{ backgroundColor: 'red', margin: '10px', color: 'white', width:"100%" }}>
                 {p.nomeUtente}
             </div>
         ));

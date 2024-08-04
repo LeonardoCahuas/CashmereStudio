@@ -3,7 +3,8 @@ import { storage, ref, getDownloadURL } from '../../firebase-config';
 import header from '../../assets/mem.png';
 import header2 from '../../assets/cashead.png';
 import './Header.css'; // Assumi che Header.css contenga gli stili necessari
-
+import videodesk from '../../assets/videos/VIDEOHOME.mp4'
+import videomob from '../../assets/videos/TUTTO_VERTICALE.mp4'
 function Header() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
     const [videoUrl, setVideoUrl] = useState('');
@@ -52,7 +53,7 @@ function Header() {
                         style={{width:"100vw"}}
                         onContextMenu={(e) => e.preventDefault()}
                     >
-                        <source src={videoUrl} type="video/mp4" />
+                        <source src={isMobile ? videomob : videodesk} type="video/mp4" />
                         Il tuo browser non supporta il tag video.
                     </video>
                 )}
