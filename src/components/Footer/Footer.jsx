@@ -43,12 +43,12 @@ const Footer = () => {
 
             {isMobile ? (
                 <div className="footer-credits-mobile mt-4">
-                    <div className="d-flex justify-content-between w-100 px-3" style={{ gap: "20px" }}>
+                    <div className="d-flex flex-column justify-content-between w-100 px-3" style={{ gap: "20px" }}>
                         <a href="tel:+393514206294" className="footer-link">+39 351 420 6294</a>
-                        <a href="mailto:example@example.com" className="footer-link">example@example.com</a>
+                        <a href="mailto:cashmerestudiomilano@gmail.com" className="footer-link">cashmerestudiomilano@gmail.com</a>
                     </div>
                     <div className="d-flex justify-content-center mt-2">
-                        <a href="https://www.google.com/maps?q=via+aziendale" target="_blank" rel="noopener noreferrer" className="footer-link text-center">Via dell'Azienda</a>
+                        <a href="https://www.google.com/maps?q=via+oreste+salomone+61+milano" target="_blank" rel="noopener noreferrer" className="footer-link text-center">Via Oreste Salomone 61, Milano</a>
                     </div>
                 </div>
             ) : (

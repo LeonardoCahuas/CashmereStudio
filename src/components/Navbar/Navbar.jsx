@@ -194,7 +194,7 @@ export function Navbar({ isHome }) {
 
                 <ul className="navbar-nav">
                     <li className="w-100 nav-item d-flex flex-column align-items-start" style={{ paddingLeft: "30px" }} >
-                        <Link className="nav-link" to="/" style={{ fontSize: "25px", fontWeight: 900 }}>Home</Link>
+                        <Link className="nav-link" to="/"  data-toggle="collapse" data-target="#navbarNavDropdown" aria-label="Close" style={{ fontSize: "25px", fontWeight: 900 }}>Home</Link>
                     </li>
                     <li className="nav-item w-100">
                         <div className="nav-link w-100" onClick={() => openItem('studi')}>
@@ -204,7 +204,7 @@ export function Navbar({ isHome }) {
                                     <div className="w-100">
                                         <div className="w-50 d-flex flex-column align-items-left mt-4 mb-3" style={{ gap: "30px", paddingLeft: "20px" }}>
                                             {studios.slice(1, 4).map((studio, index) => (
-                                                <Link to={`/studio${index + 1}`} className="w-100 d-flex flex-row align-items-center justify-content-center" style={{ gap: "30px", textDecoration: "none", }} key={index}>
+                                                <Link to={`/studio${index + 1}`} className="w-100 d-flex flex-row align-items-center justify-content-center" style={{ gap: "30px", textDecoration: "none", }} key={index} data-toggle="collapse" data-target="#navbarNavDropdown" aria-label="Close">
                                                     <img src={studio} alt={`Studio ${index + 1}`} style={{ width: "25%" }}/>
                                                     <span style={{ color: "white", fontWeight: 100, fontSize: "18px" }}>Studio {index + 1}</span>
                                                 </Link>
@@ -224,7 +224,7 @@ export function Navbar({ isHome }) {
                                     <div className="">
                                         <div className="dropdown-content servizi w-100 d-flex flex-column" style={{ width: "100%" }}>
                                             {[1, 2, 3].map((i) => (
-                                                <Link to={descriptions[i].to} style={{ textDecoration: "none" }}>
+                                                <Link to={descriptions[i].to} data-toggle="collapse" data-target="#navbarNavDropdown" aria-label="Close" style={{ textDecoration: "none" }}>
                                                     <div className="card-services d-flex flex-row align-items-center" key={i} style={{ padding: i === 2 ? "10px" : "10px", width: "100%", gap: "30px" }}>
                                                         <div className='w-25'>
                                                             <img src={services[i]} style={{ height: "35px" }} alt={`Servizio ${i}`} />
@@ -247,33 +247,33 @@ export function Navbar({ isHome }) {
                             <div className='w-100 d-flex flex-row align-items-center justify-content-between' style={{ paddingLeft: "30px", paddingRight: "30px" }}> <p style={{ fontSize: "25px", fontWeight: 900 }}>Contatti</p> <p>{openContatti ? '↓' : '↑'}</p></div>
                             {openContatti && (
                                 <div className="" aria-labelledby="navbarDropdownMenuLink">
-                                    <div className="d-flex flex-column p-5 pt-1">
+                                    <div className="d-flex flex-column p-2 pt-1">
                                         <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
-                                            <i className="fas fa-map-marker-alt" style={{ color: "grey", fontSize: "16px" }}></i>
+                                            <i className="fas fa-map-marker-alt" style={{ color: "grey", fontSize: "14px" }}></i>
                                             <div>
-                                                <label className="text-gray mb-0" style={{ color: "grey", fontSize: "16px" }}>Indirizzo:</label>
-                                                <span className="ms-2">Via Oreste Salomone 61, Milano</span>
+                                                <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Indirizzo:</label>
+                                                <span className="ms-2"  style={{fontSize: "14px" }} >Via Oreste Salomone 61, Milano</span>
                                             </div>
                                         </div>
                                         <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
                                             <i className="fas fa-phone-alt text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
-                                                <label className="text-gray mb-0" style={{ color: "grey", fontSize: "16px" }}>Telefono:</label>
-                                                <span className="ms-2">+39 351 420 6294</span>
+                                                <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Telefono:</label>
+                                                <span className="ms-2"  style={{fontSize: "14px" }} >+39 351 420 6294</span>
                                             </div>
                                         </div>
                                         <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
                                             <i className="fas fa-envelope text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
-                                                <label className="text-gray mb-0" style={{ color: "grey", fontSize: "16px" }}>Email:</label>
-                                                <span className="ms-2">cashmerestudiomilano@gmail.com</span>
+                                                <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Email:</label>
+                                                <span className="ms-2"  style={{fontSize: "14px" }} >cashmerestudiomilano@gmail.com</span>
                                             </div>
                                         </div>
                                         <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
                                             <i className="fab fa-instagram text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
-                                                <label className="text-gray mb-0" style={{ color: "grey", fontSize: "16px" }}>Instagram:</label>
-                                                <span className="ms-2">@cashmerestudiomilano</span>
+                                                <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Instagram:</label>
+                                                <span className="ms-2"  style={{fontSize: "14px" }} >@cashmerestudiomilano</span>
                                             </div>
                                         </div>
                                     </div>

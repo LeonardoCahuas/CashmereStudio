@@ -9,7 +9,7 @@ const Studio = ({ occupato, prenotazione, index }) => {
 
   const findFonico = (id) => {
     const fonico = fonici.find((fon) => fon.id == id)
-    return fonico.nome
+    return fonico && fonico.nome ? fonico.nome : ""
   }
   const { fonici } = usePrenotazioni()
   return (
