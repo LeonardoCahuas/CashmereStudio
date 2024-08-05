@@ -7,22 +7,7 @@ import videodesk from '../../../src/assets/Videos/VIDEOHOME.mp4'
 import videomob from '../../../src/assets/Videos/TUTTO_VERTICALE.mp4'
 function Header() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
-    const [videoUrl, setVideoUrl] = useState('');
 
-    useEffect(() => {
-        const fetchVideoUrl = async () => {
-            const videoRef = ref(storage, isMobile ? "TUTTO_VERTICALE.mp4" : 'VIDEOHOME.mp4');
-            try {
-                const url = await getDownloadURL(videoRef);
-                setVideoUrl(url);
-
-            } catch (error) {
-                console.error('Error fetching video URL:', error);
-            }
-        };
-
-        fetchVideoUrl();
-    }, []);
 
     useEffect(() => {
         const handleResize = () => {

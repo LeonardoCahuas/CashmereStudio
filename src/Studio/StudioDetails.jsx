@@ -12,22 +12,6 @@ import studio3m from "../../src/assets/Videos/Studio3_VERTICALE.mp4"
 
 function StudioDetails({ index }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-    const [videoUrl, setVideoUrl] = useState('');
-
-    useEffect(() => {
-        const fetchVideoUrl = async () => {
-            const videoRef = ref(storage, isMobile ? `Studio${index}_VERTICALE.mp4` : `Studio ${index}.mp4`);
-            try {
-                const url = await getDownloadURL(videoRef);
-                setVideoUrl(url);
-
-            } catch (error) {
-                console.error('Error fetching video URL:', error);
-            }
-        };
-
-        fetchVideoUrl();
-    }, []);
 
     useEffect(() => {
         const handleResize = () => {

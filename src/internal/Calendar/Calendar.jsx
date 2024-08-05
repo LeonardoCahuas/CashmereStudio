@@ -365,10 +365,17 @@ const Calendar = () => {
     }
 
     const handleNewInputChange = (field, value) => {
-        setNewPrenotazione(prevState => ({
-            ...prevState,
-            [field]: value
-        }));
+        if (field == "studio") {
+            setNewPrenotazione(prevState => ({
+                ...prevState,
+                [field]: field == 'studio' && value == 1 ? 1 : field == 'studio' && value == 2 ? 2 : field == 'studio' && value == 3 ? 3 : 0
+            }));
+        } else {
+            setNewPrenotazione(prevState => ({
+                ...prevState,
+                [field]: value
+            }))
+        }
     };
 
     const handleNewServiceChange = (service, isChecked) => {
@@ -620,9 +627,9 @@ const Calendar = () => {
         <div>
             <Box className="d-flex flex-row align-items-center justify-content-between" sx={{ borderBottom: 1, borderColor: 'divider', marginBottom: '20px' }}>
                 <Tabs onChange={handleChange} aria-label="basic tabs example">
-                    <Tab className='studiointernalbbutt' label="Studio 1" style={{ background: value === 1 ? "black" : "white", color: value === 1 ? "white" : "black", border: "1px solid black" }} />
-                    <Tab label="Studio 2" style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
-                    <Tab label="Studio 3" style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
+                    <Tab className='studiointernalbbutt p-1' label="Studio 1" style={{ background: value === 1 ? "black" : "white", color: value === 1 ? "white" : "black", border: "1px solid black" }} />
+                    <Tab label="Studio 2" className='p-1' style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
+                    <Tab label="Studio 3"  className='p-1' style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
                 </Tabs>
                 <div className='d-flex flex-row align-items-center justify-content-center' style={{ gap: "20px" }}>
                     <MuiButton variant="contained" color="primary" onClick={toggleBlockMode} style={{ marginLeft: '20px' }}>
@@ -637,15 +644,14 @@ const Calendar = () => {
             </Box>
             <div style={{ marginBottom: '20px', display: "flex", flexDirection: "row", alignItems: "center", justifyContent: view == "weekly" ? "space-between" : "center", width: "100%" }}>
                 {view === 'weekly' && (
-                    <i onClick={() => handleWeekChange(-1)} className="fa-solid fa-arrow-left" style={{ fontSize: "40px" }}></i>
+                    <i onClick={() => handleWeekChange(-1)} className="fa-solid fa-arrow-left d-flex flex-column align-items-center justify-content-center" style={{ fontSize: "30px",  borderRadius:"50%", border:"2px solid black", width:"40px", height:"40px" }}></i>
 
                 )}
                 <FormControl variant="outlined">
-                    <InputLabel>Vista</InputLabel>
                     <Select
                         value={view}
                         onChange={(e) => setView(e.target.value)}
-                        label="Vista"
+                        style={{paddingRight:"100px"}}
                     >
                         <MenuItem value="daily">Giornaliero</MenuItem>
                         <MenuItem value="weekly">Settimanale</MenuItem>
@@ -653,7 +659,7 @@ const Calendar = () => {
                 </FormControl>
                 {view === 'weekly' && (
 
-                    <i onClick={() => handleWeekChange(1)} className="fa-solid fa-arrow-right" style={{ fontSize: "40px" }}></i>
+                    <i onClick={() => handleWeekChange(1)} className="fa-solid fa-arrow-right  d-flex flex-column align-items-center justify-content-center" style={{ fontSize: "30px", borderRadius:"50%", border:"2px solid black", width:"40px", height:"40px" }}></i>
                 )}
             </div>
             {view === 'daily' ? renderDays() : renderWeekly()}
