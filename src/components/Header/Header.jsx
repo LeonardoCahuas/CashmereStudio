@@ -15,7 +15,7 @@ function Header() {
             try {
                 const url = await getDownloadURL(videoRef);
                 setVideoUrl(url);
-                
+
             } catch (error) {
                 console.error('Error fetching video URL:', error);
             }
@@ -39,32 +39,23 @@ function Header() {
 
     return (
         <div className="w-100 header bg-black">
-        
-                <>
-                    {videoUrl && (
-                    <video 
-                        className="video-bg" 
-                        autoPlay 
-                        playsInline
-                        loop 
-                        muted 
-                        controls={false} 
-                        disablePictureInPicture 
-                        style={{width:"100vw"}}
-                        onContextMenu={(e) => e.preventDefault()}
-                    >
-                        <source src={isMobile ? videomob : videodesk} type="video/mp4" />
-                        Il tuo browser non supporta il tag video.
-                    </video>
-                )}
-                    <div
-                        className="w-100"
-                        style={{ height: '1000px', display: videoUrl ? 'none' : 'block', backgroundColor:"black" }}
-                        alt="Header"
-                    >
-                    </div>
-                </>
-            
+            <>
+                <video
+                    className="video-bg"
+                    autoPlay
+                    playsInline
+                    loop
+                    muted
+                    controls={false}
+                    disablePictureInPicture
+                    style={{ width: "100vw" }}
+                    onContextMenu={(e) => e.preventDefault()}
+                >
+                    <source src={isMobile ? videomob : videodesk} type="video/mp4" />
+                    Il tuo browser non supporta il tag video.
+                </video>
+            </>
+
         </div>
     );
 }
