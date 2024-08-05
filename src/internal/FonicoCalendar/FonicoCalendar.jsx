@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import { InputLabel, MenuItem, Select } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import usePrenotazioni from '../../booking/useBooking';
 
@@ -13,7 +14,7 @@ const FonicoCalendar = () => {
 
     useEffect(() => {
         if (fonici.length > 0) {
-            setSelectedFonico(fonici[0].id);
+            setSelectedFonico(fonici[1].id);
         }
     }, [fonici]);
 
@@ -194,14 +195,16 @@ const FonicoCalendar = () => {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <select value={selectedFonico || ''} onChange={(e) => handleFonicoSelection(e.target.value)}>
+            
+                <Select value={selectedFonico || ''} onChange={(e) => handleFonicoSelection(e.target.value)} labelId="fonico-select-label">
+                
                     {fonici && fonici.filter(f => f.id != 1).map((fonico) => (
-                        <option key={fonico.id} value={fonico.id}>
+                        <MenuItem key={fonico.id} value={fonico.id} selected={fonico.id != 1}>
                             {fonico.nome}
-                        </option>
+                        </MenuItem>
                     ))}
 
-                </select>
+                </Select>
                 <Button variant="primary" onClick={() => setEditingDisponibilita(true)}>Imposta Disponibilità</Button>
             </div>
             {renderCalendar()}
