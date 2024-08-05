@@ -98,15 +98,15 @@ const FonicoCalendar = () => {
         const weekDates = Array.from({ length: 7 }, (_, i) => new Date(startOfWeek.getTime() + i * 24 * 60 * 60 * 1000));
 
         return (
-            <div style={{ width: '100%' }}>
+            <div style={{ width: '100%', marginTop:"30px" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Button variant="secondary" onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() - 7)))}>
-                        Settimana Precedente
-                    </Button>
+                    <i className="fa-solid fa-arrow-left" style={{fontSize:"40px"}} onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() - 7)))}>
+                       
+                    </i>
                     <h3>Calendario Settimanale</h3>
-                    <Button variant="secondary" onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() + 7)))}>
-                        Settimana Successiva
-                    </Button>
+                    <i className='fa-solid fa-arrow-right' style={{fontSize:"40px"}} onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() + 7)))}>
+                 
+                    </i>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', marginTop: '20px', width: '100%' }}>
                     <div></div>
@@ -131,9 +131,9 @@ const FonicoCalendar = () => {
                                         width: "200px",
                                         backgroundColor: getCellColor(date, hourIndex + 10),
                                         cursor: editingDisponibilita ? 'pointer' : 'default',
-                                        display:"flex",
-                                        flexDirection:"row",
-                                        alignItems:"center"
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        alignItems: "center"
                                     }}
                                     onClick={() => editingDisponibilita && handleSetDisponibilita(date, hourIndex + 10)}
                                 >
@@ -162,7 +162,7 @@ const FonicoCalendar = () => {
         const isPrenotato = prenotazioni.some(p => {
             const inizioTimestamp = new Date(p.inizio).getTime();
             const fineTimestamp = new Date(p.fine).getTime();
-            if(p.fonico && p.fonicoId === selectedFonico){
+            if (p.fonico && p.fonicoId === selectedFonico) {
                 console.log("fonico trovato")
             }
             return (
@@ -185,24 +185,22 @@ const FonicoCalendar = () => {
         });
 
         return prenotazioniForSlot.map((p, index) => (
-            <div key={index} style={{ backgroundColor: 'red', margin: '10px', color: 'white', width:"100%" }}>
+            <div key={index} style={{ backgroundColor: 'red', margin: '10px', color: 'white', width: "100%" }}>
                 {p.nomeUtente}
             </div>
         ));
     };
 
-
-
-
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <select value={selectedFonico || ''} onChange={(e) => handleFonicoSelection(e.target.value)}>
-                    {fonici && fonici.map((fonico) => (
+                    {fonici && fonici.filter(f => f.id != 1).map((fonico) => (
                         <option key={fonico.id} value={fonico.id}>
                             {fonico.nome}
                         </option>
                     ))}
+
                 </select>
                 <Button variant="primary" onClick={() => setEditingDisponibilita(true)}>Imposta Disponibilità</Button>
             </div>

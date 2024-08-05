@@ -27,7 +27,7 @@ const Bookings = () => {
   const { prenotazioni, setPrenotazioni, fonici, addFonico, eliminaFonico } = usePrenotazioni();
   const prenotazioniPerPage = 10;
   const [showInput, setShowInput] = useState(false);
-const [newFonicoName, setNewFonicoName] = useState('');
+  const [newFonicoName, setNewFonicoName] = useState('');
 
   // Calcolo delle ore totali
   const calcolaTotaleOre = (prenotazioni) => {
@@ -115,6 +115,7 @@ const [newFonicoName, setNewFonicoName] = useState('');
       return acc;
     }, {});
     return {
+      id: fonico.id,
       fonico: fonico.nome,
       orePerMese: orePerMese,
     };
@@ -123,20 +124,17 @@ const [newFonicoName, setNewFonicoName] = useState('');
   const handleAddFonico = () => {
     addFonico(newFonicoName)
     setShowInput(false)
-};
+  };
 
-const handleDeleteFonico = (id) => {
+  const handleDeleteFonico = (id) => {
     eliminaFonico(id)
-};
-
-
-
+  };
 
   return (
     <div style={{ marginTop: '20px', margin: '0px', width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Gestione Prenotazioni</h3>
       <div className='w-100 d-flex flex-row'>
-        <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width:"50%" }}>
+        <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width: "50%" }}>
           <h4>Gestione Fonici</h4>
           <Button variant="primary" onClick={() => setShowInput(true)}>Aggiungi Fonico</Button>
           {showInput && (
@@ -152,7 +150,7 @@ const handleDeleteFonico = (id) => {
             </div>
           )}
           <ListGroup style={{ marginTop: '10px' }}>
-            {fonici.map(fonico => (
+            {fonici.filter(f => f.id != 1).map(fonico => (
               <ListGroup.Item key={fonico.id}>
                 {fonico.nome}
                 <Button variant="danger" style={{ float: 'right' }} onClick={() => handleDeleteFonico(fonico.id)}>Rimuovi</Button>
@@ -161,9 +159,9 @@ const handleDeleteFonico = (id) => {
           </ListGroup>
         </div>
 
-        <Row className="statistics mb-4 w-100 d-flex flex-column align-items-center w-50" style={{ justifyContent: 'space-between' }}>
-          <Col xs={12} md={4}>
-            <div style={{ padding: '20px', marginBottom: '20px', backgroundColor: '#f0f0f0', borderRadius: '10px' }}>
+        <Row className="statistics mb-4 w-50 d-flex flex-column align-items-center w-50 h-100" style={{ justifyContent: 'space-between', backgroundColor: '#f8f9fa' }}>
+          <Col xs={12} md={4} className="w-100 h-100" style={{ backgroundColor: '#f8f9fa' }}>
+            <div style={{ padding: '20px', marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
               <h4>Statistiche Generali</h4>
               <Form.Group controlId="statSelectedFonico" style={{ marginTop: '10px' }}>
                 <Form.Label>Filtra per Fonico</Form.Label>
@@ -187,17 +185,20 @@ const handleDeleteFonico = (id) => {
                 <div style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
                   <strong>Ore Totali:</strong> {calcolaTotaleOreStat(filteredStatPrenotazioni)} ore
                 </div>
-                {orePerFonicoPerMeseStat.map((item, index) => (
+                {(statSelectedFonico ? orePerFonicoPerMeseStat.filter(item => item.id === statSelectedFonico) : orePerFonicoPerMeseStat).map((item, index) => (
                   <div key={index} style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
                     <strong>{item.fonico}:</strong> {Object.entries(item.orePerMese).map(([mese, ore], i) => (
                       <div key={i}>{mese}: {ore} ore</div>
-                    ))}
-                  </div>
+                    ))}{ statSelectedFonico !== "" &&
+                    <div><strong>Disponibilità settimanale:</strong> {fonici.find(f => f.id === (statSelectedFonico || item.fonicoId))?.disp.length || 0} slot</div>
+                  }</div>
                 ))}
               </div>
             </div>
           </Col>
         </Row>
+
+
       </div>
       <Row className='w-100'>
         <Col xs={12}>

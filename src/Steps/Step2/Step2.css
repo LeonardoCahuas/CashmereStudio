@@ -200,6 +200,11 @@
   .slot.selected-start {
     background-color: #08B1DF;
     color: #fff;
+  }
+
+  .slot.selected-start-not {
+    background-color: #08B1DF;
+    color: #fff;
     border-radius: 0;
     border-top-left-radius:10px ;
     border-bottom-left-radius:10px ;

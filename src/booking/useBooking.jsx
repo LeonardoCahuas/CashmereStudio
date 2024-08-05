@@ -1,13 +1,42 @@
 import { useState, useEffect } from 'react';
-import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase-config';
 
 const usePrenotazioni = (selectedDateTime) => {
   const [prenotazioni, setPrenotazioni] = useState([]);
+  const [change, setChange] = useState(0)
   const [fonici, setFonici] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
+  useEffect(() => {
+    const q = query(collection(db, 'prenotazioni'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const prenotazioniData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setPrenotazioni(prenotazioniData);
+      setLoading(false);
+    }, (err) => {
+      console.error(err);
+      setError(err.message);
+    });
+
+    return () => unsubscribe(); // Cleanup l'ascoltatore quando il componente si smonta
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'fonici'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const foniciData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setFonici(foniciData);
+      setLoading(false);
+    }, (err) => {
+      console.error(err);
+      setError(err.message);
+    });
+
+    return () => unsubscribe(); // Cleanup l'ascoltatore quando il componente si smonta
+  }, []);
   useEffect(() => {
     const fetchPrenotazioni = async () => {
       setLoading(true);
@@ -47,7 +76,11 @@ const usePrenotazioni = (selectedDateTime) => {
 
     fetchPrenotazioni();
     fetchFonici()
-  }, [selectedDateTime]);
+  }, [selectedDateTime, change]);
+
+  const setNewChange = () => {
+    setChange(1)
+  }
 
   const addPrenotazione = async (prenotazione) => {
     try {
@@ -110,6 +143,7 @@ const usePrenotazioni = (selectedDateTime) => {
 
       console.log("done that")
     } catch (err) {
+      console.log(err.message)
       setError(err.message);
     }
   };
@@ -124,13 +158,13 @@ const usePrenotazioni = (selectedDateTime) => {
             : fonico
         )
       );
-  
+
       // Aggiorna il database
       const fonicoRef = doc(db, 'fonici', fonicoId);
       await updateDoc(fonicoRef, {
         disp: disponibilita
       });
-  
+
       console.log("Disponibilità aggiornata per il fonico con ID:", fonicoId);
     } catch (err) {
       console.error("Errore durante l'aggiornamento della disponibilità:", err.message);
@@ -139,9 +173,9 @@ const usePrenotazioni = (selectedDateTime) => {
 
   const addFonico = async (fonico) => {
     try {
-      await addDoc(collection(db, 'fonici'), fonico);
+      await addDoc(collection(db, 'fonici'), { nome: fonico });
       console.log("Fonico aggiunto con successo");
-      
+
       // Aggiorna lo stato locale
       setFonici(prevFonici => [...prevFonici, { id: doc.id, ...fonico }]);
     } catch (err) {
@@ -154,21 +188,21 @@ const usePrenotazioni = (selectedDateTime) => {
     try {
       const fonicoRef = doc(db, 'fonici', id);
       await deleteDoc(fonicoRef);
-      
+
       // Aggiorna lo stato locale
       setFonici(prevFonici => prevFonici.filter(fonico => fonico.id !== id));
-  
+
       console.log("Fonico eliminato con successo");
     } catch (err) {
       console.log(err.message);
       setError(err.message);
     }
   };
-  
-  
 
 
-  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni, updatePrenotazioneStato, fonici, eliminaPrenotazione, modificaPrenotazione, setDisponibilita, addFonico, eliminaFonico };
+
+
+  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni, updatePrenotazioneStato, fonici, eliminaPrenotazione, modificaPrenotazione, setDisponibilita, addFonico, eliminaFonico, setNewChange };
 };
 
 export default usePrenotazioni;

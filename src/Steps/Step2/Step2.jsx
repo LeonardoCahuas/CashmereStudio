@@ -40,7 +40,7 @@ const settings = {
   infinite: false,
   speed: 500,
   slidesToShow: 2,
-  slidesToScroll: 2,
+  slidesToScroll: 1,
   nextArrow: <NextArrow />,
   prevArrow: <PrevArrow />,
   className: 'custom-slider',
@@ -94,7 +94,7 @@ const Step2 = ({ setBooking, goBack, studio }) => {
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); // Call initially to set the correct state
+    handleResize()
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -115,7 +115,6 @@ const Step2 = ({ setBooking, goBack, studio }) => {
   }, [selectedEnd]);
 
   const annulla = () => {
-
     setSelectedStart(null)
     setSelectedEnd(null)
   }
@@ -132,11 +131,10 @@ const Step2 = ({ setBooking, goBack, studio }) => {
     } else if (time > selectedStart) {
       setSelectedEnd(time);
     } else {
-      setSelectedStart(time);
-      setSelectedEnd(null);
+      setSelectedStart(time)
+      setSelectedEnd(null)
     }
   };
-
 
   const handleNextStep = () => {
     setBooking(bookingTime);
@@ -190,14 +188,16 @@ const Step2 = ({ setBooking, goBack, studio }) => {
       const adjustedOccupied = selectedStart ? occupied.map(h => h + 1) : occupied;
 
       const isOccupied = adjustedOccupied.includes(hour);
-      const isSelectedStart = selectedStart === time;
+      const isSelectedStart = selectedStart === time && selectedEnd;
+      const isSelectedStartNot = selectedStart === time && !selectedEnd;
       const isSelectedEnd = selectedEnd === time;
       const isSelectedRange = selectedStart && selectedEnd && hour > parseInt(selectedStart.split(':')[0], 10) && hour < parseInt(selectedEnd.split(':')[0], 10);
       const isClickable = isTimeAvailable(time);
       const canSelectEnd = isEndValid(time);
 
       const slotClass = (() => {
-        if (isSelectedStart) return 'selected-start';
+        if (isSelectedStart) return 'selected-start-not';
+        if (isSelectedStartNot) return 'selected-start';
         if (isSelectedRange) return 'selected-range';
         if (isOccupied) return 'occupied';
         if (isSelectedEnd) return 'selected-end';
@@ -208,7 +208,6 @@ const Step2 = ({ setBooking, goBack, studio }) => {
         (!selectedStart) ||  // Non è stato selezionato l'inizio
         (selectedStart && (isSelectedStart || isClickable && canSelectEnd))  // È stato selezionato l'inizio e l'ora è selezionata o è cliccabile
       );
-
 
       slots.push(
         <div

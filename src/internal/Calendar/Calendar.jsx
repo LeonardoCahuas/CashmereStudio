@@ -9,7 +9,8 @@ import usePrenotazioni from '../../booking/useBooking';
 
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 
-const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0') + ':00');
+const hours = Array.from({ length: 13 }, (_, i) => (i + 10).toString().padStart(2, '0') + ':00');
+
 
 const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
 const giorniSettimana = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -41,7 +42,7 @@ const PrevArrow = (props) => {
             style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", left: "-0px" }}
             onClick={onClick}
         >
-            <i className="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px",  backgroundColor: "white", width: "40px", height: "40px", borderRadius: '50%', position: "absolute", top: "-0px", left: "-2.5px" }}></i>
+            <i className="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px", backgroundColor: "white", width: "40px", height: "40px", borderRadius: '50%', position: "absolute", top: "-0px", left: "-2.5px" }}></i>
         </div>
     );
 };
@@ -131,6 +132,8 @@ const Calendar = () => {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [adding, setAdding] = useState(false)
+    const [inizio, setInizio] = useState()
+    const [fine, setFine] = useState()
     const [newPrenStart, setNewPrenStart] = useState(
         { day: "", time: "" }
 ,    )
@@ -146,7 +149,7 @@ const Calendar = () => {
 
     const findFonico = (id) => {
         const fonico = fonici.find((fon) => fon.id == id)
-        return fonico.nome
+        return fonico && fonico.nome ? fonico.nome : ""
     }
 
     const { prenotazioni, addPrenotazione, fonici, modificaPrenotazione, eliminaPrenotazione } = usePrenotazioni(selectedDay);
@@ -180,9 +183,23 @@ const Calendar = () => {
             [field]: value
         }));
 
+        if (field == 'inizio') {
+            setInizio(value)
+        } else if (field == 'fine') {
+            setFine(value)
+        }
+
+
 
         console.log(selectedPrenotazione)
     };
+
+    useEffect(() => {
+        if (selectedPrenotazione && selectedPrenotazione.inizio && selectedPrenotazione.fine) {
+            setInizio(formatDateForInput(selectedPrenotazione.inizio.toDate()))
+            setFine(formatDateForInput(selectedPrenotazione.fine.toDate()))
+        }
+    }, [selectedPrenotazione])
 
 
     const handleShowModal = (prenotazione) => {
@@ -237,13 +254,13 @@ const Calendar = () => {
     }
 
     const handleFonicoSelectionAdd = (fonico) => {
-        console.log(fonico)
+        console.log("fonico selezionato" + fonico)
         setNewPrenotazione(prev => ({
             ...prev,
             fonico: fonico
         }));
     }
-    
+
     const handleFonicoSelectionEdit = (fonico) => {
         console.log(fonico)
         setSelectedPrenotazione(prev => ({
@@ -269,42 +286,48 @@ const Calendar = () => {
 
     const handleInsert = () => {
         selectedSlots.forEach(slot => {
-            const [date, time] = slot.split('T');
-            const [hour] = time.split(':');
-            let inizio = new Date(`${date}T${time}`);
-            let fine = new Date(inizio);
-            fine.setHours(inizio.getHours() + 1);
+            console.log('Slot:', slot); // Debug: Verifica il contenuto di slot
+            if (slot instanceof Date) {
+                // Estrazione della data e dell'ora dall'oggetto Date
+                const inizio = new Date(slot);
+                const fine = new Date(inizio);
+                fine.setHours(inizio.getHours() + 1);
 
-            for (let i = 0; i < (repeat || 1); i++) {
-                const newInizio = new Date(inizio);
-                const newFine = new Date(fine);
-                newInizio.setDate(inizio.getDate() + i * 7);
-                newFine.setDate(fine.getDate() + i * 7);
+                for (let i = 0; i < (repeat || 1); i++) {
+                    const newInizio = new Date(inizio);
+                    const newFine = new Date(fine);
+                    newInizio.setDate(inizio.getDate() + i * 7);
+                    newFine.setDate(fine.getDate() + i * 7);
 
-                console.log({
-                    nomeUtente: username || 'Blocco',
-                    studio: value,
-                    telefono: phoneNumber || 'Blocco',
-                    services,
-                    inizio: newInizio,
-                    fine: newFine,
-                    stato: 2,
-                });
+                    console.log({
+                        nomeUtente: username || 'Blocco',
+                        studio: value,
+                        telefono: phoneNumber || 'Blocco',
+                        services,
+                        inizio: newInizio,
+                        fine: newFine,
+                        stato: 2,
+                    });
 
-                addPrenotazione({
-                    nomeUtente: username || 'Blocco',
-                    studio: value,
-                    telefono: phoneNumber || 'Blocco',
-                    services,
-                    inizio: newInizio,
-                    fine: newFine,
-                    stato: 2,
-                });
+                    addPrenotazione({
+                        nomeUtente: username || 'Blocco',
+                        studio: value,
+                        telefono: phoneNumber || 'Blocco',
+                        services,
+                        inizio: newInizio,
+                        fine: newFine,
+                        stato: 2,
+                    });
+                }
+            } else {
+                console.error('Invalid slot format:', slot); // Debug: Formato slot non valido
             }
         });
+        setServiceModalShow(false);
         setSelectedSlots([]);
         handleServiceModalClose();
     };
+
 
     const handleSaveChanges = () => {
         // Aggiungi logica per salvare le modifiche qui
@@ -410,7 +433,7 @@ const Calendar = () => {
                 };
 
                 console.log('Prenotazione salvata:', newPrenotazioneWithTimestamps);
-
+                console.log(newPrenotazioneWithTimestamps)
                 addPrenotazione(newPrenotazioneWithTimestamps);
             }
 
@@ -426,6 +449,7 @@ const Calendar = () => {
 
             setAdding(false);
             handleServiceModalClose();
+            setChange()
 
         } catch (error) {
             console.error('Error saving new reservation:', error);
@@ -466,28 +490,41 @@ const Calendar = () => {
                 </Slider>
                 {selectedDay && value && studioBookings && (
                     <Table striped bordered hover className="table-container">
+                        <thead>
+                            <tr>
+                                <th style={{ width: '80px' }}>Orario</th>
+                                <th>Dettagli</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            {Array.from({ length: 15 }, (_, i) => {
+                            {Array.from({ length: 13 }, (_, i) => {
                                 const hour = i + 10;
                                 const timeSlot = `${String(hour).padStart(2, '0')}:00`;
-                                const slot = `${selectedDay}T${timeSlot}`;
+                                const slot = new Date(`${selectedDay}T${timeSlot}`);
                                 const booking = studioBookings.find(pren => {
-                                    const prenStart = pren.inizio.toDate().getHours();
+                                    const prenDate = pren.inizio.toDate();
+                                    const prenStart = prenDate.getHours();
                                     const prenEnd = pren.fine.toDate().getHours();
-                                    return prenStart <= hour && prenEnd > hour;
+                                    return prenDate.getDate() === slot.getDate() &&
+                                        prenDate.getMonth() === slot.getMonth() &&
+                                        prenDate.getFullYear() === slot.getFullYear() &&
+                                        prenStart <= hour && prenEnd > hour;
                                 });
                                 return (
                                     <tr key={timeSlot}>
-                                        <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle' }}>
+                                        <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle', backgroundColor: "white" }}>
                                             {timeSlot}
                                         </td>
-                                        <td style={{ backgroundColor: selectedSlots.includes(slot) ? '#f0ad4e' : 'transparent', }} onClick={blockMode ? () => handleSlotClick(selectedDay, hour) : null}>
+                                        <td
+                                            style={{ backgroundColor: selectedSlots.some(s => s.getTime() === slot.getTime()) ? '#f0ad4e' : 'transparent', cursor: blockMode ? 'pointer' : 'default' }}
+                                            onClick={() => blockMode ? handleSlotClick(selectedDay, hour) : null}
+                                        >
                                             {booking ? (
                                                 <div style={{ backgroundColor: '#08B1DF', color: 'white', padding: '10px', borderRadius: '5px' }}>
                                                     <b style={{ fontWeight: 900 }}>{booking.nomeUtente}</b>
                                                 </div>
                                             ) : (
-                                                <div style={{ cursor: blockMode ? 'pointer' : 'default', color: "transparent" }}>
+                                                <div style={{ color: "transparent" }} onClick={() => blockMode ? null : addBook(selectedDay, timeSlot)}>
                                                     {timeSlot}
                                                 </div>
                                             )}
@@ -501,6 +538,7 @@ const Calendar = () => {
             </div>
         );
     };
+
 
 
 
@@ -599,7 +637,7 @@ const Calendar = () => {
             </Box>
             <div style={{ marginBottom: '20px', display: "flex", flexDirection: "row", alignItems: "center", justifyContent: view == "weekly" ? "space-between" : "center", width: "100%" }}>
                 {view === 'weekly' && (
-                    <p onClick={() => handleWeekChange(-1)} style={{ padding: "0px", borderBottom: "2px solid black" }}>Settimana Precedente</p>
+                    <i onClick={() => handleWeekChange(-1)} className="fa-solid fa-arrow-left" style={{ fontSize: "40px" }}></i>
 
                 )}
                 <FormControl variant="outlined">
@@ -615,7 +653,7 @@ const Calendar = () => {
                 </FormControl>
                 {view === 'weekly' && (
 
-                    <p onClick={() => handleWeekChange(1)} style={{ padding: "0px", borderBottom: "2px solid black" }}>Settimana Successiva</p>
+                    <i onClick={() => handleWeekChange(1)} className="fa-solid fa-arrow-right" style={{ fontSize: "40px" }}></i>
                 )}
             </div>
             {view === 'daily' ? renderDays() : renderWeekly()}
@@ -681,6 +719,23 @@ const Calendar = () => {
                                             <Form.Label>Inizio</Form.Label>
                                             <Form.Control
                                                 type="datetime-local"
+                                                value={inizio}
+                                                onChange={(e) => handleInputChange('inizio', parseISO(e.target.value))}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group controlId="formFine" style={{ marginTop: '20px' }}>
+                                            <Form.Label>Fine</Form.Label>
+                                            <Form.Control
+                                                type="datetime-local"
+                                                value={fine}
+                                                onChange={(e) => handleInputChange('fine', parseISO(e.target.value))}
+                                            />
+                                        </Form.Group>
+                                        {/* 
+                                        <Form.Group controlId="formInizio">
+                                            <Form.Label>Inizio</Form.Label>
+                                            <Form.Control
+                                                type="datetime-local"
                                                 value={formatDateForInput(selectedPrenotazione.inizio.toDate())}
                                                 onChange={(e) => handleInputChange('inizio', parseISO(e.target.value))}
                                             />
@@ -692,14 +747,21 @@ const Calendar = () => {
                                                 value={formatDateForInput(selectedPrenotazione.fine.toDate())}
                                                 onChange={(e) => handleInputChange('fine', parseISO(e.target.value))}
                                             />
-                                        </Form.Group>
+                                        </Form.Group> */}
                                         <Form.Group controlId="formStudio">
                                             <Form.Label>Studio</Form.Label>
-                                            <Form.Control
-                                                type="text"
+                                            <select
                                                 value={selectedPrenotazione.studio}
                                                 onChange={(e) => handleInputChange('studio', e.target.value)}
-                                            />
+                                            >
+                                                {
+                                                    [1, 2, 3].map((stu) => (
+                                                        <option key={stu} value={stu} selected={value}>
+                                                            {stu}
+                                                        </option>
+                                                    ))
+                                                }
+                                            </select>
                                         </Form.Group>
                                         <select onChange={(e) => handleFonicoSelectionEdit(e.target.value)}>
                                             {
@@ -811,17 +873,16 @@ const Calendar = () => {
 
                             <Form.Group controlId="formStudio">
                                 <Form.Label>Studio</Form.Label>
-                                <Form.Control
-                                    as="select"
+                                <select
                                     value={newPrenotazione.studio}
                                     onChange={(e) => handleNewInputChange('studio', e.target.value)}
                                 >
                                     {[1, 2, 3].map(studio => (
-                                        <option key={studio} value={studio}>
+                                        <option key={studio} value={Number(studio)}>
                                             {studio}
                                         </option>
                                     ))}
-                                </Form.Control>
+                                </select>
                             </Form.Group>
 
                             <select onChange={(e) => handleFonicoSelectionAdd(e.target.value)}>

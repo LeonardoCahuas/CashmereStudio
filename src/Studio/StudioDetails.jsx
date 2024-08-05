@@ -44,7 +44,7 @@ function StudioDetails({ index }) {
 
     return (
         <div style={{ paddingTop: "100px" }}>
-            <div style={{ width: '100vw', backgroundColor: 'white', paddingTop: isMobile ? "30px" : '15px', paddingBottom: '15px', paddingLeft: isMobile ? '20px' : '70px', paddingRight: isMobile ? '20px' : '70px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center' }}>
+            <div style={{ width: '100vw', backgroundColor: 'white', paddingTop: isMobile ? "0px" : '15px', paddingBottom: '15px', paddingLeft: isMobile ? '20px' : '70px', paddingRight: isMobile ? '20px' : '70px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center' }}>
                 <div className='text-start'>
                     <h5 style={{ color: 'black', fontWeight: 900, fontSize: "17px" }}>Studio {index}</h5>
                     <div className='d-flex flex-row' style={{ gap: "10px" }}>
@@ -66,12 +66,6 @@ function StudioDetails({ index }) {
                         Il tuo browser non supporta il tag video.
                     </video>
 
-                    <div
-                        className="w-100"
-                        style={{ height: '1000px', display: videoUrl ? 'none' : 'block', backgroundColor: "black" }}
-                        alt="Header"
-                    >
-                    </div>
                 </div>
                 <h1 style={{
                     position: 'absolute',

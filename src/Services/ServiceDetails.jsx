@@ -41,7 +41,7 @@ function ServiceDetails({ service }) {
     }, []);
 
     return (
-        <div style={{paddingTop:"80px"}}>
+        <div style={{paddingTop:"60px"}}>
             <div className={`d-flex ${isMobile ? 'flex-column' : 'flex-row align-items-start'} bg-black`} style={{overflow:"hidden"}}>
                 <div style={{  width: isMobile ? "100%" : "50%", overflow:"hidden", height:"100%" }}>
                     <img src={info[service].image} alt="Descrizione immagine" style={{ width: '100%'}} />
