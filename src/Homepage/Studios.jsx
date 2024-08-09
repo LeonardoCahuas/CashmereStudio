@@ -131,19 +131,19 @@ function Studios() {
             <h1 className="studios-header">I NOSTRI STUDI</h1>
             <StudioSection
                 title="Studio 1"
-                description="40x50m (dato mancante)"
+                description="33 mq"
                 bgColor="white"
                 index={1}
             />
             <StudioSection
                 title="Studio 2"
-                description="40x50m (dato mancante)"
+                description="26 mq"
                 bgColor="black"
                 index={2}
             />
             <StudioSection
                 title="Studio 3"
-                description="40x50m (dato mancante)"
+                description="23 mq"
                 bgColor="white"
                 index={3}
             />

@@ -257,7 +257,7 @@ const Step2 = ({ setBooking, goBack, studio }) => {
                     <p className='text-start w-75 fs-5'>
                       {`${giorniSettimana[new Date(day.date).getDay()]}`}
                     </p>
-                    <p className='text-start w-75 fs-6' style={{ fontWeight: 800, marginTop: "-20px", marginBottom:'0px' }}>
+                    <p className='text-start w-75 fs-6' style={{ fontWeight: 800, marginTop: "-20px", marginBottom:'0px', whiteSpace:"nowrap" }}>
                       {`${new Date(day.date).getDate()} ${months[new Date(day.date).getMonth()]}`}
                     </p>
                   </button>

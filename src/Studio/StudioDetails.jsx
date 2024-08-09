@@ -33,7 +33,7 @@ function StudioDetails({ index }) {
                     <h5 style={{ color: 'black', fontWeight: 900, fontSize: "17px" }}>Studio {index}</h5>
                     <div className='d-flex flex-row' style={{ gap: "10px" }}>
                         <p style={{ color: 'grey', margin: 0 }}>Dimensioni</p>
-                        <p style={{ color: 'black', margin: 0, fontWeight: 900, fontSize: "17px" }}>50 X 40M</p>
+                        <p style={{ color: 'black', margin: 0, fontWeight: 900, fontSize: "17px" }}>{info[index].dimensions}</p>
                     </div>
                 </div>
                 <Link to="/book">
