@@ -1,93 +1,68 @@
 import { useState, useEffect } from 'react';
-import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase-config';
 
 const usePrenotazioni = (selectedDateTime) => {
   const [prenotazioni, setPrenotazioni] = useState([]);
-  const [change, setChange] = useState(0)
   const [fonici, setFonici] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-
-  useEffect(() => {
-    const q = query(collection(db, 'prenotazioni'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const prenotazioniData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setPrenotazioni(prenotazioniData);
-      setLoading(false);
-    }, (err) => {
-      console.error(err);
-      setError(err.message);
-    });
-
-    return () => unsubscribe(); // Cleanup l'ascoltatore quando il componente si smonta
-  }, []);
+  const [change, setChange] = useState(0);
 
   useEffect(() => {
-    const q = query(collection(db, 'fonici'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const foniciData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setFonici(foniciData);
-      setLoading(false);
-    }, (err) => {
-      console.error(err);
-      setError(err.message);
-    });
-
-    return () => unsubscribe(); // Cleanup l'ascoltatore quando il componente si smonta
-  }, []);
-  useEffect(() => {
-    const fetchPrenotazioni = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const q = query(
-          collection(db, 'prenotazioni')
-        );
-        const querySnapshot = await getDocs(q);
-        const prenotazioniData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const prenotazioniQuery = query(collection(db, 'prenotazioni'));
+        const foniciQuery = query(collection(db, 'fonici'));
+
+        const [prenotazioniSnapshot, foniciSnapshot] = await Promise.all([
+          getDocs(prenotazioniQuery),
+          getDocs(foniciQuery)
+        ]);
+
+        const prenotazioniData = prenotazioniSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const foniciData = foniciSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Aggiorniamo i dati nello stato e nel localStorage
         setPrenotazioni(prenotazioniData);
-      } catch (err) {
-        console.log(err)
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchFonici = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const q = query(
-          collection(db, 'fonici')
-        );
-        const querySnapshot = await getDocs(q);
-        const foniciData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setFonici(foniciData);
+
+        localStorage.setItem('prenotazioni', JSON.stringify(prenotazioniData));
+        localStorage.setItem('fonici', JSON.stringify(foniciData));
       } catch (err) {
-        console.log(err)
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPrenotazioni();
-    fetchFonici()
+    fetchData();
   }, [selectedDateTime, change]);
 
   const setNewChange = () => {
-    setChange(1)
-  }
+    setChange(prevChange => prevChange + 1);
+  };
+
+  const updateLocalStorage = (prenotazioniData, foniciData) => {
+    if (prenotazioniData) {
+      localStorage.setItem('prenotazioni', JSON.stringify(prenotazioniData));
+      setPrenotazioni(prenotazioniData);
+    }
+    if (foniciData) {
+      localStorage.setItem('fonici', JSON.stringify(foniciData));
+      setFonici(foniciData);
+    }
+  };
 
   const addPrenotazione = async (prenotazione) => {
     try {
-      await addDoc(collection(db, 'prenotazioni'), prenotazione);
-      console.log("pren aggiunta con successo")
+      const docRef = await addDoc(collection(db, 'prenotazioni'), prenotazione);
+      const updatedPrenotazioni = [...prenotazioni, { id: docRef.id, ...prenotazione }];
+      updateLocalStorage(updatedPrenotazioni, fonici);
+      setNewChange();
     } catch (err) {
-      console.log(err.message)
       setError(err.message);
     }
   };
@@ -95,16 +70,13 @@ const usePrenotazioni = (selectedDateTime) => {
   const updatePrenotazioneStato = async (id, newStato, fonico) => {
     try {
       const prenotazioneRef = doc(db, 'prenotazioni', id);
-      await updateDoc(prenotazioneRef, {
-        stato: newStato,
-        fonico: fonico
-      });
-      // Aggiorna lo stato locale
-      setPrenotazioni(prevPrenotazioni =>
-        prevPrenotazioni.map(prenotazione =>
-          prenotazione.id === id ? { ...prenotazione, stato: newStato } : prenotazione
-        )
+      await updateDoc(prenotazioneRef, { stato: newStato, fonico: fonico });
+
+      const updatedPrenotazioni = prenotazioni.map(prenotazione =>
+        prenotazione.id === id ? { ...prenotazione, stato: newStato, fonico: fonico } : prenotazione
       );
+
+      updateLocalStorage(updatedPrenotazioni, fonici);
     } catch (err) {
       setError(err.message);
     }
@@ -114,72 +86,48 @@ const usePrenotazioni = (selectedDateTime) => {
     try {
       const prenotazioneRef = doc(db, 'prenotazioni', id);
       await deleteDoc(prenotazioneRef);
-      setPrenotazioni(prevPrenotazioni =>
-        prevPrenotazioni.filter(prenotazione => prenotazione.id !== id)
-      );
-
-      console.log("fatto")
+      const updatedPrenotazioni = prenotazioni.filter(prenotazione => prenotazione.id !== id);
+      updateLocalStorage(updatedPrenotazioni, fonici);
     } catch (err) {
-      console.log(err.message)
       setError(err.message);
     }
   };
 
-  const handleSaveChanges = () => {
-    console.log('Modifiche salvate');
-    setIsEditing(false);
-  };
-
-  // Funzione per modificare una prenotazione
   const modificaPrenotazione = async (id, updatedPrenotazione) => {
     try {
       const prenotazioneRef = doc(db, 'prenotazioni', id);
       await updateDoc(prenotazioneRef, updatedPrenotazione);
-      setPrenotazioni(prevPrenotazioni =>
-        prevPrenotazioni.map(prenotazione =>
-          prenotazione.id === id ? { ...prenotazione, ...updatedPrenotazione } : prenotazione
-        )
+      const updatedPrenotazioni = prenotazioni.map(prenotazione =>
+        prenotazione.id === id ? { ...prenotazione, ...updatedPrenotazione } : prenotazione
       );
 
-      console.log("done that")
+      updateLocalStorage(updatedPrenotazioni, fonici);
     } catch (err) {
-      console.log(err.message)
       setError(err.message);
     }
   };
 
   const setDisponibilita = async (fonicoId, disponibilita) => {
     try {
-      // Aggiorna lo stato locale
-      setFonici((prevFonici) =>
-        prevFonici.map(fonico =>
-          fonico.id === fonicoId
-            ? { ...fonico, disp: disponibilita }
-            : fonico
-        )
+      const fonicoRef = doc(db, 'fonici', fonicoId);
+      await updateDoc(fonicoRef, { disp: disponibilita });
+
+      const updatedFonici = fonici.map(fonico =>
+        fonico.id === fonicoId ? { ...fonico, disp: disponibilita } : fonico
       );
 
-      // Aggiorna il database
-      const fonicoRef = doc(db, 'fonici', fonicoId);
-      await updateDoc(fonicoRef, {
-        disp: disponibilita
-      });
-
-      console.log("Disponibilità aggiornata per il fonico con ID:", fonicoId);
+      updateLocalStorage(prenotazioni, updatedFonici);
     } catch (err) {
-      console.error("Errore durante l'aggiornamento della disponibilità:", err.message);
+      setError(err.message);
     }
   };
 
   const addFonico = async (fonico) => {
     try {
-      await addDoc(collection(db, 'fonici'), { nome: fonico });
-      console.log("Fonico aggiunto con successo");
-
-      // Aggiorna lo stato locale
-      setFonici(prevFonici => [...prevFonici, { id: doc.id, ...fonico }]);
+      const docRef = await addDoc(collection(db, 'fonici'), { nome: fonico });
+      const updatedFonici = [...fonici, { id: docRef.id, nome: fonico }];
+      updateLocalStorage(prenotazioni, updatedFonici);
     } catch (err) {
-      console.log(err.message);
       setError(err.message);
     }
   };
@@ -188,21 +136,28 @@ const usePrenotazioni = (selectedDateTime) => {
     try {
       const fonicoRef = doc(db, 'fonici', id);
       await deleteDoc(fonicoRef);
-
-      // Aggiorna lo stato locale
-      setFonici(prevFonici => prevFonici.filter(fonico => fonico.id !== id));
-
-      console.log("Fonico eliminato con successo");
+      const updatedFonici = fonici.filter(fonico => fonico.id !== id);
+      updateLocalStorage(prenotazioni, updatedFonici);
     } catch (err) {
-      console.log(err.message);
       setError(err.message);
     }
   };
 
-
-
-
-  return { prenotazioni, loading, error, addPrenotazione, setPrenotazioni, updatePrenotazioneStato, fonici, eliminaPrenotazione, modificaPrenotazione, setDisponibilita, addFonico, eliminaFonico, setNewChange };
+  return {
+    prenotazioni,
+    fonici,
+    loading,
+    error,
+    addPrenotazione,
+    setPrenotazioni,
+    updatePrenotazioneStato,
+    eliminaPrenotazione,
+    modificaPrenotazione,
+    setDisponibilita,
+    addFonico,
+    eliminaFonico,
+    setNewChange
+  };
 };
 
 export default usePrenotazioni;

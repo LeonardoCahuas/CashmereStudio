@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+/* import * as functions from 'firebase-functions';
 import admin from 'firebase-admin';
 import twilio from 'twilio';
 
@@ -190,9 +190,9 @@ export const checkGoogleLogin = functions.auth.user().onCreate(async (user) => {
       }
     }
   }
-});
+}); */
 
-/* 
+ 
 
 import * as functions from 'firebase-functions';
 import admin from 'firebase-admin';
@@ -366,4 +366,3 @@ export const sendReminder = functions.pubsub.schedule('0 18 * * *').timeZone('Eu
     console.error('Error sending reminders:', error);
   }
 });
-*/

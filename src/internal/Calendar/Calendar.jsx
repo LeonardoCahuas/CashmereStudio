@@ -11,6 +11,58 @@ import { Table, Button, Modal, Form } from 'react-bootstrap';
 
 const hours = Array.from({ length: 13 }, (_, i) => (i + 10).toString().padStart(2, '0') + ':00');
 
+const getRandomDarkColor = () => {
+    // Definisce una gamma di colori scuri ma vivaci
+    const colors = [
+        '#FF5722', // Arancio scuro
+        '#E91E63', // Rosa scuro
+        '#673AB7', // Viola scuro
+        '#3F51B5', // Blu scuro
+        '#4CAF50', // Verde scuro
+        '#FFC107', // Giallo scuro
+        '#9C27B0', // Viola acceso
+        '#FF9800', // Arancio acceso
+        '#009688', // Teal scuro
+        '#00BCD4', // Ciano scuro
+        '#8BC34A', // Verde lime scuro
+        '#CDDC39', // Lime scuro
+        '#FFEB3B', // Giallo acceso
+        '#FF3D00', // Rosso acceso
+        '#D500F9', // Viola acceso
+        '#1DE9B6', // Turchese
+        '#FF6D00', // Arancio scuro
+        '#4A148C', // Viola scuro
+        '#004D40', // Verde scuro
+        '#827717', // Verde oliva scuro
+        '#D32F2F', // Rosso scuro
+        '#303F9F', // Blu scuro
+        '#C2185B', // Rosa scuro
+        '#F57C00', // Arancio scuro
+        '#7B1FA2', // Viola scuro
+        '#0288D1', // Blu scuro
+        '#388E3C', // Verde scuro
+        '#FBC02D', // Giallo scuro
+        '#B71C1C', // Rosso scuro
+        '#7E57C2', // Viola chiaro
+        '#00C853', // Verde chiaro
+        '#F57F17', // Arancio acceso
+        '#8D6E63', // Marrone scuro
+        '#0091EA', // Blu acceso
+        '#7C4DFF', // Viola acceso
+        '#FFAB00', // Giallo scuro
+        '#D32F2F', // Rosso scuro
+        '#1DE9B6', // Turchese chiaro
+        '#FF5722', // Arancio scuro
+        '#E64A19', // Arancio scuro
+        '#F44336', // Rosso acceso
+        '#004D40'  // Verde scuro
+    ];
+
+    // Seleziona un colore casuale dalla gamma definita
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    return color;
+};
 
 const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
 const giorniSettimana = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -134,6 +186,7 @@ const Calendar = () => {
     const [adding, setAdding] = useState(false)
     const [inizio, setInizio] = useState()
     const [fine, setFine] = useState()
+    const [endHoursOptions, setEndHoursOptions] = useState(hours)
     const [newPrenStart, setNewPrenStart] = useState(
         { day: "", time: "" }
 ,    )
@@ -146,6 +199,11 @@ const Calendar = () => {
         stato: 2,
         services: []
     })
+    const [fonicoColors, setFonicoColors] = useState({});
+
+    
+    
+    
 
     const findFonico = (id) => {
         const fonico = fonici.find((fon) => fon.id == id)
@@ -155,6 +213,30 @@ const Calendar = () => {
     const { prenotazioni, addPrenotazione, fonici, modificaPrenotazione, eliminaPrenotazione } = usePrenotazioni(selectedDay);
     const [username, setUsername] = useState('');
     const [phone, setPhone] = useState('');
+
+    useEffect(() => {
+        const colors = [
+            '#008000', // Verde
+            '#FF0000', // Rosso
+            '#0000FF', // Blu
+            '#FFA500', // Arancione
+            '#800080', // Viola
+            '#00FFFF', // Ciano
+            '#FFC0CB', // Rosa
+            '#FFD700', // Oro
+            '#00FF00', // Verde lime
+        ];
+        
+    
+        let assignedColors = fonici.reduce((acc, fonico, index) => {
+            acc[fonico.id] = colors[index % colors.length]; // Assegna un colore a ogni fonico usando l'ID
+            return acc;
+        }, {});
+
+        assignedColors["LlFzgMM8KNJoR18KvXpU"] = "grey"
+    
+        setFonicoColors(assignedColors);
+    }, [fonici]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -277,6 +359,7 @@ const Calendar = () => {
             setSelectedSlots([...selectedSlots, slot]);
         }
     };
+    
 
     const handleNext = () => {
         if (selectedSlots.length) {
@@ -352,17 +435,44 @@ const Calendar = () => {
 
 
     const addBook = (day, start) => {
-        console.log("adding pren")
-        console.log(day)
-        console.log(start)
-        setNewPrenStart(
-            {
-                day: day,
-                time: start
-            }
-        )
-        setAdding(true)
-    }
+        console.log("adding pren");
+        console.log(day);
+        console.log(start);
+    
+        const startHour = parseInt(start.split(':')[0]);
+    
+        // Trova le prenotazioni del giorno specifico e dello studio selezionato
+        const bookingsForTheDay = prenotazioni
+            .filter(pren => getFormattedDate(pren.inizio.toDate()) === day.date && pren.studio === value)
+            .map(pren => ({
+                startHour: pren.inizio.toDate().getHours(),
+                endHour: pren.fine.toDate().getHours()
+            }))
+            .sort((a, b) => a.startHour - b.startHour);
+    
+        // Trova la prossima prenotazione dopo l'ora di inizio selezionata
+        const nextBooking = bookingsForTheDay.find(booking => booking.startHour > startHour);
+    
+        // Calcola le opzioni di orario di fine
+        let endHourOptions;
+        if (nextBooking) {
+            endHourOptions = Array.from({ length: nextBooking.startHour - startHour }, (_, i) => startHour + i + 1);
+        } else {
+            endHourOptions = Array.from({ length: 22 - startHour }, (_, i) => startHour + i + 1);
+        }
+    
+        // Imposta le opzioni per l'orario di fine
+        setEndHoursOptions(endHourOptions);
+    
+        // Imposta l'ora di inizio per la nuova prenotazione
+        setNewPrenStart({
+            day: day,
+            time: start
+        });
+    
+        setAdding(true);
+    };
+    
 
     const handleNewInputChange = (field, value) => {
         if (field == "studio") {
@@ -455,8 +565,7 @@ const Calendar = () => {
             });
 
             setAdding(false);
-            handleServiceModalClose();
-            setChange()
+            handleServiceModalClose()
 
         } catch (error) {
             console.error('Error saving new reservation:', error);
@@ -465,7 +574,7 @@ const Calendar = () => {
 
     useEffect(() => {
         if (selectedDay) {
-            let newPren = prenotazioni.filter((pren) => pren.studio === value && pren.inizio.toDate().toLocaleDateString() === new Date(selectedDay).toLocaleDateString());
+            let newPren = prenotazioni.filter((pren) => pren.studio === value);
             setStudioBookings(newPren);
         } else {
             setStudioBookings([]);
@@ -499,7 +608,7 @@ const Calendar = () => {
                     <Table striped bordered hover className="table-container">
                         <thead>
                             <tr>
-                                <th style={{ width: '80px' }}>Orario</th>
+                                <th style={{ width: '80px', border:"1px solid black" }}>Orario</th>
                                 <th>Dettagli</th>
                             </tr>
                         </thead>
@@ -527,7 +636,7 @@ const Calendar = () => {
                                             onClick={() => blockMode ? handleSlotClick(selectedDay, hour) : null}
                                         >
                                             {booking ? (
-                                                <div style={{ backgroundColor: '#08B1DF', color: 'white', padding: '10px', borderRadius: '5px' }}>
+                                                <div style={{ backgroundColor: '#08B1DF', color: 'white', padding: '10px', borderRadius: '5px', height: "200px" }}>
                                                     <b style={{ fontWeight: 900 }}>{booking.nomeUtente}</b>
                                                 </div>
                                             ) : (
@@ -545,71 +654,151 @@ const Calendar = () => {
             </div>
         );
     };
-
-
-
-
     const renderWeekly = () => {
+        const bookingsByDay = currentWeek.reduce((acc, day) => {
+            acc[day.date] = prenotazioni
+                .filter(pren => {
+                    try {
+                        const prenDate = pren.inizio.toDate();
+                        const prenStart = prenDate.getHours();
+                        const prenEnd = pren.fine.toDate().getHours();
+                        return pren.studio === value &&
+                            getFormattedDate(prenDate) === day.date;
+                    } catch (err) {
+                        console.log(err.message);
+                        return false;
+                    }
+                })
+                .map(pren => {
+                    const startHour = pren.inizio.toDate().getHours();
+                    const endHour = pren.fine.toDate().getHours();
+                    return {
+                        ...pren,
+                        startHour,
+                        endHour
+                    };
+                });
+            return acc;
+        }, {});
+    
+        const occupiedSlots = {}; // Nuovo oggetto per tenere traccia delle celle occupate
+    
+        const rows = [];
+        for (let i = 0; i < 13; i++) {
+            const hour = i + 10;
+            const timeSlot = `${String(hour).padStart(2, '0')}:00`;
+    
+            const row = {
+                timeSlot,
+                cells: currentWeek.map((day, colIndex) => {
+                    const bookings = bookingsByDay[day.date] || [];
+                    const currentBookings = bookings.filter(b => b.startHour <= hour && b.endHour > hour);
+                    let isContent = false;
+                    let fonico = "nope"
+                    let cellContent = null;
+                    let rowSpan = 1;
+    
+                    if (currentBookings.length > 0) {
+                        isContent = true;
+                        const booking = currentBookings[0];
+                        rowSpan = booking.endHour - booking.startHour;
+    
+                        // Controlla se lo slot è già occupato
+                        if (occupiedSlots[`${day.date}-${hour}`]) {
+                            return null;
+                        }
+    
+                        // Segna gli slot come occupati
+                        for (let r = 0; r < rowSpan; r++) {
+                            occupiedSlots[`${day.date}-${hour + r}`] = true;
+                        }
+
+                        fonico = booking.fonico ? booking.fonico : "nope"
+    
+                        cellContent = (
+                            <div style={{
+                                backgroundColor: 'transparent',
+                                color: 'white',
+                                borderRadius: '5px',
+                                height: `100%`,
+                                display: 'flex',
+                                flexDirection: "column",
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxSizing: 'border-box'
+                            }} onClick={() => blockMode ? null : handleShowModal(booking)}>
+                                <b style={{ fontWeight: 900 }}>{booking.nomeUtente}, {findFonico(booking.fonico) !== "" ? findFonico(booking.fonico) : "senza fonico"}</b>
+                                <b> {booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}-{booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
+                            </div>
+                        );
+                    } else {
+                        cellContent = (
+                            <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(day.date, hour) : addBook(day, timeSlot)}>
+                                {timeSlot}
+                            </div>
+                        );
+                    }
+    
+                    return {
+                        content: cellContent,
+                        rowSpan,
+                        isContent,
+                        fonico: fonico
+                    };
+                })
+            };
+    
+            rows.push(row);
+        }
+    
         return (
             <div className="w-100 d-flex flex-column custom-slider-container overflow-scroll">
                 <Table striped bordered hover className="table-container">
                     <thead>
                         <tr>
-                            <th style={{ width: '80px' }}>Orario</th>
+                            <th style={{ width: '80px', border:"1px solid black", fontWeight:900 }}>Orario</th>
                             {currentWeek.map(day => (
-                                <th key={day.date} style={{ textAlign: 'center', backgroundColor: day.date === selectedDay ? '#08B1DF' : 'white', color: day.date === selectedDay ? 'white' : 'black' }}>
-                                    {day.label}
+                                <th key={day.date} style={{ textAlign: 'center', backgroundColor: day.date === selectedDay ? '#08B1DF' : 'white', color: day.date === selectedDay ? 'white' : 'black', border: day.date === selectedDay ? "1px solid #08B1DF" : "1px solid black"  }}>
+                                    {day.label} {day.date === selectedDay ? "  (oggi)" : ""} 
                                 </th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {Array.from({ length: 15 }, (_, i) => {
-                            const hour = i + 10;
-                            const timeSlot = `${String(hour).padStart(2, '0')}:00`;
-                            return (
-                                <tr key={timeSlot} style={{ backgroundColor: "rgba(0, 0, 0, 0)" }}>
-                                    <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle', backgroundColor: "white" }}>
-                                        {timeSlot}
-                                    </td>
-                                    {currentWeek.map(day => {
-                                        const slot = new Date(`${day.date}T${timeSlot}`);
-                                        const bookings = prenotazioni.filter(pren => {
-                                            const prenDate = pren.inizio.toDate();
-                                            const prenStart = prenDate.getHours();
-                                            const prenEnd = pren.fine.toDate().getHours();
-                                            return pren.studio === value &&
-                                                getFormattedDate(prenDate) === day.date &&
-                                                prenStart <= hour && prenEnd > hour;
-                                        });
-                                        return (
-                                            <td key={day.date} style={{ height: '60px', textAlign: 'center', backgroundColor: selectedSlots.some(s => s.getTime() === slot.getTime()) ? '#f0ad4e' : 'white' }}>
-                                                {bookings.length ? (
-                                                    bookings.map(booking => (
-                                                        <div key={booking.id} style={{ backgroundColor: '#08B1DF', color: 'white', padding: '10px', borderRadius: '5px', marginBottom: '5px' }} onClick={() => blockMode ? null : handleShowModal(booking)}>
-                                                            <b style={{ fontWeight: 900, marginLeft: "10px" }} >{booking.nomeUtente}</b>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(day.date, hour) : addBook(day, timeSlot)}>
-                                                        {timeSlot}
-                                                    </div>
-
-                                                )}
-                                            </td>
-                                        );
-                                    })}
-                                </tr>
-                            );
-                        })}
+                        {rows.map(({ timeSlot, cells }) => (
+                            <tr key={timeSlot}>
+                                <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle', backgroundColor: "white", border:"1px solid black", fontWeight:"900" }}>
+                                    {timeSlot}
+                                </td>
+                                {cells.map((cell, colIndex) => {
+                                    if (!cell) return null; // Salta le celle già occupate
+    
+                                    const { content, rowSpan, isContent, fonico } = cell;
+                                    console.log("fonico: " + fonico + "colore: " + fonicoColors[fonico])
+    
+                                    return (
+                                        <td
+                                            key={currentWeek[colIndex].date}
+                                            rowSpan={rowSpan}
+                                            style={{
+                                                textAlign: 'center',
+                                                backgroundColor: isContent ? fonicoColors[fonico] : selectedSlots.some(s => s.getTime() === new Date(`${currentWeek[colIndex].date}T${timeSlot}`).getTime()) ? '#f0ad4e' : 'white',
+                                                verticalAlign: 'middle',
+                                                padding: '0',
+                                            }}
+                                        >
+                                            {content}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
                     </tbody>
                 </Table>
             </div>
         );
     };
-
-
-
+    
 
     const handleWeekChange = (direction) => {
         const newWeek = currentWeek.map(day => {
@@ -629,14 +818,14 @@ const Calendar = () => {
                 <Tabs onChange={handleChange} aria-label="basic tabs example">
                     <Tab className='studiointernalbbutt p-1' label="Studio 1" style={{ background: value === 1 ? "black" : "white", color: value === 1 ? "white" : "black", border: "1px solid black" }} />
                     <Tab label="Studio 2" className='p-1' style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
-                    <Tab label="Studio 3"  className='p-1' style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
+                    <Tab label="Studio 3" className='p-1' style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
                 </Tabs>
-                <div className='d-flex flex-row align-items-center justify-content-center' style={{ gap: "20px" }}>
-                    <MuiButton variant="contained" color="primary" onClick={toggleBlockMode} style={{ marginLeft: '20px' }}>
+                <div className='d-flex flex-row align-items-center justify-content-center mb-2' style={{ gap: "20px" }}>
+                    <MuiButton variant="contained" color="primary" onClick={toggleBlockMode} style={{ marginLeft: '20px', background:"transparent", border:"2px solid black", color:"black" }}>
                         {blockMode ? 'Annulla' : 'Blocca'}
                     </MuiButton>
                     {blockMode && selectedSlots.length > 0 && (
-                        <MuiButton variant="contained" color="secondary" onClick={handleNext} style={{}}>
+                        <MuiButton variant="contained" color="secondary" onClick={handleNext} style={{background:"transparent", border:"2px solid black", color:"black"}}>
                             Avanti
                         </MuiButton>
                     )}
@@ -644,14 +833,14 @@ const Calendar = () => {
             </Box>
             <div style={{ marginBottom: '20px', display: "flex", flexDirection: "row", alignItems: "center", justifyContent: view == "weekly" ? "space-between" : "center", width: "100%" }}>
                 {view === 'weekly' && (
-                    <i onClick={() => handleWeekChange(-1)} className="fa-solid fa-arrow-left d-flex flex-column align-items-center justify-content-center" style={{ fontSize: "30px",  borderRadius:"50%", border:"2px solid black", width:"40px", height:"40px" }}></i>
+                    <i onClick={() => handleWeekChange(-1)} className="fa-solid fa-arrow-left d-flex flex-column align-items-center justify-content-center" style={{ fontSize: "30px", borderRadius: "50%", border: "2px solid black", width: "40px", height: "40px" }}></i>
 
                 )}
                 <FormControl variant="outlined">
                     <Select
                         value={view}
                         onChange={(e) => setView(e.target.value)}
-                        style={{paddingRight:"100px"}}
+                        style={{ paddingRight: "100px" }}
                     >
                         <MenuItem value="daily">Giornaliero</MenuItem>
                         <MenuItem value="weekly">Settimanale</MenuItem>
@@ -659,7 +848,7 @@ const Calendar = () => {
                 </FormControl>
                 {view === 'weekly' && (
 
-                    <i onClick={() => handleWeekChange(1)} className="fa-solid fa-arrow-right  d-flex flex-column align-items-center justify-content-center" style={{ fontSize: "30px", borderRadius:"50%", border:"2px solid black", width:"40px", height:"40px" }}></i>
+                    <i onClick={() => handleWeekChange(1)} className="fa-solid fa-arrow-right  d-flex flex-column align-items-center justify-content-center" style={{ fontSize: "30px", borderRadius: "50%", border: "2px solid black", width: "40px", height: "40px" }}></i>
                 )}
             </div>
             {view === 'daily' ? renderDays() : renderWeekly()}
@@ -676,8 +865,8 @@ const Calendar = () => {
                         {showDeleteConfirmation ? (
                             <div>
                                 <p>Sei sicuro di voler eliminare?</p>
-                                <Button variant="danger" onClick={handleConfirmDelete}>Sì, elimina</Button>
-                                <Button variant="secondary" onClick={handleCancelDelete}>No, torna indietro</Button>
+                                <Button variant="danger" style={{background:"transparent", border:"2px solid red", color:"red", marginRight:"10px"}} onClick={handleConfirmDelete}>Sì, elimina</Button>
+                                <Button variant="secondary" style={{background:"transparent", border:"2px solid black", color:"black"}} onClick={handleCancelDelete}>No, torna indietro</Button>
                             </div>
                         ) : (
                             <div>
@@ -786,8 +975,25 @@ const Calendar = () => {
                                         <p>Nome Utente: {selectedPrenotazione.nomeUtente}</p>
                                         <p>Telefono: {selectedPrenotazione.telefono}</p>
                                         <div className='d-flex flex-row align-items-center justify-content-start mb-3'>Servizi: <p className='text-white'>...</p> {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p key={servi} className="m-0">{servi}, {" "}</p>)}</div>
-                                        <p>Inizio: {selectedPrenotazione.inizio.toDate().toLocaleString()}</p>
-                                        <p>Fine: {selectedPrenotazione.fine.toDate().toLocaleString()}</p>
+                                        <p>
+                                            Inizio: {selectedPrenotazione.inizio.toDate().toLocaleDateString('it-IT', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            }) + " ore " +
+                                                selectedPrenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                        <p>
+                                            Fine: {selectedPrenotazione.fine.toDate().toLocaleDateString('it-IT', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            }) + " ore " +
+                                                selectedPrenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+
                                         <p>Studio: {selectedPrenotazione.studio}</p>
                                         <p>Stato: {selectedPrenotazione.stato}</p>
                                         <p>Fonico: {findFonico(selectedPrenotazione.fonico)}</p>
@@ -801,22 +1007,22 @@ const Calendar = () => {
                     <Modal.Footer>
                         {showDeleteConfirmation ? (
                             <>
-                                <Button variant="secondary" onClick={handleCancelDelete}>Annulla</Button>
+                                <Button variant="secondary" style={{}} onClick={handleCancelDelete}>Annulla</Button>
                             </>
                         ) : (
                             <>
                                 {!isEditing ? (
                                     <>
-                                        <Button variant="secondary" onClick={handleEdit}>Modifica</Button>
-                                        <Button variant="danger" onClick={handleDelete}>Elimina</Button>
+                                        <Button variant="secondary" style={{background:"transparent", border:"2px solid green", color:"green"}} onClick={handleEdit}>Modifica</Button>
+                                        <Button variant="danger" style={{background:"transparent", color:"red", border:"2px solid red"}} onClick={handleDelete}>Elimina</Button>
                                     </>
                                 ) : (
                                     <>
-                                        <Button variant="secondary" onClick={() => setIsEditing(false)}>Annulla</Button>
-                                        <Button variant="primary" onClick={handleSaveChanges}>Salva</Button>
+                                        <Button variant="secondary" onClick={() => setIsEditing(false)} style={{background:"transparent", color:"red", border:"2px solid red"}}>Annulla</Button>
+                                        <Button variant="primary" onClick={handleSaveChanges} style={{background:"transparent", color:"green", border:"2px solid green"}}>Salva</Button>
                                     </>
                                 )}
-                                <Button variant="secondary" onClick={handleServiceModalClose}>Chiudi</Button>
+                                <Button variant="secondary" style={{background:"transparent", border:"2px solid black", color:"black"}} onClick={handleServiceModalClose}>Chiudi</Button>
                             </>
                         )}
                     </Modal.Footer>
@@ -869,7 +1075,7 @@ const Calendar = () => {
                                     value={newPrenotazione.fine}
                                     onChange={(e) => handleHourChange(e)}
                                 >
-                                    {hours.map(hour => (
+                                    {endHoursOptions.map(hour => (
                                         <option key={hour} value={hour}>
                                             {hour}
                                         </option>
@@ -1001,7 +1207,7 @@ const Calendar = () => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setServiceModalShow(false)}>Chiudi</Button>
+                    <Button variant="secondary" style={{background:"transparent", border:"2px solid black", color:"black"}} onClick={() => setServiceModalShow(false)}>Chiudi</Button>
                     <Button variant="primary" onClick={handleInsert} disabled={selectedFonico == 0}>Inserisci</Button>
                 </Modal.Footer>
             </Modal>

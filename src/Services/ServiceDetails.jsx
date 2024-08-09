@@ -51,9 +51,9 @@ function ServiceDetails({ service }) {
                         <div className='d-flex flex-row align-items-center' style={{gap:"15px"}}><h1 style={{ fontWeight: 'bold', fontSize:isMobile ? '2.8em' : "4em" }}>{info[service].title}</h1><img src={servicesimage[service]} alt="Foto servizio Cashmere Studio"  style={{height:"3em", marginBottom:"12px"}}/></div> 
                         <p style={{ fontWeight: 600, marginTop: "50px" }}>Descrizione:</p>
                         <p style={{ color: "grey" }}>{info[service].parag1}</p>
-                        <p style={{ fontWeight: 600, marginTop: "100px" }}>{info[service].title2}</p>
+                        {info[service].title2 && <p style={{ fontWeight: 600, marginTop: "100px" }}>{info[service].title2}</p>}
                         <ul>
-                            {info[service].infos.map((item, index) => (
+                            {info[service].infos && info[service].infos.map((item, index) => (
                                 <li style={{ color: "grey" }} key={index}>{item}</li>
                             ))}
                         </ul>

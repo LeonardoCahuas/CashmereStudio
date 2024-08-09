@@ -7,3 +7,28 @@ CASHMERE TODOS
 -stile fonici
 
 -diminuisci consumo
+
+
+
+
+
+-nome fonico in prenotazione calendario
+
+-checkbox subaffitto
+
+-calendaio fonici sopra
+
+-rimani su fonico quando modifico
+
+
+
+
+CALENDARIO:
+
+- sistema modifica prenotazione
+
+-sistema ripetizione Blocca
+
+-migliora grafica
+
+- sistema giornaliero
