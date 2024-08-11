@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ScrollToTop from '../../ScrollToTop';
 
-const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, studio, goBack, services }) => {
+const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, studio, goBack, services, needFonico }) => {
     const [nomeUtente, setNomeUtente] = useState('');
     const [telefono, setTelefono] = useState('');
     const [email, setEmail] = useState('');
@@ -26,10 +26,6 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
         e.preventDefault();
         const inizio = new Date(`${selectedDay}T${selectedStart}:00`);
         const fine = new Date(`${selectedDay}T${selectedEnd}:00`);
-        console.log("set inizio");
-        console.log(selectedDay);
-        console.log(inizio);
-        console.log(services)
 
         try {
             await onAddPrenotazione({
@@ -37,10 +33,10 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
                 inizio,
                 fine,
                 telefono,
-                email,
                 studio,
                 stato: 1,
-                services: services
+                services: services,
+                sessionWithFonico: needFonico
             });
             alert("Prenotazione richiesta con successo. Cashmere Studio ti confermerà l'appuntamento il prima possibile");
             setNomeUtente('');
@@ -71,10 +67,10 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
                             <label htmlFor="nomeUtente" className="form-label  d-flex flex-row align-items-center" style={{ fontSize: "17px" }}> <i class="fa-brands fa-whatsapp" style={{ fontSize: "25px", color: "black", marginRight: "10px" }}></i> Numero di telefono</label>
                             <input type="text" className="form-control" id="telefono" value={telefono} onChange={(e) => setTelefono(e.target.value)} required placeholder='Numero Whatsapp' style={{ backgroundColor: "rgb(240, 240, 240)", padding: "15px" }} />
                         </div>
-                        
-           
-                            <button type="submit" className="btn btn-primary w-100" style={{ border: "1px solid #08B1DF", padding: "15px", fontSize: "20px", marginTop: "50px", fontWeight: 700 }}>Invia richiesta di prenotazione</button>
-                     
+
+
+                        <button type="submit" className="btn btn-primary w-100" style={{ border: "1px solid #08B1DF", padding: "15px", fontSize: "20px", marginTop: "50px", fontWeight: 700 }}>Invia richiesta di prenotazione</button>
+
                     </form>
                 </div>
             </div>

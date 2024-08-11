@@ -5,7 +5,7 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 import './Bookings.css'; // Import del file CSS
 
-const BookingModal = ({ show, onHide, prenotazione }) => (
+const BookingModal = ({ show, onHide, prenotazione, findFonico }) => (
   <Modal show={show} onHide={onHide}>
     <Modal.Header closeButton>
       <Modal.Title>Dettagli Prenotazione</Modal.Title>
@@ -14,13 +14,28 @@ const BookingModal = ({ show, onHide, prenotazione }) => (
       {prenotazione && (
         <div>
           <p>Nome Utente: {prenotazione.nomeUtente}</p>
-          <p>Email: {prenotazione.email}</p>
           <p>Telefono: {prenotazione.telefono}</p>
-          <div>Servizi: {prenotazione.services && prenotazione.services.map((servi) => <p>{servi}</p>)}</div>
-          <p>Inizio: {prenotazione.inizio.toDate().toLocaleString()}</p>
-          <p>Fine: {prenotazione.fine.toDate().toLocaleString()}</p>
+          <div className='mb-3 d-flex flex-row align-items-center justify-content-start' style={{ gap: "10px" }}>Servizi: {prenotazione.services && prenotazione.services.map((servi) => <p className='m-0'>{servi}</p>)}</div>
+          <p>
+            Inizio: {prenotazione.inizio.toDate().toLocaleDateString('it-IT', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }) + " ore " +
+              prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+          </p>
+          <p>
+            Fine: {prenotazione.fine.toDate().toLocaleDateString('it-IT', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }) + " ore " +
+              prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+          </p>
           <p>Studio: {prenotazione.studio}</p>
-          <p>Fonico: {prenotazione.fonico}</p>
+          <p>Fonico: {findFonico(prenotazione.fonico)}</p>
         </div>
       )}
     </Modal.Body>
@@ -75,6 +90,11 @@ const Bookings = () => {
     setShowViewModal(true);
   };
 
+  const findFonico = (id) => {
+    const fonico = fonici.find((fon) => fon.id == id)
+    return fonico && fonico.nome ? fonico.nome : ""
+  }
+
   const handleDelete = (prenotazione) => {
     setSelectedPrenotazione(prenotazione);
     setShowDeleteModal(true);
@@ -105,7 +125,7 @@ const Bookings = () => {
     const matchesStudio = selectedStudio ? p.studio?.toString() === selectedStudio : true;
     const matchesFonico = selectedFonico ? p.fonico === selectedFonico : true;
     const matchesUsername = usernameFilter ? p.nomeUtente.toLowerCase().includes(usernameFilter.toLowerCase()) : true;
-    return matchesDate && matchesStudio && matchesUsername && matchesFonico;
+    return matchesDate && matchesStudio && matchesUsername && matchesFonico && p.stato == 2;
   });
 
   const currentPrenotazioni = filteredPrenotazioni.slice(indexOfFirstPrenotazione, indexOfLastPrenotazione);
@@ -180,10 +200,26 @@ const Bookings = () => {
                   <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}>{prenotazione.nomeUtente}</a>}</td>
                   <td>{isMobile ? <div><i class="fa fa-phone"></i>{prenotazione.telefono}</div> : prenotazione.telefono}</td>
                   {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
-                  {!isMobile && <td>{prenotazione.inizio.toDate().toLocaleString()}</td>}
-                  {!isMobile && <td>{prenotazione.fine.toDate().toLocaleString()}</td>}
+                  {!isMobile && <td>
+                    Fine: {prenotazione.inizio.toDate().toLocaleDateString('it-IT', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    }) + " ore " +
+                      prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                  </td>}
+                  {!isMobile && <td><p>
+                    Fine: {prenotazione.fine.toDate().toLocaleDateString('it-IT', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    }) + " ore " +
+                      prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                  </p></td>}
                   {!isMobile && <td>{prenotazione.studio}</td>}
-                  {!isMobile && <td>{prenotazione.fonico}</td>}
+                  {!isMobile && <td>{findFonico(prenotazione.fonico)}</td>}
                   <td className={`actions h-100  ${isMobile ? 'd-flex flex-column' : 'd-flex flex-column'} justify-content-center`}>
                     <Button className="p-1" variant="primary" onClick={() => handleView(prenotazione)}>Visualizza</Button>
                     <Button variant="danger" className="p-1" onClick={() => handleDelete(prenotazione)}>Elimina</Button>
@@ -201,7 +237,7 @@ const Bookings = () => {
           </Pagination>
         </div>
       )}
-      <BookingModal show={showViewModal} onHide={() => setShowViewModal(false)} prenotazione={selectedPrenotazione} />
+      <BookingModal show={showViewModal} onHide={() => setShowViewModal(false)} prenotazione={selectedPrenotazione} findFonico={findFonico} />
       <ConfirmDeleteModal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} onDelete={confirmDelete} />
     </div>
   );
