@@ -14,6 +14,7 @@ function Book() {
     const [service, setService] = useState(null)
     const [userInfo, setUserInfo] = useState({})
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+    const [needFonico, setNeedFonico] = useState()
 
     useEffect(() => {
         const handleResize = () => {
@@ -50,6 +51,10 @@ function Book() {
         console.log(bookingInfo)
     }
 
+    const setSessionFonico = (fonico) => {
+        setNeedFonico(fonico)
+    }
+
     const setServices = (services) => {
         console.log(services)
         setService(services)
@@ -58,20 +63,20 @@ function Book() {
     return (
         <div>
             <Navbar />
-            <div style={{paddingTop:isMobile ? "100px" : "100px"}}>
+            <div style={{ paddingTop: isMobile ? "100px" : "100px" }}>
                 {
                     !stu && !bookingTime.start && !service && !userInfo.insta ?
                         <Step1 setStudio={setStudio} />
                         : stu && !bookingTime.start && !service && !userInfo.insta ?
                             <Step2 studio={stu} setBooking={setBooking} goBack={goBack1} />
                             : stu && bookingTime.start && !service && !userInfo.insta ?
-                                <Step3 setService={setServices} goBack={goBack2} /> :
-                                <Step4 goBack={goBack3} onAddPrenotazione={addPrenotazione} selectedDay={bookingTime.day} selectedEnd={bookingTime.end} selectedStart={bookingTime.start} studio={stu} services={service} />
+                                <Step3 setService={setServices} goBack={goBack2} setSessionFonico={setSessionFonico} /> :
+                                <Step4 goBack={goBack3} onAddPrenotazione={addPrenotazione} selectedDay={bookingTime.day} selectedEnd={bookingTime.end} selectedStart={bookingTime.start} studio={stu} services={service} needFonico={needFonico} />
 
 
                 }
 
-            </div> 
+            </div>
 
         </div>
     )

@@ -35,7 +35,7 @@ function Confirm() {
   };
 
   const handleRifiuta = (id) => {
-    updatePrenotazioneStato(id, 0);
+    updatePrenotazioneStato(id, 0, 0);
     setShowModal(false);
   };
 
@@ -80,6 +80,7 @@ function Confirm() {
               {!isMobile && <th>Inizio</th>}
               {!isMobile && <th>Fine</th>}
               {!isMobile && <th>Studio</th>}
+              {!isMobile && <th>Fonico</th>}
               <th>Azioni</th>
             </tr>
           </thead>
@@ -90,9 +91,26 @@ function Confirm() {
                 <td>{isMobile ? <div><i class="fa fa-phone"></i>{prenotazione.telefono}</div> : prenotazione.telefono}</td>
                 {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
 
-                {!isMobile && <td>{prenotazione.inizio.toDate().toLocaleString()}</td>}
-                {!isMobile && <td>{prenotazione.fine.toDate().toLocaleString()}</td>}
+                {!isMobile && <td>
+                  {prenotazione.inizio.toDate().toLocaleDateString('it-IT', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  }) + " ore " +
+                    prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                </td>}
+                {!isMobile && <td>
+                  {prenotazione.fine.toDate().toLocaleDateString('it-IT', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  }) + " ore " +
+                    prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                </td>}
                 {!isMobile && <td>{prenotazione.studio}</td>}
+                {!isMobile && <td>{prenotazione.sessionWithFonico ? "si" : "no"}</td>}
                 <td>
                   <p style={{ textDecoration: "underline", cursor: "pointer" }} onClick={() => handleShowModal(prenotazione)}>Visualizza</p>
                 </td>
@@ -118,25 +136,56 @@ function Confirm() {
               <p>Nome Utente: {selectedPrenotazione.nomeUtente}</p>
 
               <p>Telefono: {selectedPrenotazione.telefono}</p>
-              <div>Servizi: {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p>{servi}</p>)}</div>
-              <p>Inizio: {selectedPrenotazione.inizio.toDate().toLocaleString()}</p>
-              <p>Fine: {selectedPrenotazione.fine.toDate().toLocaleString()}</p>
+              <div className=' mb-3 d-flex flex-row align-items-center justify-content-start' style={{gap:"10px"}}>Servizi: {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p className='m-0'>{servi}</p>)}</div>
+              <p>
+                Fine: {selectedPrenotazione.inizio.toDate().toLocaleDateString('it-IT', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }) + " ore " +
+                  selectedPrenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+              {/* 
+              <p>
+                                            Fine: {selectedPrenotazione.fine.toDate().toLocaleDateString('it-IT', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            }) + " ore " +
+                                                selectedPrenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                        </p> */}
+              <p>
+                Inizio: {selectedPrenotazione.fine.toDate().toLocaleDateString('it-IT', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }) + " ore " +
+                  selectedPrenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+              </p>
               <p>Studio: {selectedPrenotazione.studio}</p>
               <p>Stato: {selectedPrenotazione.stato}</p>
               <select onChange={(e) => handleFonicoSelection(e.target.value)}>
                 {
-                  fonici.map((fonico) => (
-                    <option key={fonico.id} value={fonico.id}>
-                      {fonico.nome}
+                  selectedPrenotazione.sessionWithFonico ?
+                    fonici.map((fonico) => (
+                      <option key={fonico.id} value={fonico.id}>
+                        {fonico.nome}
+                      </option>
+                    ))
+                    :
+                    <option key={1} value={1}>
+                      Senza fonico
                     </option>
-                  ))
                 }
               </select>
 
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>Chiudi</Button>
-              <Button variant="success" disabled={selectedFonico == 0} onClick={() => handleConferma(selectedPrenotazione.id)}>Conferma</Button>
+              <Button variant="success" onClick={() => handleConferma(selectedPrenotazione.id)}>Conferma</Button>
               <Button variant="danger" onClick={() => handleRifiuta(selectedPrenotazione.id)}>Rifiuta</Button>
             </Modal.Footer>
           </Modal>

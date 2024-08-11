@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ScrollToTop from '../../ScrollToTop';
 
-const Step3 = ({ setService, goBack }) => {
+const Step3 = ({ setService, goBack, setSessionFonico }) => {
   const [selectedServices, setSelectedServices] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
   const [fonico, setFonico] = useState(null);
@@ -12,7 +12,7 @@ const Step3 = ({ setService, goBack }) => {
       };
 
       window.addEventListener('resize', handleResize);
-      handleResize(); // Call initially to set the correct state
+      handleResize()
 
       return () => {
           window.removeEventListener('resize', handleResize);
@@ -33,6 +33,8 @@ const Step3 = ({ setService, goBack }) => {
 
   const handleClickAvanti = () => {
     setService(selectedServices);
+    setSessionFonico(fonico == "si" ? true : false)
+
     // Assuming some action to proceed to the next step
     console.log('Avanti:', selectedServices, 'Fonico:', fonico);
   };
@@ -73,10 +75,10 @@ const Step3 = ({ setService, goBack }) => {
         >
           <div style={{ width: isMobile ? "80%" : "22%" }}>
             <div
-              onClick={() => handleServiceSelection('Recording')}
+              onClick={() => handleServiceSelection('Rec')}
               style={{
-                background: isServiceSelected('Recording') ? 'linear-gradient(to right, #6FC7DF, #08B1DF)' : 'white',
-                border: isServiceSelected('Recording') ? '2px solid #08B1DF' : '2px solid black',
+                background: isServiceSelected('Rec') ? 'linear-gradient(to right, #6FC7DF, #08B1DF)' : 'white',
+                border: isServiceSelected('Rec') ? '2px solid #08B1DF' : '2px solid black',
                 padding: '20px',
                 cursor: 'pointer',
                 textAlign: 'center',
@@ -86,7 +88,7 @@ const Step3 = ({ setService, goBack }) => {
             >
               <div 
                 style={{ 
-                  color: isServiceSelected('Recording') ? 'white' : 'black', 
+                  color: isServiceSelected('Rec') ? 'white' : 'black', 
                   fontSize: '24px', 
                   fontWeight: 'bold' 
                 }}
@@ -143,10 +145,10 @@ const Step3 = ({ setService, goBack }) => {
           </div>
           <div style={{ width: isMobile ? "80%" : "22%" }}>
             <div
-              onClick={() => handleServiceSelection('Production')}
+              onClick={() => handleServiceSelection('Produzione')}
               style={{
-                background: isServiceSelected('Production') ? 'linear-gradient(to right, #6FC7DF, #08B1DF)' : 'white',
-                border: isServiceSelected('Production') ? '2px solid #08B1DF' : '2px solid black',
+                background: isServiceSelected('Produzione') ? 'linear-gradient(to right, #6FC7DF, #08B1DF)' : 'white',
+                border: isServiceSelected('Produzione') ? '2px solid #08B1DF' : '2px solid black',
                 padding: '20px',
                 cursor: 'pointer',
                 textAlign: 'center',
@@ -156,7 +158,7 @@ const Step3 = ({ setService, goBack }) => {
             >
               <div 
                 style={{ 
-                  color: isServiceSelected('Production') ? 'white' : 'black', 
+                  color: isServiceSelected('Produzione') ? 'white' : 'black', 
                   fontSize: '24px', 
                   fontWeight: 'bold' 
                 }}
