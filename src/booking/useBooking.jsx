@@ -124,7 +124,7 @@ const usePrenotazioni = (selectedDateTime) => {
 
   const addFonico = async (fonico) => {
     try {
-      const docRef = await addDoc(collection(db, 'fonici'), { nome: fonico });
+      const docRef = await addDoc(collection(db, 'fonici'), { nome: fonico, disp: [] });
       const updatedFonici = [...fonici, { id: docRef.id, nome: fonico }];
       updateLocalStorage(prenotazioni, updatedFonici);
     } catch (err) {

@@ -1,22 +1,6 @@
 CASHMERE TODOS
 
 
-
 -whatsapp
 
--stile fonici
-
--diminuisci consumo
-
-
-
-
-
-
-
-
--checkbox subaffitto
-
--calendaio fonici sopra
-
--rimani su fonico quando modifico
+-publish sitemap

@@ -11,12 +11,28 @@ const FonicoCalendar = () => {
     const [editingDisponibilita, setEditingDisponibilita] = useState(false);
     const [selectedDisponibilita, setSelectedDisponibilita] = useState([]);
     const [initialDisponibilita, setInitialDisponibilita] = useState([]);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+
 
     useEffect(() => {
-        if (fonici.length > 0) {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 602);
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Call initially to set the correct state
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (fonici.length > 0 && selectedFonico === null) {
             setSelectedFonico(fonici[1].id);
         }
-    }, [fonici]);
+    }, [fonici, selectedFonico]);
+
 
     useEffect(() => {
         if (selectedFonico) {
@@ -88,8 +104,11 @@ const FonicoCalendar = () => {
 
         const disponibilitaNumeri = convertDisponibilitaToNumbers(selectedDisponibilita);
         setDisponibilita(selectedFonico, disponibilitaNumeri);
+
+        // Dopo aver salvato le disponibilità, disattiva la modalità di editing ma NON toccare selectedFonico
         setEditingDisponibilita(false);
     };
+
 
     const renderCalendar = () => {
         const daysOfWeek = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
@@ -99,17 +118,17 @@ const FonicoCalendar = () => {
         const weekDates = Array.from({ length: 7 }, (_, i) => new Date(startOfWeek.getTime() + i * 24 * 60 * 60 * 1000));
 
         return (
-            <div style={{ width: '100%', marginTop:"30px" }}>
+            <div className="calendar-container" style={{ marginTop: "30px" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <i className="fa-solid fa-arrow-left" style={{fontSize:"40px"}} onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() - 7)))}>
-                       
+                    <i className="fa-solid fa-arrow-left" style={{ fontSize: "40px" }} onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() - 7)))}>
+
                     </i>
                     <h3>Calendario Settimanale</h3>
-                    <i className='fa-solid fa-arrow-right' style={{fontSize:"40px"}} onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() + 7)))}>
-                 
+                    <i className='fa-solid fa-arrow-right' style={{ fontSize: "40px" }} onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() + 7)))}>
+
                     </i>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', marginTop: '20px', width: '100%' }}>
+                <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', marginTop: '20px', width: '100%' }}>
                     <div></div>
                     {weekDates.map((date, index) => (
                         <div
@@ -117,7 +136,12 @@ const FonicoCalendar = () => {
                             style={{ textAlign: 'center', fontWeight: 'bold', cursor: editingDisponibilita ? 'pointer' : 'default' }}
                             onClick={() => editingDisponibilita && handleSetDisponibilita(date)}
                         >
-                            {daysOfWeek[index]} {date.toLocaleDateString()}
+                            {
+                                isMobile
+                                    ? `${date.getDate()}/${date.getMonth() + 1}`
+                                    : `${daysOfWeek[index]} ${date.toLocaleDateString()}`
+                            }
+
                         </div>
                     ))}
                     {hours.map((hour, hourIndex) => (
@@ -129,7 +153,7 @@ const FonicoCalendar = () => {
                                     style={{
                                         border: '1px solid #ddd',
                                         height: '40px',
-                                        width: "200px",
+                                        width: isMobile ? "" : "200px",
                                         backgroundColor: getCellColor(date, hourIndex + 10),
                                         cursor: editingDisponibilita ? 'pointer' : 'default',
                                         display: "flex",
@@ -181,7 +205,7 @@ const FonicoCalendar = () => {
 
         const prenotazioniForSlot = prenotazioni.filter(p => {
             return (
-                p.inizio.seconds < (cellEndTimestamp / 1000) && p.fine.seconds > (cellStartTimestamp / 1000) && p.fonico === selectedFonico
+                p.inizio.seconds < (cellEndTimestamp / 1000) && p.fine.seconds > (cellStartTimestamp / 1000) && p.fonico === selectedFonico && p.stato == 2
             );
         });
 
@@ -193,11 +217,11 @@ const FonicoCalendar = () => {
     };
 
     return (
-        <div>
+        <div style={{ marginBottom: "50px" }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            
+
                 <Select value={selectedFonico || ''} onChange={(e) => handleFonicoSelection(e.target.value)} labelId="fonico-select-label">
-                
+
                     {fonici && fonici.filter(f => f.id != 1).map((fonico) => (
                         <MenuItem key={fonico.id} value={fonico.id} selected={fonico.id != 1}>
                             {fonico.nome}
@@ -205,19 +229,19 @@ const FonicoCalendar = () => {
                     ))}
 
                 </Select>
-                <Button variant="primary" onClick={() => setEditingDisponibilita(true)}>Imposta Disponibilità</Button>
+                {editingDisponibilita && (
+                    <div style={{ marginTop: '20px' }}>
+                        <Button variant="success" onClick={handleConferma} style={{ background: "transparent", border: "1px solid green", color: "green", marginRight: "20px" }}>Conferma</Button>
+                        <Button variant="danger" onClick={() => {
+                            setSelectedDisponibilita(initialDisponibilita);
+                            setEditingDisponibilita(false);
+                        }}
+                            style={{ background: "transparent", border: "1px solid red", color: "red" }}>Annulla</Button>
+                    </div>
+                )}
+                <p variant="primary" style={{ color: "black", borderBottom: "1px solid black", margin: "0px" }} onClick={() => setEditingDisponibilita(true)}>Imposta Disponibilità</p>
             </div>
             {renderCalendar()}
-
-            {editingDisponibilita && (
-                <div style={{ marginTop: '20px' }}>
-                    <Button variant="success" onClick={handleConferma}>Conferma</Button>
-                    <Button variant="danger" onClick={() => {
-                        setSelectedDisponibilita(initialDisponibilita);
-                        setEditingDisponibilita(false);
-                    }}>Annulla</Button>
-                </div>
-            )}
         </div>
     );
 };

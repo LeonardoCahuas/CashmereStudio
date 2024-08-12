@@ -23,10 +23,10 @@ function Header() {
     }, []);
 
     return (
-        <div className="w-100 header bg-black">
-            <>
+        <div className="w-100 header bg-black p-0">
+            <div className='h-100'>
                 <video
-                    className="video-bg"
+                    className="video-bg h-100"
                     autoPlay
                     playsInline
                     loop
@@ -39,7 +39,7 @@ function Header() {
                     <source src={isMobile ? videomob : videodesk} type="video/mp4" />
                     Il tuo browser non supporta il tag video.
                 </video>
-            </>
+            </div>
 
         </div>
     );
