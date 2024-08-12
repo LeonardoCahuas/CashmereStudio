@@ -203,7 +203,7 @@ admin.initializeApp();
 // Twilio configuration
 const accountSid = functions.config().twilio.sid;
 const authToken = functions.config().twilio.token;
-const whatsappNumber = `whatsapp:${functions.config().twilio.whatsapp_number}`; // Il numero WhatsApp configurato su Twilio
+const whatsappNumber = `${functions.config().twilio.whatsapp_number}`; // Il numero WhatsApp configurato su Twilio
 const client = twilio(accountSid, authToken);
 
 console.log('Twilio SID:', accountSid);

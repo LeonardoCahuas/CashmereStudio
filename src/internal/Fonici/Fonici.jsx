@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import usePrenotazioni from '../../booking/useBooking';
 import { Modal, Button, Table, Pagination, Form, Row, Col, Card, Container, ListGroup } from 'react-bootstrap';
 import { deleteDoc, doc } from 'firebase/firestore';
@@ -28,6 +28,21 @@ const Bookings = () => {
   const prenotazioniPerPage = 10;
   const [showInput, setShowInput] = useState(false);
   const [newFonicoName, setNewFonicoName] = useState('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 602);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call initially to set the correct state
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // Calcolo delle ore totali
   const calcolaTotaleOre = (prenotazioni) => {
@@ -133,8 +148,9 @@ const Bookings = () => {
   return (
     <div style={{ marginTop: '20px', margin: '0px', width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Gestione Prenotazioni</h3>
-      <div className='w-100 d-flex flex-row'>
-        <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width: "50%" }}>
+      <FonicoCalendar />
+      <div className={`w-100 d-flex flex-${isMobile ? "column" : "row"}`}>
+        <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width: isMobile ? "100%" : "50%" }}>
           <h4>Gestione Fonici</h4>
           <Button variant="primary" onClick={() => setShowInput(true)}>Aggiungi Fonico</Button>
           {showInput && (
@@ -159,7 +175,7 @@ const Bookings = () => {
           </ListGroup>
         </div>
 
-        <Row className="statistics mb-4 w-50 d-flex flex-column align-items-center w-50 h-100" style={{ justifyContent: 'space-between', backgroundColor: '#f8f9fa' }}>
+        <Row className="statistics mb-4 d-flex flex-column align-items-center h-100" style={{ justifyContent: 'space-between', backgroundColor: '#f8f9fa', width: isMobile ? "100%" : "50%" }}>
           <Col xs={12} md={4} className="w-100 h-100" style={{ backgroundColor: '#f8f9fa' }}>
             <div style={{ padding: '20px', marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
               <h4>Statistiche Generali</h4>
@@ -189,9 +205,9 @@ const Bookings = () => {
                   <div key={index} style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
                     <strong>{item.fonico}:</strong> {Object.entries(item.orePerMese).map(([mese, ore], i) => (
                       <div key={i}>{mese}: {ore} ore</div>
-                    ))}{ statSelectedFonico !== "" &&
-                    <div><strong>Disponibilità settimanale:</strong> {fonici.find(f => f.id === (statSelectedFonico || item.fonicoId))?.disp.length || 0} slot</div>
-                  }</div>
+                    ))}{statSelectedFonico !== "" &&
+                      <div><strong>Disponibilità settimanale:</strong> {fonici.find(f => f.id === (statSelectedFonico || item.id))?.disp?.length || 0} slot</div>
+                    }</div>
                 ))}
               </div>
             </div>
@@ -232,10 +248,10 @@ const Bookings = () => {
               <thead>
                 <tr>
                   <th>Data</th>
-                  <th>Studio</th>
-                  <th>Nome Utente</th>
+                  {!isMobile && <th>Studio</th>}
+                  {!isMobile && <th>Nome Utente</th>}
                   <th>Fonico</th>
-                  <th>Ore Totali</th>
+                  {!isMobile && <th>Ore Totali</th>}
                   <th>Azioni</th>
                 </tr>
               </thead>
@@ -243,19 +259,19 @@ const Bookings = () => {
                 {currentPrenotazioni.map((prenotazione) => (
                   <tr key={prenotazione.id}>
                     <td>{prenotazione.inizio.toDate().toLocaleString()}</td>
-                    <td>{prenotazione.studio}</td>
-                    <td>{prenotazione.nomeUtente}</td>
+                    {!isMobile && <td>{prenotazione.studio}</td>}
+                    {!isMobile && <td>{prenotazione.nomeUtente}</td>}
                     <td>{fonici.find(f => f.id === prenotazione.fonico)?.nome}</td>
-                    <td>{calcolaOre(prenotazione.inizio, prenotazione.fine)}</td>
+                    {!isMobile && <td>{calcolaOre(prenotazione.inizio, prenotazione.fine)}</td>}
                     <td>
-                      <Button variant="primary" onClick={() => handleView(prenotazione)} style={{ marginRight: '5px' }}>Vedi</Button>
-                      <Button variant="danger" onClick={() => handleDelete(prenotazione)}>Elimina</Button>
+                      <p variant="primary" onClick={() => handleView(prenotazione)} style={{ marginRight: '5px', borderBottom:"1px solid black" }}>Vedi</p>
+                      <p variant="danger" onClick={() => handleDelete(prenotazione)} style={{ borderBottom:"1px solid black" }}>Elimina</p>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </Table>
-            <Pagination className="justify-content-center" style={{ marginTop: '20px' }}>
+            <Pagination className="justify-content-center d-flex flex-row" style={{ marginTop: '20px', flexWrap:"wrap" }}>
               {Array.from({ length: totalPages }, (_, i) => (
                 <Pagination.Item key={i + 1} active={i + 1 === currentPage} onClick={() => setCurrentPage(i + 1)}>
                   {i + 1}
@@ -265,7 +281,6 @@ const Bookings = () => {
           </div>
         </Col>
       </Row>
-      <FonicoCalendar />
 
       <BookingModal show={showViewModal} onHide={() => setShowViewModal(false)} prenotazione={selectedPrenotazione} />
       <ConfirmDeleteModal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} onDelete={confirmDelete} />
