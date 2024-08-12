@@ -75,7 +75,7 @@ export function NavbarAdmin({ setCont }) {
                 <ul className="navbar-nav">
                     {["Situazione", "Calendario", "Conferma", "Prenotazioni", "Fonici"].map((label, index) => (
                         <li className="w-100 nav-item d-flex flex-column align-items-start" style={{ paddingLeft: "30px" }} key={index}>
-                            <Link className="nav-link" style={{ fontSize: "25px", fontWeight: 900 }} onClick={() => handleItemClick(index)}>{label}</Link>
+                            <Link  className="close nav-link" data-toggle="collapse" data-target="#navbarNavDropdown" style={{ fontSize: "25px", fontWeight: 900, color:"white", textDecoration:"none" }} onClick={() => handleItemClick(index)}>{label}</Link>
                         </li>
                     ))}
                 </ul>
