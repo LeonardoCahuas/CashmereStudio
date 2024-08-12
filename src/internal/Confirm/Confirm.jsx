@@ -112,7 +112,7 @@ function Confirm() {
                 {!isMobile && <td>{prenotazione.studio}</td>}
                 {!isMobile && <td>{prenotazione.sessionWithFonico ? "si" : "no"}</td>}
                 <td>
-                  <p style={{ textDecoration: "underline", cursor: "pointer" }} onClick={() => handleShowModal(prenotazione)}>Visualizza</p>
+                  <p style={{ textDecoration: "underline", cursor: "pointer", margin:"0px" }} onClick={() => handleShowModal(prenotazione)}>Visualizza</p>
                 </td>
               </tr>
             ))}

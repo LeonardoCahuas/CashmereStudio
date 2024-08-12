@@ -210,8 +210,8 @@ const FonicoCalendar = () => {
         });
 
         return prenotazioniForSlot.map((p, index) => (
-            <div key={index} style={{ backgroundColor: 'red', margin: '10px', color: 'white', width: "100%" }}>
-                {p.nomeUtente}
+            <div key={index} style={{ backgroundColor: 'red', margin: '10px', color: isMobile ? "red" : 'white', width: "100%" }}>
+                { isMobile ? "." : p.nomeUtente}
             </div>
         ));
     };

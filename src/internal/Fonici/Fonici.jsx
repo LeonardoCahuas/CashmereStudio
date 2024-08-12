@@ -149,7 +149,7 @@ const Bookings = () => {
     <div style={{ marginTop: '20px', margin: '0px', width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Gestione Prenotazioni</h3>
       <FonicoCalendar />
-      <div className={`w-100 d-flex flex-${isMobile ? "column" : "row"}`}>
+      <div className={`w-100 d-flex flex-${isMobile ? "column" : "row"} align-items-center`}>
         <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width: isMobile ? "100%" : "50%" }}>
           <h4>Gestione Fonici</h4>
           <Button variant="primary" onClick={() => setShowInput(true)}>Aggiungi Fonico</Button>
@@ -169,7 +169,7 @@ const Bookings = () => {
             {fonici.filter(f => f.id != 1).map(fonico => (
               <ListGroup.Item key={fonico.id}>
                 {fonico.nome}
-                <Button variant="danger" style={{ float: 'right' }} onClick={() => handleDeleteFonico(fonico.id)}>Rimuovi</Button>
+                <p variant="danger" style={{ float: 'right', color:"black", borderBottom:"1px solid black", margin:"0px" }} onClick={() => handleDeleteFonico(fonico.id)}>Rimuovi</p>
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -179,7 +179,7 @@ const Bookings = () => {
           <Col xs={12} md={4} className="w-100 h-100" style={{ backgroundColor: '#f8f9fa' }}>
             <div style={{ padding: '20px', marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
               <h4>Statistiche Generali</h4>
-              <Form.Group controlId="statSelectedFonico" style={{ marginTop: '10px' }}>
+              <Form.Group controlId="statSelectedFonico" style={{ margin:"0px", marginTop: '10px' }}>
                 <Form.Label>Filtra per Fonico</Form.Label>
                 <Form.Control as="select" value={statSelectedFonico} onChange={(e) => setStatSelectedFonico(e.target.value)} style={{ marginBottom: '10px', borderRadius: '5px' }}>
                   <option value="">Tutti i Fonici</option>
@@ -198,11 +198,11 @@ const Bookings = () => {
                 </Form.Control>
               </Form.Group>
               <div style={{ marginTop: '20px' }}>
-                <div style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
+                <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border:"1px solid black" }}>
                   <strong>Ore Totali:</strong> {calcolaTotaleOreStat(filteredStatPrenotazioni)} ore
                 </div>
                 {(statSelectedFonico ? orePerFonicoPerMeseStat.filter(item => item.id === statSelectedFonico) : orePerFonicoPerMeseStat).map((item, index) => (
-                  <div key={index} style={{ padding: '10px', backgroundColor: '#e9ecef', borderRadius: '5px', marginBottom: '10px' }}>
+                  <div key={index} style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border:"1px solid black" }}>
                     <strong>{item.fonico}:</strong> {Object.entries(item.orePerMese).map(([mese, ore], i) => (
                       <div key={i}>{mese}: {ore} ore</div>
                     ))}{statSelectedFonico !== "" &&
