@@ -44,6 +44,7 @@ const Footer = () => {
             {isMobile ? (
                 <div className="footer-credits-mobile mt-4">
                     <div className="d-flex flex-column justify-content-between w-100 px-3" style={{ gap: "20px" }}>
+                    <Link to="/privacy" style={{color:"grey", textDecoration:"none"}}>Informativa Privacy</Link>
                         <a href="tel:+393514206294" className="footer-link">+39 351 420 6294</a>
                         <a href="mailto:cashmerestudiomilano@gmail.com" className="footer-link">cashmerestudiomilano@gmail.com</a>
                     </div>
@@ -53,6 +54,7 @@ const Footer = () => {
                 </div>
             ) : (
                 <div className="footer-credits">
+                    <Link to="/privacy" style={{color:"grey", textDecoration:"none"}}>Informativa Privacy</Link>
                     <a href="tel:+393514206294" className="footer-link">+39 351 420 6294</a>
                     <a href="mailto:cashmerestudiomilano@gmail.com" className="footer-link">cashmerestudiomilano@gmail.com</a>
                     <a href="https://www.google.com/maps?q=via+Oreste+Salomone+61+Milano" target="_blank" rel="noopener noreferrer" className="footer-link">Via Oreste Salomone 61</a>

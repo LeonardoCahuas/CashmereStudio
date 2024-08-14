@@ -123,7 +123,7 @@ const Bookings = () => {
   const filteredPrenotazioni = sortedPrenotazioni.filter(p => {
     const matchesDate = selectedDate ? p.inizio.toDate().toDateString() === new Date(selectedDate).toDateString() : true;
     const matchesStudio = selectedStudio ? p.studio?.toString() === selectedStudio : true;
-    const matchesFonico = selectedFonico ? p.fonico === selectedFonico : true;
+    const matchesFonico = selectedFonico == "no" ? (findFonico(p.fonico) == "Senza fonico" || findFonico(p.fonico) == "") : selectedFonico ? p.fonico === selectedFonico : true;
     const matchesUsername = usernameFilter ? p.nomeUtente.toLowerCase().includes(usernameFilter.toLowerCase()) : true;
     return matchesDate && matchesStudio && matchesUsername && matchesFonico && p.stato == 2;
   });
@@ -161,11 +161,14 @@ const Bookings = () => {
           <Form.Label>Filtra per fonico</Form.Label>
           <Form.Control as="select" onChange={(e) => setSelectedFonico(e.target.value)} value={selectedFonico}>
             <option value="">tutti</option>
-            {fonici.map((fonico) => (
+            {fonici.filter(f => f.id != 1).map((fonico) => (
               <option key={fonico.id} value={fonico.id}>
                 {fonico.nome}
               </option>
             ))}
+            <option key={"no"} value={"no"}>
+                Senza fonico
+              </option>
           </Form.Control>
           <Form.Group controlId="usernameFilter">
             <Form.Label>Filtra per Nome Utente</Form.Label>

@@ -20,7 +20,24 @@ const formatDateForInput = (date) => {
     return localDate.toISOString().slice(0, 16);
 };
 
+function formatDate(dateString) {
+    const weekdays = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+    const date = new Date(dateString);
 
+    // Ottieni il giorno della settimana e il giorno del mese
+    const weekdayName = weekdays[date.getDay()];
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // I mesi in JavaScript sono indicizzati da 0
+
+    // Formatta il giorno e il mese con uno zero iniziale se necessario
+    const formattedDay = day.toString().padStart(2, '0');
+    const formattedMonth = month.toString().padStart(2, '0');
+
+    return {
+        label: `${weekdayName} ${formattedDay}/${formattedMonth}`,
+        date: dateString
+    };
+}
 
 const getFormattedDate = (date) => {
     const year = date.getFullYear();
@@ -190,7 +207,8 @@ const Calendar = () => {
         }, {});
 
         assignedColors["LlFzgMM8KNJoR18KvXpU"] = "grey"
-        assignedColors["nope "] = "grey"
+        assignedColors["nope"] = "grey"
+        assignedColors["1"] = "grey"
 
         setFonicoColors(assignedColors);
     }, [fonici]);
@@ -310,7 +328,6 @@ const Calendar = () => {
         }
     };
 
-
     const handleNext = () => {
         if (selectedSlots.length) {
             handleServiceModalOpen();
@@ -320,7 +337,6 @@ const Calendar = () => {
     const handleInsert = () => {
         selectedSlots.forEach(slot => {
             if (slot instanceof Date) {
-                // Estrazione della data e dell'ora dall'oggetto Date
                 const inizio = new Date(slot);
                 const fine = new Date(inizio);
                 fine.setHours(inizio.getHours() + 1);
@@ -328,7 +344,7 @@ const Calendar = () => {
                 for (let i = 0; i < (repeat || 1); i++) {
                     const newInizio = new Date(inizio);
                     const newFine = new Date(fine);
-                    newInizio.setDate(inizio.getDate() + i * 7);
+                    newInizio.setDate(inizio.getDate() + i * 7)
                     newFine.setDate(fine.getDate() + i * 7)
                     addPrenotazione({
                         nomeUtente: username || 'Blocco',
@@ -338,15 +354,21 @@ const Calendar = () => {
                         inizio: newInizio,
                         fine: newFine,
                         stato: 2,
+                        fonico: selectedFonico
                     });
                 }
             } else {
-                console.error('Invalid slot format:', slot); // Debug: Formato slot non valido
+                console.error('Invalid slot format:', slot);
             }
         });
         setServiceModalShow(false);
         setSelectedSlots([]);
         handleServiceModalClose();
+        setBlockMode(false)
+        setUsername("")
+        setSelectedFonico("")
+        setPhoneNumber("")
+
     };
 
 
@@ -370,12 +392,13 @@ const Calendar = () => {
 
 
     const addBook = (day, start) => {
-
+        console.log(day)
+        console.log(start)
         const startHour = parseInt(start.split(':')[0]);
 
         // Trova le prenotazioni del giorno specifico e dello studio selezionato
         const bookingsForTheDay = prenotazioni
-            .filter(pren => getFormattedDate(pren.inizio.toDate()) === day.date && pren.studio === value)
+            .filter(pren => getFormattedDate(pren.inizio.toDate()) === day.date && pren.studio === value && pren.stato == 2)
             .map(pren => ({
                 startHour: pren.inizio.toDate().getHours(),
                 endHour: pren.fine.toDate().getHours()
@@ -541,8 +564,8 @@ const Calendar = () => {
                     .filter(pren => {
                         try {
                             const prenDate = pren.inizio.toDate();
-                            return pren.studio === value && stato == 2 &&
-                                getFormattedDate(prenDate) === day.date;
+                            return pren.studio === value &&
+                                getFormattedDate(prenDate) === day.date && pren.stato == 2
                         } catch (err) {
                             console.log(err.message);
                             return false;
@@ -586,31 +609,38 @@ const Calendar = () => {
                         ))}
                 </Slider>
                 {selectedDay && value && bookingsByDay[selectedDay] && (
-                    <Table striped bordered hover className="table-container">
+                    <Table striped bordered hover className="table-container" style={{ whiteSpace: "nowrap", overflow: "hidden" }}>
                         <thead>
                             <tr>
                                 <th style={{ width: '80px', border: "1px solid black" }}>Orario</th>
                                 <th>Dettagli</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style={{ overflow: "hidden" }}>
                             {Array.from({ length: 13 }, (_, i) => {
                                 const hour = i + 10;
                                 const timeSlot = `${String(hour).padStart(2, '0')}:00`;
-                                const slot = new Date(`${selectedDay}T${timeSlot}`);
+
+                                // Controlla se questo slot è già stato occupato da un rowspan e salta la creazione di un nuovo <td>
+                                if (occupiedSlots[`${selectedDay}-${hour}`]) {
+                                    return (
+                                        <tr key={timeSlot}>
+                                            <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle', backgroundColor: "white" }}>
+                                                {timeSlot}
+                                            </td>
+                                        </tr>
+                                    );
+                                }
+
                                 const bookings = bookingsByDay[selectedDay] || [];
                                 const currentBookings = bookings.filter(b => b.startHour <= hour && b.endHour > hour);
+
                                 let cellContent = null;
                                 let rowSpan = 1;
 
                                 if (currentBookings.length > 0) {
                                     const booking = currentBookings[0];
                                     rowSpan = booking.endHour - booking.startHour;
-
-                                    // Controlla se lo slot è già occupato
-                                    if (occupiedSlots[`${selectedDay}-${hour}`]) {
-                                        return null;
-                                    }
 
                                     // Segna gli slot come occupati
                                     for (let r = 0; r < rowSpan; r++) {
@@ -638,7 +668,7 @@ const Calendar = () => {
                                     );
                                 } else {
                                     cellContent = (
-                                        <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(selectedDay, hour) : addBook(selectedDay, timeSlot)}>
+                                        <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(selectedDay, hour) : addBook(formatDate(selectedDay), timeSlot)}>
                                             {timeSlot}
                                         </div>
                                     );
@@ -652,12 +682,10 @@ const Calendar = () => {
                                         <td
                                             rowSpan={rowSpan}
                                             style={{
-                                                backgroundColor: cellContent && currentBookings.length > 0 ? fonicoColors[currentBookings[0].fonico] || "grey" :
-                                                    selectedSlots.some(s => s.getTime() === slot.getTime()) ? 'black' : 'white',
-                                                /* backgroundColor: isContent && fonicoColors[fonico] != undefined ? fonicoColors[fonico] : isContent && fonicoColors[fonico] == undefined ? "grey" : selectedSlots.some(s => s.getTime() === new Date(`${currentWeek[colIndex].date}T${timeSlot}`).getTime()) ? '#f0ad4e' : 'white', */
+                                                backgroundColor: cellContent && currentBookings.length > 0 ? fonicoColors[currentBookings[0]?.fonico] || "grey" : 'white',
                                                 verticalAlign: 'middle',
                                                 padding: '0',
-                                                cursor: blockMode && currentBookings.length === 0 ? 'pointer' : 'default',
+                                                whiteSpace: "nowrap"
                                             }}
                                         >
                                             {cellContent}
@@ -666,6 +694,7 @@ const Calendar = () => {
                                 );
                             })}
                         </tbody>
+
                     </Table>
                 )}
             </div>
@@ -769,7 +798,7 @@ const Calendar = () => {
 
         return (
             <div className="w-100 d-flex flex-column custom-slider-container overflow-scroll">
-                <Table striped bordered hover className="table-container">
+                <Table striped bordered hover className="table-container" >
                     <thead>
                         <tr>
                             <th style={{ width: '80px', border: "1px solid black", fontWeight: 900 }}>Orario</th>
@@ -858,6 +887,8 @@ const Calendar = () => {
                         onChange={(e) => {
                             setView(e.target.value)
                             setBlockMode(false)
+                            if (e.target.value == "weekly")
+                                setSelectedDay(getFormattedDate(new Date()))
                         }}
                         style={{ paddingRight: "100px" }}
                     >
