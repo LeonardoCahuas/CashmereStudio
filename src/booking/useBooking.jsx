@@ -122,6 +122,20 @@ const usePrenotazioni = (selectedDateTime) => {
     }
   };
 
+  const setNonDisponibilita = async (fonicoId, disponibilita) => {
+    try {
+      const fonicoRef = doc(db, 'fonici', fonicoId);
+      await updateDoc(fonicoRef, { nondisp: disponibilita });
+
+      const updatedFonici = fonici.map(fonico =>
+        fonico.id === fonicoId ? { ...fonico, disp: disponibilita } : fonico
+      );
+      updateLocalStorage(prenotazioni, updatedFonici);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const addFonico = async (fonico) => {
     try {
       const docRef = await addDoc(collection(db, 'fonici'), { nome: fonico, disp: [] });
@@ -154,6 +168,7 @@ const usePrenotazioni = (selectedDateTime) => {
     eliminaPrenotazione,
     modificaPrenotazione,
     setDisponibilita,
+    setNonDisponibilita,
     addFonico,
     eliminaFonico,
     setNewChange

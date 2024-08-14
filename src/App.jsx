@@ -18,16 +18,17 @@ import Rec from './Services/Rec';
 import ScrollToTop from './ScrollToTop';
 import Navbar from './components/Navbar/Navbar';
 import NavbarAdmin from './internal/Navbar/Navbar';
+import Privacy from './Privacy/Privacy';
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <ScrollToTop><Navbar isHome={true}/> <Homepage /></ScrollToTop>,
+      element: <ScrollToTop><Navbar isHome={true}/> <Homepage /><Footer /></ScrollToTop>,
     },
     {
       path: "/book",
-      element: <ScrollToTop><Book /></ScrollToTop>
+      element: <ScrollToTop><Book /><Footer /></ScrollToTop>
     },
     {
       path: "/admin",
@@ -35,27 +36,31 @@ function App() {
     },
     {
       path: "/studio1",
-      element: <ScrollToTop><Navbar /><Studio1/></ScrollToTop>
+      element: <ScrollToTop><Navbar /><Studio1/><Footer /></ScrollToTop>
     },
     {
       path: "/studio2",
-      element: <ScrollToTop><Navbar /><Studio2/></ScrollToTop>
+      element: <ScrollToTop><Navbar /><Studio2/><Footer /></ScrollToTop>
     },
     {
       path: "/studio3",
-      element: <ScrollToTop><Navbar /><Studio3/></ScrollToTop>
+      element: <ScrollToTop><Navbar /><Studio3/><Footer /></ScrollToTop>
     },
     {
       path: "/rec",
-      element: <ScrollToTop><Navbar /><Rec/></ScrollToTop>
+      element: <ScrollToTop><Navbar /><Rec/><Footer /></ScrollToTop>
     },
     {
       path: "/mixmaster",
-      element: <ScrollToTop><Navbar /><Mem/></ScrollToTop>
+      element: <ScrollToTop><Navbar /><Mem/><Footer /></ScrollToTop>
     },
     {
       path: "/prod",
-      element: <ScrollToTop><Navbar /><Prod/></ScrollToTop>
+      element: <ScrollToTop><Navbar /><Prod/><Footer /></ScrollToTop>
+    },
+    {
+      path: "/privacy",
+      element: <ScrollToTop><Navbar /><Privacy/><Footer /></ScrollToTop>
     }
   ]);
 
@@ -64,7 +69,7 @@ function App() {
       <div style={{ minHeight: "80vh" }}>
         <RouterProvider router={router} />
       </div>
-      <Footer />
+      
     </div>
   );
 }

@@ -139,6 +139,7 @@ const Bookings = () => {
   const handleAddFonico = () => {
     addFonico(newFonicoName)
     setShowInput(false)
+    setNewFonicoName("")
   };
 
   const handleDeleteFonico = (id) => {
@@ -149,7 +150,7 @@ const Bookings = () => {
     <div style={{ marginTop: '20px', margin: '0px', width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Gestione Prenotazioni</h3>
       <FonicoCalendar />
-      <div className={`w-100 d-flex flex-${isMobile ? "column" : "row"} align-items-center`}>
+      <div className={`w-100 d-flex flex-${isMobile ? "column" : "row"} align-items-${isMobile ? "center" : "start"}`}>
         <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width: isMobile ? "100%" : "50%" }}>
           <h4>Gestione Fonici</h4>
           <Button variant="primary" onClick={() => setShowInput(true)}>Aggiungi Fonico</Button>
@@ -183,7 +184,7 @@ const Bookings = () => {
                 <Form.Label>Filtra per Fonico</Form.Label>
                 <Form.Control as="select" value={statSelectedFonico} onChange={(e) => setStatSelectedFonico(e.target.value)} style={{ marginBottom: '10px', borderRadius: '5px' }}>
                   <option value="">Tutti i Fonici</option>
-                  {fonici.map(fonico => (
+                  {fonici.filter(item => item.id != 1 ).map(fonico => (
                     <option key={fonico.id} value={fonico.id}>{fonico.nome}</option>
                   ))}
                 </Form.Control>
@@ -201,12 +202,12 @@ const Bookings = () => {
                 <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border:"1px solid black" }}>
                   <strong>Ore Totali:</strong> {calcolaTotaleOreStat(filteredStatPrenotazioni)} ore
                 </div>
-                {(statSelectedFonico ? orePerFonicoPerMeseStat.filter(item => item.id === statSelectedFonico) : orePerFonicoPerMeseStat).map((item, index) => (
+                {(statSelectedFonico ? orePerFonicoPerMeseStat.filter(item => item.id === statSelectedFonico ) : orePerFonicoPerMeseStat).filter(item => item.id != 1 ).map((item, index) => (
                   <div key={index} style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border:"1px solid black" }}>
                     <strong>{item.fonico}:</strong> {Object.entries(item.orePerMese).map(([mese, ore], i) => (
                       <div key={i}>{mese}: {ore} ore</div>
                     ))}{statSelectedFonico !== "" &&
-                      <div><strong>Disponibilità settimanale:</strong> {fonici.find(f => f.id === (statSelectedFonico || item.id))?.disp?.length || 0} slot</div>
+                      <div><strong>Disponibilità settimanale:</strong> {fonici.find(f => f.id == (statSelectedFonico || item.id))?.disp?.length} slot</div>
                     }</div>
                 ))}
               </div>

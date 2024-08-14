@@ -5,13 +5,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import usePrenotazioni from '../../booking/useBooking';
 
 const FonicoCalendar = () => {
-    const { fonici, prenotazioni, setDisponibilita } = usePrenotazioni();
+    const { fonici, prenotazioni, setDisponibilita, setNonDisponibilita } = usePrenotazioni();
     const [selectedFonico, setSelectedFonico] = useState(null);
     const [currentWeek, setCurrentWeek] = useState(new Date());
     const [editingDisponibilita, setEditingDisponibilita] = useState(false);
+    const [editingNonDisponibilita, setEditingNonDisponibilita] = useState(false);
     const [selectedDisponibilita, setSelectedDisponibilita] = useState([]);
     const [initialDisponibilita, setInitialDisponibilita] = useState([]);
+    const [selectedNonDisponibilita, setSelectedNonDisponibilita] = useState([]);
+    const [initialNonDisponibilita, setInitialNonDisponibilita] = useState([]);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+    const [refreshKey, setRefreshKey] = useState(0);
 
 
     useEffect(() => {
@@ -37,13 +41,18 @@ const FonicoCalendar = () => {
     useEffect(() => {
         if (selectedFonico) {
             const fonico = fonici.find(f => f.id === selectedFonico);
-            if (fonico && fonico.disp) {
-                const disponibilita = fonico.disp.map(slot => convertSlotToDateTime(slot));
+            if (fonico) {
+                const nonDisponibilita = fonico.nondisp ? fonico.nondisp.map(slot => convertSlotToDateTime(slot)) : [];
+                const disponibilita = fonico.disp ? fonico.disp.map(slot => convertSlotToDateTime(slot)) : [];
                 setSelectedDisponibilita(disponibilita);
                 setInitialDisponibilita(disponibilita);
+                setSelectedNonDisponibilita(nonDisponibilita);
+                setInitialNonDisponibilita(nonDisponibilita);
             } else {
                 setSelectedDisponibilita([]);
+                setSelectedNonDisponibilita([])
                 setInitialDisponibilita([]);
+                setInitialNonDisponibilita([])
             }
         }
     }, [selectedFonico, fonici]);
@@ -60,6 +69,7 @@ const FonicoCalendar = () => {
     const handleFonicoSelection = (fonicoId) => {
         setSelectedFonico(fonicoId);
         setEditingDisponibilita(false);
+        setEditingNonDisponibilita(false);
     };
 
     const handleSetDisponibilita = (day, hour = null) => {
@@ -87,7 +97,33 @@ const FonicoCalendar = () => {
         setSelectedDisponibilita(newDisponibilita);
     };
 
+    const handleSetNonDisponibilita = (day, hour = null) => {
+        if (!editingNonDisponibilita) return;
+
+        let newNonDisponibilita = [...selectedNonDisponibilita];
+        const dateString = `${day.toDateString()}-${hour}`;
+        if (hour === null) {
+            for (let i = 10; i <= 22; i++) {
+                const fullString = `${day.toDateString()}-${i}`;
+                if (newNonDisponibilita.includes(fullString)) {
+                    newNonDisponibilita = newNonDisponibilita.filter(d => d !== fullString);
+                } else {
+                    newNonDisponibilita.push(fullString);
+                }
+            }
+        } else {
+            if (newNonDisponibilita.includes(dateString)) {
+                newNonDisponibilita = newNonDisponibilita.filter(d => d !== dateString);
+            } else {
+                newNonDisponibilita.push(dateString);
+            }
+        }
+
+        setSelectedNonDisponibilita(newNonDisponibilita);
+    };
+
     const handleConferma = () => {
+        console.log("editando disp o non disp")
         const getSlotNumber = (date, hour) => {
             const dayOfWeek = (date.getDay() + 6) % 7;
             const hourOffset = hour - 10;
@@ -102,11 +138,21 @@ const FonicoCalendar = () => {
             }).sort((a, b) => a - b);
         };
 
-        const disponibilitaNumeri = convertDisponibilitaToNumbers(selectedDisponibilita);
-        setDisponibilita(selectedFonico, disponibilitaNumeri);
+        let disponibilitaNumeri
+        if (editingDisponibilita) {
+            disponibilitaNumeri = convertDisponibilitaToNumbers(selectedDisponibilita);
+            setDisponibilita(selectedFonico, disponibilitaNumeri);
+            setInitialDisponibilita(disponibilitaNumeri)
+            setEditingDisponibilita(false);
+        } else if (editingNonDisponibilita) {
+            console.log("editingnondisp")
+            disponibilitaNumeri = convertDisponibilitaToNumbers(selectedNonDisponibilita);
+            setInitialNonDisponibilita(disponibilitaNumeri)
+            setNonDisponibilita(selectedFonico, disponibilitaNumeri);
+            setEditingNonDisponibilita(false)
+        }
 
-        // Dopo aver salvato le disponibilità, disattiva la modalità di editing ma NON toccare selectedFonico
-        setEditingDisponibilita(false);
+        setRefreshKey(prevKey => prevKey + 1);
     };
 
 
@@ -118,7 +164,7 @@ const FonicoCalendar = () => {
         const weekDates = Array.from({ length: 7 }, (_, i) => new Date(startOfWeek.getTime() + i * 24 * 60 * 60 * 1000));
 
         return (
-            <div className="calendar-container" style={{ marginTop: "30px" }}>
+            <div  key={refreshKey} className="calendar-container" style={{ marginTop: "30px" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <i className="fa-solid fa-arrow-left" style={{ fontSize: "40px" }} onClick={() => setCurrentWeek(new Date(currentWeek.setDate(currentWeek.getDate() - 7)))}>
 
@@ -133,8 +179,15 @@ const FonicoCalendar = () => {
                     {weekDates.map((date, index) => (
                         <div
                             key={index}
-                            style={{ textAlign: 'center', fontWeight: 'bold', cursor: editingDisponibilita ? 'pointer' : 'default' }}
-                            onClick={() => editingDisponibilita && handleSetDisponibilita(date)}
+                            style={{ textAlign: 'center', fontWeight: 'bold' }}
+                            onClick={() => {
+                                if (editingDisponibilita) {
+                                    handleSetDisponibilita(date)
+                                } else if (editingNonDisponibilita) {
+                                    handleSetNonDisponibilita(date)
+                                }
+                            }
+                            }
                         >
                             {
                                 isMobile
@@ -155,12 +208,17 @@ const FonicoCalendar = () => {
                                         height: '40px',
                                         width: isMobile ? "" : "200px",
                                         backgroundColor: getCellColor(date, hourIndex + 10),
-                                        cursor: editingDisponibilita ? 'pointer' : 'default',
                                         display: "flex",
                                         flexDirection: "row",
                                         alignItems: "center"
                                     }}
-                                    onClick={() => editingDisponibilita && handleSetDisponibilita(date, hourIndex + 10)}
+                                    onClick={() => {
+                                        if (editingDisponibilita) {
+                                            handleSetDisponibilita(date, hourIndex + 10)
+                                        } else if (editingNonDisponibilita) {
+                                            handleSetNonDisponibilita(date, hourIndex + 10)
+                                        }
+                                    }}
                                 >
                                     {renderPrenotazioneBlock(date, hourIndex + 10)}
                                 </div>
@@ -168,7 +226,7 @@ const FonicoCalendar = () => {
                         </React.Fragment>
                     ))}
                 </div>
-            </div>
+            </div >
         );
     };
 
@@ -178,24 +236,16 @@ const FonicoCalendar = () => {
         const cellEndTimestamp = new Date(date).setHours(hour + 1, 0, 0, 0);
 
         if (editingDisponibilita) {
-            return selectedDisponibilita.includes(dateString) ? 'green' : 'white';
+            return selectedDisponibilita.includes(dateString) ? 'green' : selectedNonDisponibilita.includes(dateString) ? 'red' : 'white';
+        } else if (editingNonDisponibilita) {
+            return selectedNonDisponibilita.includes(dateString) ? 'red' : selectedDisponibilita.includes(dateString) ? 'green' : 'white';
+        } else if (initialNonDisponibilita.includes(dateString)) {
+            return 'red';
         } else if (initialDisponibilita.includes(dateString)) {
             return 'green';
+        } else{
+            return 'white'
         }
-
-        // Verifica se c'è una prenotazione per lo slot corrente
-        const isPrenotato = prenotazioni.some(p => {
-            const inizioTimestamp = new Date(p.inizio).getTime();
-            const fineTimestamp = new Date(p.fine).getTime();
-            if (p.fonico && p.fonicoId === selectedFonico) {
-                console.log("fonico trovato")
-            }
-            return (
-                inizioTimestamp < cellEndTimestamp && fineTimestamp > cellStartTimestamp && p.fonicoId === selectedFonico
-            );
-        });
-
-        return isPrenotato ? 'lightgrey' : 'white';
     };
 
 
@@ -210,8 +260,8 @@ const FonicoCalendar = () => {
         });
 
         return prenotazioniForSlot.map((p, index) => (
-            <div key={index} style={{ backgroundColor: 'red', margin: '10px', color: isMobile ? "red" : 'white', width: "100%" }}>
-                { isMobile ? "." : p.nomeUtente}
+            <div key={index} style={{ backgroundColor: 'grey', margin: '10px', color: isMobile ? "grey" : 'white', width: "100%" }}>
+                {isMobile ? "." : p.nomeUtente}
             </div>
         ));
     };
@@ -222,8 +272,8 @@ const FonicoCalendar = () => {
 
                 <Select value={selectedFonico || ''} onChange={(e) => handleFonicoSelection(e.target.value)} labelId="fonico-select-label">
 
-                    {fonici && fonici.filter(f => f.id != 1).map((fonico) => (
-                        <MenuItem key={fonico.id} value={fonico.id} selected={fonico.id != 1}>
+                    {fonici && fonici.map((fonico) => (
+                        <MenuItem key={fonico.id} value={fonico.id}>
                             {fonico.nome}
                         </MenuItem>
                     ))}
@@ -239,7 +289,22 @@ const FonicoCalendar = () => {
                             style={{ background: "transparent", border: "1px solid red", color: "red" }}>Annulla</Button>
                     </div>
                 )}
-                <p variant="primary" style={{ color: "black", borderBottom: "1px solid black", margin: "0px" }} onClick={() => setEditingDisponibilita(true)}>Imposta Disponibilità</p>
+                {editingNonDisponibilita && (
+                    <div style={{ marginTop: '20px' }}>
+                        <Button variant="success" onClick={handleConferma} style={{ background: "transparent", border: "1px solid green", color: "green", marginRight: "20px" }}>Conferma</Button>
+                        <Button variant="danger" onClick={() => {
+                            setSelectedNonDisponibilita(initialNonDisponibilita);
+                            setEditingNonDisponibilita(false);
+                        }}
+                            style={{ background: "transparent", border: "1px solid red", color: "red" }}>Annulla</Button>
+                    </div>
+                )}
+                {!editingDisponibilita && !editingNonDisponibilita && selectedFonico != 1 &&
+                    <div className='d-flex flex-row' style={{ gap: "30px" }}>
+                        <p variant="primary" style={{ color: "black", borderBottom: "1px solid black", margin: "0px" }} onClick={() => setEditingDisponibilita(true)}>Imposta Disponibilità</p>
+                        <p variant="primary" style={{ color: "black", borderBottom: "1px solid black", margin: "0px" }} onClick={() => setEditingNonDisponibilita(true)}>Imposta Non Disponibilità</p>
+                    </div>
+                }
             </div>
             {renderCalendar()}
         </div>
