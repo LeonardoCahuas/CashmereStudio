@@ -865,7 +865,7 @@ const Calendar = () => {
                     <Tab label="Studio 2" className='p-1' onClick={() => setBlockMode(false)} style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
                     <Tab label="Studio 3" className='p-1' onClick={() => setBlockMode(false)} style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
                 </Tabs>
-                <div className='d-flex flex-row align-items-center justify-content-center mb-2' style={{ gap: "20px" }}>
+                { view == "weekly" &&  <div className='d-flex flex-row align-items-center justify-content-center mb-2' style={{ gap: "20px" }}>
                     <MuiButton variant="contained" color="primary" onClick={toggleBlockMode} style={{ marginLeft: '20px', background: "transparent", border: "2px solid black", color: "black" }}>
                         {blockMode ? 'Annulla' : 'Blocca'}
                     </MuiButton>
@@ -874,7 +874,7 @@ const Calendar = () => {
                             Avanti
                         </MuiButton>
                     )}
-                </div>
+                </div>}
             </Box>
             <div style={{ marginBottom: '20px', display: "flex", flexDirection: "row", alignItems: "center", justifyContent: view == "weekly" ? "space-between" : "center", width: "100%" }}>
                 {view === 'weekly' && (
@@ -1213,7 +1213,7 @@ const Calendar = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" style={{ background: "transparent", border: "2px solid black", color: "black" }} onClick={() => setServiceModalShow(false)}>Chiudi</Button>
-                    <Button variant="primary" onClick={handleInsert} disabled={selectedFonico == 0}>Inserisci</Button>
+                    <Button variant="primary" onClick={handleInsert}>Inserisci</Button>
                 </Modal.Footer>
             </Modal>
         </div>

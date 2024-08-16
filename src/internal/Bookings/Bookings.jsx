@@ -133,7 +133,21 @@ const Bookings = () => {
 
   return (
     <div className="">
-      <h3 className="">Prenotazioni</h3>
+      <div className='d-flex flex-row align-items-center mb-5'>
+
+        <div className='w-25'></div>
+        <h3 className="text-center w-50">Prenotazioni</h3>
+        <div className='w-25 d-flex flex-row justify-content-end'>
+          <p style={{borderBottom:"1px solid black", width:"fit-content", margin:"0px"}} onClick={() => {
+            setSelectedDate('')
+            setSelectedFonico('')
+            setSelectedStudio('')
+            setUsernameFilter('')
+          }}>
+            Annulla filtri
+          </p>
+        </div>
+      </div>
       <div className="controls">
         <Form.Group controlId="sortOrder">
           <Form.Label>Ordina per Data</Form.Label>
@@ -167,8 +181,8 @@ const Bookings = () => {
               </option>
             ))}
             <option key={"no"} value={"no"}>
-                Senza fonico
-              </option>
+              Senza fonico
+            </option>
           </Form.Control>
           <Form.Group controlId="usernameFilter">
             <Form.Label>Filtra per Nome Utente</Form.Label>
