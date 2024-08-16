@@ -140,13 +140,21 @@ const FonicoCalendar = () => {
 
         let disponibilitaNumeri
         if (editingDisponibilita) {
+            
             disponibilitaNumeri = convertDisponibilitaToNumbers(selectedDisponibilita);
+            const newNonDisp = fonici.find(f => f.id == selectedFonico)?.nondisp?.filter(elemento => !disponibilitaNumeri.includes(elemento))
+            if(newNonDisp?.length < initialNonDisponibilita.length){
+                setNonDisponibilita(selectedFonico, newNonDisp);
+            }
             setDisponibilita(selectedFonico, disponibilitaNumeri);
             setInitialDisponibilita(disponibilitaNumeri)
             setEditingDisponibilita(false);
         } else if (editingNonDisponibilita) {
-            console.log("editingnondisp")
             disponibilitaNumeri = convertDisponibilitaToNumbers(selectedNonDisponibilita);
+            const newDisp = fonici.find(f => f.id == selectedFonico)?.disp?.filter(elemento => !disponibilitaNumeri.includes(elemento))
+            if(newDisp?.length < initialDisponibilita.length){
+                setDisponibilita(selectedFonico, newDisp);
+            }
             setInitialNonDisponibilita(disponibilitaNumeri)
             setNonDisponibilita(selectedFonico, disponibilitaNumeri);
             setEditingNonDisponibilita(false)

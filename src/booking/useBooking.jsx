@@ -128,7 +128,7 @@ const usePrenotazioni = (selectedDateTime) => {
       await updateDoc(fonicoRef, { nondisp: disponibilita });
 
       const updatedFonici = fonici.map(fonico =>
-        fonico.id === fonicoId ? { ...fonico, disp: disponibilita } : fonico
+        fonico.id === fonicoId ? { ...fonico, nondisp: disponibilita } : fonico
       );
       updateLocalStorage(prenotazioni, updatedFonici);
     } catch (err) {

@@ -146,7 +146,7 @@ const Step2 = ({ setBooking, goBack, studio }) => {
       (p) => getFormattedDate(new Date(p.inizio.seconds * 1000)) === selectedDay && p.studio == studio && p.stato == 2
     );
     let occupied = [];
-
+console.log(selectedDayPrenotazioni)
     // Collect slots that need to be marked as occupied
     selectedDayPrenotazioni.forEach((p) => {
       const startDate = new Date(p.inizio.seconds * 1000);
