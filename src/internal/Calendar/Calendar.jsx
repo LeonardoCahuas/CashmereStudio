@@ -131,21 +131,14 @@ const Calendar = () => {
         services: []
     })
     const [fonicoColors, setFonicoColors] = useState({});
-    const prova = () => {
-        try {
-            console.log("cambiando")
-        } catch (err) {
-            console.error(err.message)
-        }
-    }
 
     const NextArrow = (props) => {
-        const { className, style } = props;
+        const { className, style, onClick } = props;
         return (
             <div
                 className={`${className} slick-next flex-column align-items-center justify-content-center`}
                 style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", right: "-0px" }}
-                onClick={() => prova()}
+                onClick={onClick}
             >
                 <i className="fa-solid fa-chevron-right" style={{ color: "black", fontSize: "40px", right: '0px', backgroundColor: "white", width: "40px", height: "40px", borderRadius: '50%', position: "absolute", top: "-0px", left: "-2.5px" }}></i>
             </div>
@@ -153,12 +146,12 @@ const Calendar = () => {
     };
 
     const PrevArrow = (props) => {
-        const { className, style } = props;
+        const { className, style, onClick } = props;
         return (
             <div
                 className={`${className} slick-prev flex-column align-items-center justify-content-center`}
                 style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", left: "-0px" }}
-                onClick={() => setBlockMode(false)}
+                onClick={onClick}
             >
                 <i className="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px", backgroundColor: "white", width: "40px", height: "40px", borderRadius: '50%', position: "absolute", top: "-0px", left: "-2.5px" }}></i>
             </div>
