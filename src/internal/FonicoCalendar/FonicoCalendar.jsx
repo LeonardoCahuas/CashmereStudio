@@ -145,6 +145,7 @@ const FonicoCalendar = () => {
             const newNonDisp = fonici.find(f => f.id == selectedFonico)?.nondisp?.filter(elemento => !disponibilitaNumeri.includes(elemento))
             if(newNonDisp?.length < initialNonDisponibilita.length){
                 setNonDisponibilita(selectedFonico, newNonDisp);
+                setInitialNonDisponibilita(newNonDisp)
             }
             setDisponibilita(selectedFonico, disponibilitaNumeri);
             setInitialDisponibilita(disponibilitaNumeri)
@@ -154,6 +155,7 @@ const FonicoCalendar = () => {
             const newDisp = fonici.find(f => f.id == selectedFonico)?.disp?.filter(elemento => !disponibilitaNumeri.includes(elemento))
             if(newDisp?.length < initialDisponibilita.length){
                 setDisponibilita(selectedFonico, newDisp);
+                setInitialDisponibilita(newDisp)
             }
             setInitialNonDisponibilita(disponibilitaNumeri)
             setNonDisponibilita(selectedFonico, disponibilitaNumeri);

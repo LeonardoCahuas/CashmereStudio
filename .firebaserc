@@ -1,14 +1,5 @@
 {
   "projects": {
     "default": "cashmere-studio"
-  },
-  "targets": {
-    "cashmere-studio": {
-      "hosting": {
-        "cashmere-studio": [
-          "cashmere-studio"
-        ]
-      }
-    }
   }
 }

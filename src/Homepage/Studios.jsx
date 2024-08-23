@@ -18,6 +18,10 @@ import stu31 from "../assets/Studio3/CV1A3644.jpg";
 import stu32 from "../assets/Studio3/CV1A3646.jpg";
 import stu33 from "../assets/Studio3/CV1A3649.jpg";
 
+import stu1mob from "../assets/stu1mob.jpg";
+import stu2mob from "../assets/stu2mob.jpg";
+import stu3mob from "../assets/stu3mob.jpg";
+
 import { Link } from 'react-router-dom';
 import next from "../assets/next.png"
 import prev from "../assets/back.png"
@@ -113,11 +117,15 @@ function StudioSection({ title, description, bgColor, index }) {
                 </Link>
             </div>
             <Slider {...settings} className="studio-slider">
-                {
+                {!isMobile ? (
                     images[index].map((img, i) => (
                         <img key={i} src={img} alt={`studio-${index}-${i}`} className="studio-image" />
                     ))
-                }
+                ) : (
+                    images[index].map((img, i) => (
+                        <img key={i} src={img} alt={`studio-${index}-${i}`} className="studio-image" />
+                    ))
+                )}
 
             </Slider>
         </div>

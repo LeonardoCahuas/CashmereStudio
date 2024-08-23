@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import usePrenotazioni from '../../booking/useBooking';
 import './Studios.css';
 import stu1 from "../../assets/stu1.png";
-import stu2 from "../../assets/stu3.png";
+import stu2 from "../../assets/stu2.png";
 import stu3 from "../../assets/stu3.png";
 
 const getLocalDateTimeString = () => {
