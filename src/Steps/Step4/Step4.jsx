@@ -4,7 +4,7 @@ import ScrollToTop from '../../ScrollToTop';
 
 const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, studio, goBack, services, needFonico }) => {
     const [nomeUtente, setNomeUtente] = useState('');
-    const [telefono, setTelefono] = useState('');
+    const [telefono, setTelefono] = useState('+39');
     const [email, setEmail] = useState('');
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
     const navigation = useNavigate()
@@ -65,7 +65,11 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
                         </div>
                         <div className="mb-4">
                             <label htmlFor="nomeUtente" className="form-label  d-flex flex-row align-items-center" style={{ fontSize: "17px" }}> <i class="fa-brands fa-whatsapp" style={{ fontSize: "25px", color: "black", marginRight: "10px" }}></i> Numero di telefono</label>
-                            <input type="text" className="form-control" id="telefono" value={telefono} onChange={(e) => setTelefono(e.target.value)} required placeholder='Numero Whatsapp' style={{ backgroundColor: "rgb(240, 240, 240)", padding: "15px" }} />
+                            <input type="tel" className="form-control" id="telefono" value={telefono} onKeyPress={(e) => {
+                                if (!/[0-9+]/.test(e.key)) {
+                                    e.preventDefault();
+                                }
+                            }}  onChange={(e) => setTelefono(e.target.value)} required placeholder='Numero Whatsapp' style={{ backgroundColor: "rgb(240, 240, 240)", padding: "15px" }} />
                         </div>
 
 
