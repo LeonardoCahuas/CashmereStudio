@@ -15,7 +15,7 @@ const descriptions = [
     "",
     { to: "/rec", title: "REC", desc: "La fase di registrazione è quella in cui l'artista viene al microfono e registra le sue parti vocali." },
     { to: "/mixmaster", title: "MIX & MASTER", desc: "Processo finale di lavorazione sul beat e sulla voce degli effetti, in breve  è l’attività che serve per far suonare bene e professionale una canzone." },
-    { to: "/prod", title: "PRODUZIONE", desc: "La fase di registrazione è quella in cui l'artista viene al microfono e registra lesue parti vocali." }
+    { to: "/prod", title: "PRODUZIONE", desc: "La fase di registrazione è quella in cui l'artista viene al microfono e registra le sue parti vocali." }
 ];
 
 const indexes = {

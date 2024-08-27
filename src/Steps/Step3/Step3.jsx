@@ -105,7 +105,7 @@ const Step3 = ({ setService, goBack, setSessionFonico }) => {
                 maxWidth: "80%" 
               }}
             >
-              Breve spiegazione sul servizio Di rec.
+              La fase di registrazione è quella in cui l'artista registra le sue parti musicali al micorofono.
             </p>
           </div>
           <div style={{ width: isMobile ? "80%" : "22%" }}>
@@ -140,7 +140,7 @@ const Step3 = ({ setService, goBack, setSessionFonico }) => {
                 maxWidth: "80%" 
               }}
             >
-              Breve spiegazione sul servizio Di mix e master.
+              Il Mix&Master è il processo finale di lavorazione sul beat e sulla voce, che serve a far suonare in modo professionale una canzone.
             </p>
           </div>
           <div style={{ width: isMobile ? "80%" : "22%" }}>
@@ -175,7 +175,7 @@ const Step3 = ({ setService, goBack, setSessionFonico }) => {
                 maxWidth: "80%" 
               }}
             >
-              Breve spiegazione sul servizio Di Produzione.
+              Il nostro servizio di produzione musicale offre beat personalizzati di alta qualità.
             </p>
           </div>
         </div>
