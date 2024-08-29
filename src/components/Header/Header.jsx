@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { storage, ref, getDownloadURL } from '../../firebase-config';
-import header from '../../assets/mem.png';
-import header2 from '../../assets/cashead.png';
-import './Header.css'; // Assumi che Header.css contenga gli stili necessari
-import videodesk from '../../../src/assets/Videos/VIDEOHOME.mp4'
-import videomob from '../../../src/assets/Videos/TUTTO_VERTICALE.mp4'
+import ReactPlayer from 'react-player';
+import videodesk from '../../../src/assets/Videos/VIDEOHOME.mp4';
+import videomob from '../../../src/assets/Videos/TUTTO_VERTICALE.mp4';
+import './Header.css';
+
 function Header() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
-
 
     useEffect(() => {
         const handleResize = () => {
@@ -15,7 +13,7 @@ function Header() {
         };
 
         window.addEventListener('resize', handleResize);
-        handleResize(); // Call initially to set the correct state
+        handleResize();
 
         return () => {
             window.removeEventListener('resize', handleResize);
@@ -25,22 +23,26 @@ function Header() {
     return (
         <div className="w-100 header bg-black p-0">
             <div className='h-100'>
-                <video
-                    className="video-bg h-100"
-                    autoPlay
-                    playsInline
-                    loop
-                    muted
-                    controls={false}
-                    disablePictureInPicture
-                    style={{ width: "100vw" }}
+                <ReactPlayer
+                    url={isMobile ? videomob : videodesk}
+                    playing={true}
+                    loop={true}
+                    muted={true}
+                    playsinline={true}
+                    width="100%"
+                    height="100%"
+                    preload="auto"
+                    config={{
+                        file: {
+                            attributes: {
+                                style: { width: "100vw", height: "100%" },
+                                disablePictureInPicture: true,
+                            }
+                        }
+                    }}
                     onContextMenu={(e) => e.preventDefault()}
-                >
-                    <source src={isMobile ? videomob : videodesk} type="video/mp4" />
-                    Il tuo browser non supporta il tag video.
-                </video>
+                />
             </div>
-
         </div>
     );
 }
