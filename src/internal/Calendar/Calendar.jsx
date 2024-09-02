@@ -6,6 +6,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import usePrenotazioni from '../../booking/useBooking';
+import { v4 as uuidv4 } from 'uuid';
 
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 
@@ -120,7 +121,7 @@ const Calendar = () => {
     const [endHoursOptions, setEndHoursOptions] = useState(hours)
     const [newPrenStart, setNewPrenStart] = useState(
         { day: "", time: "" }
-,    )
+        ,)
     const [newPrenotazione, setNewPrenotazione] = useState({
         nomeUtente: "",
         inizio: "",
@@ -131,6 +132,7 @@ const Calendar = () => {
         services: []
     })
     const [fonicoColors, setFonicoColors] = useState({});
+    const [isPeriod, setIsPeriod] = useState(false)
 
     const NextArrow = (props) => {
         const { className, style, onClick } = props;
@@ -176,7 +178,7 @@ const Calendar = () => {
         return fonico && fonico.nome ? fonico.nome : ""
     }
 
-    const { prenotazioni, addPrenotazione, fonici, modificaPrenotazione, eliminaPrenotazione } = usePrenotazioni(selectedDay);
+    const { prenotazioni, addPrenotazione, fonici, modificaPrenotazione, eliminaPrenotazione, handleDeleteAllPeriodPren } = usePrenotazioni(selectedDay);
     const [username, setUsername] = useState('');
     const [phone, setPhone] = useState('');
 
@@ -266,8 +268,10 @@ const Calendar = () => {
     const handleServiceModalOpen = () => setServiceModalShow(true);
 
     const toggleBlockMode = () => {
+        setIsPeriod(!blockMode)
         setBlockMode(!blockMode);
         setSelectedSlots([]);
+
     };
 
     const handleDelete = () => {
@@ -328,28 +332,45 @@ const Calendar = () => {
     };
 
     const handleInsert = () => {
+        const uid = uuidv4()
         selectedSlots.forEach(slot => {
             if (slot instanceof Date) {
                 const inizio = new Date(slot);
                 const fine = new Date(inizio);
                 fine.setHours(inizio.getHours() + 1);
-
+                
                 for (let i = 0; i < (repeat || 1); i++) {
                     const newInizio = new Date(inizio);
                     const newFine = new Date(fine);
                     newInizio.setDate(inizio.getDate() + i * 7)
                     newFine.setDate(fine.getDate() + i * 7)
-                    addPrenotazione({
-                        nomeUtente: username || 'Blocco',
-                        studio: value,
-                        telefono: phoneNumber || 'Blocco',
-                        services,
-                        inizio: newInizio,
-                        fine: newFine,
-                        stato: 2,
-                        fonico: selectedFonico
-                    });
+
+                    if (isPeriod) {
+                        addPrenotazione({
+                            nomeUtente: username || 'Blocco',
+                            studio: value,
+                            telefono: phoneNumber || 'Blocco',
+                            services,
+                            inizio: newInizio,
+                            fine: newFine,
+                            stato: 2,
+                            fonico: selectedFonico,
+                            period: uid
+                        });
+                    } else {
+                        addPrenotazione({
+                            nomeUtente: username || 'Blocco',
+                            studio: value,
+                            telefono: phoneNumber || 'Blocco',
+                            services,
+                            inizio: newInizio,
+                            fine: newFine,
+                            stato: 2,
+                            fonico: selectedFonico
+                        });
+                    }
                 }
+                setIsPeriod(false)
             } else {
                 console.error('Invalid slot format:', slot);
             }
@@ -540,6 +561,13 @@ const Calendar = () => {
             console.error('Error saving new reservation:', error);
         }
     };
+
+    const handleDeleteAllPeriod = () => {
+        setShowDeleteConfirmation(false);
+        const prenToDel = prenotazioni.filter(p => p.period && p.period == selectedPrenotazione.period)
+        handleDeleteAllPeriodPren(selectedPrenotazione.period)
+        handleCloseModal();
+    }
 
     useEffect(() => {
         if (selectedDay) {
@@ -858,7 +886,7 @@ const Calendar = () => {
                     <Tab label="Studio 2" className='p-1' onClick={() => setBlockMode(false)} style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
                     <Tab label="Studio 3" className='p-1' onClick={() => setBlockMode(false)} style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
                 </Tabs>
-                { view == "weekly" &&  <div className='d-flex flex-row align-items-center justify-content-center mb-2' style={{ gap: "20px" }}>
+                {view == "weekly" && <div className='d-flex flex-row align-items-center justify-content-center mb-2' style={{ gap: "20px" }}>
                     <MuiButton variant="contained" color="primary" onClick={toggleBlockMode} style={{ marginLeft: '20px', background: "transparent", border: "2px solid black", color: "black" }}>
                         {blockMode ? 'Annulla' : 'Blocca'}
                     </MuiButton>
@@ -910,6 +938,10 @@ const Calendar = () => {
                                 <p>Sei sicuro di voler eliminare?</p>
                                 <Button variant="danger" style={{ background: "transparent", border: "2px solid red", color: "red", marginRight: "10px" }} onClick={handleConfirmDelete}>Sì, elimina</Button>
                                 <Button variant="secondary" style={{ background: "transparent", border: "2px solid black", color: "black" }} onClick={handleCancelDelete}>No, torna indietro</Button>
+                                {
+                                    selectedPrenotazione.period &&
+                                    <Button variant="primary" style={{ background: "transparent", border: "2px solid orange", color: "orange" }} onClick={handleDeleteAllPeriod}>Elimina tutte le periodiche</Button>
+                                }
                             </div>
                         ) : (
                             <div>
@@ -1178,7 +1210,7 @@ const Calendar = () => {
                         <select onChange={(e) => handleFonicoSelection(e.target.value)}>
                             {
                                 fonici.map((fonico) => (
-                                    <option key={fonico.id} value={fonico.id}>
+                                    <option key={fonico.id} value={fonico.id} selected={fonico.id == 1}>
                                         {fonico.nome}
                                     </option>
                                 ))
@@ -1205,7 +1237,10 @@ const Calendar = () => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" style={{ background: "transparent", border: "2px solid black", color: "black" }} onClick={() => setServiceModalShow(false)}>Chiudi</Button>
+                    <Button variant="secondary" style={{ background: "transparent", border: "2px solid black", color: "black" }} onClick={() => {
+                        setServiceModalShow(false)
+                        setIsPeriod(false)
+                    }}>Chiudi</Button>
                     <Button variant="primary" onClick={handleInsert}>Inserisci</Button>
                 </Modal.Footer>
             </Modal>
