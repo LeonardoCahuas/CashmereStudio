@@ -157,6 +157,22 @@ const usePrenotazioni = (selectedDateTime) => {
     }
   };
 
+  const handleDeleteAllPeriodPren = async (uid) => {
+    try {
+        // Filtra le prenotazioni che hanno il period uguale a uid
+        const prenotazioniToDelete = prenotazioni.filter(prenotazione => prenotazione.period === uid);
+        
+        // Elimina ogni prenotazione filtrata
+        await Promise.all(prenotazioniToDelete.map(prenotazione => eliminaPrenotazione(prenotazione.id)));
+
+        // Aggiorna lo stato delle prenotazioni
+        const updatedPrenotazioni = prenotazioni.filter(prenotazione => prenotazione.period !== uid);
+        updateLocalStorage(updatedPrenotazioni, fonici);
+    } catch (err) {
+        setError(err.message);
+    }
+}
+
   return {
     prenotazioni,
     fonici,
@@ -171,7 +187,9 @@ const usePrenotazioni = (selectedDateTime) => {
     setNonDisponibilita,
     addFonico,
     eliminaFonico,
-    setNewChange
+    setNewChange,
+    setChange,
+    handleDeleteAllPeriodPren
   };
 };
 
