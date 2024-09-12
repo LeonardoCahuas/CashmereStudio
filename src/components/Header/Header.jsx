@@ -41,6 +41,7 @@ function Header() {
                         }
                     }}
                     onContextMenu={(e) => e.preventDefault()}
+                    controls={false}
                 />
             </div>
         </div>
