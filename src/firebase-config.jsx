@@ -24,5 +24,5 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 
 // Esporta l'istanza di Firestore se necessario
-export { db, auth, storage, ref, getDownloadURL };
+export  { db, auth, storage, ref, getDownloadURL };
 

@@ -88,7 +88,9 @@ function Confirm() {
             {currentItems.map((prenotazione) => (
               <tr key={prenotazione.id}>
                 <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}>{prenotazione.nomeUtente}</a>}</td>
-                <td>{isMobile ? <div><i class="fa fa-phone"></i>{prenotazione.telefono}</div> : prenotazione.telefono}</td>
+                <td>
+                  <a href={`https://wa.me/${prenotazione.telefono}?text=Ciao%20${prenotazione.nomeUtente},%20abbiamo%20ricevuto%20una%20prenotazione%20il%20giorno%20${prenotazione.inizio.toDate().toLocaleDateString('it-IT')}%20dalle%20${prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}%20alle%20${prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}%20con%20servizi%20${prenotazione.services.join(', ')}`}><i className="fa fa-phone"></i>{prenotazione.telefono}</a>
+                </td>
                 {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
 
                 {!isMobile && <td>
@@ -112,7 +114,7 @@ function Confirm() {
                 {!isMobile && <td>{prenotazione.studio}</td>}
                 {!isMobile && <td>{prenotazione.sessionWithFonico ? "si" : "no"}</td>}
                 <td>
-                  <p style={{ textDecoration: "underline", cursor: "pointer", margin:"0px" }} onClick={() => handleShowModal(prenotazione)}>Visualizza</p>
+                  <p style={{ textDecoration: "underline", cursor: "pointer", margin: "0px" }} onClick={() => handleShowModal(prenotazione)}>Visualizza</p>
                 </td>
               </tr>
             ))}
@@ -136,7 +138,7 @@ function Confirm() {
               <p>Nome Utente: {selectedPrenotazione.nomeUtente}</p>
 
               <p>Telefono: {selectedPrenotazione.telefono}</p>
-              <div className=' mb-3 d-flex flex-row align-items-center justify-content-start' style={{gap:"10px"}}>Servizi: {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p className='m-0'>{servi}</p>)}</div>
+              <div className=' mb-3 d-flex flex-row align-items-center justify-content-start' style={{ gap: "10px" }}>Servizi: {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p className='m-0'>{servi}</p>)}</div>
               <p>
                 Fine: {selectedPrenotazione.inizio.toDate().toLocaleDateString('it-IT', {
                   weekday: 'long',
