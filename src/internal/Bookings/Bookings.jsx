@@ -36,6 +36,8 @@ const BookingModal = ({ show, onHide, prenotazione, findFonico }) => (
           </p>
           <p>Studio: {prenotazione.studio}</p>
           <p>Fonico: {findFonico(prenotazione.fonico)}</p>
+          <p>Note: {prenotazione.note ? prenotazione.note : ""}</p>
+          <p>Prenotato da: {prenotazione.prenotatoDa }</p>
         </div>
       )}
     </Modal.Body>
@@ -237,6 +239,7 @@ const Bookings = () => {
                   </p></td>}
                   {!isMobile && <td>{prenotazione.studio}</td>}
                   {!isMobile && <td>{findFonico(prenotazione.fonico)}</td>}
+                  
                   <td className={`actions h-100  ${isMobile ? 'd-flex flex-column' : 'd-flex flex-column'} justify-content-center`}>
                     <Button className="p-1" variant="primary" onClick={() => handleView(prenotazione)}>Visualizza</Button>
                     <Button variant="danger" className="p-1" onClick={() => handleDelete(prenotazione)}>Elimina</Button>

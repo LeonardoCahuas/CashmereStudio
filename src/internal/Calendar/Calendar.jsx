@@ -10,7 +10,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 
-const hours = Array.from({ length: 13 }, (_, i) => (i + 10).toString().padStart(2, '0') + ':00');
+const hours = Array.from({ length: 18 }, (_, i) => { // Cambiato da 13 a 18 per includere le ore fino alle 4
+    const hour = (i + 10) % 24; // Calcola l'ora in formato 24 ore
+    return String(hour).padStart(2, '0') + ':00';
+});
 
 const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
 const giorniSettimana = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -129,7 +132,9 @@ const Calendar = () => {
         telefono: "",
         studio: 0,
         stato: 2,
-        services: []
+        services: [],
+        prenotatoDa: "",
+        note: ""
     })
     const [fonicoColors, setFonicoColors] = useState({});
     const [isPeriod, setIsPeriod] = useState(false)
@@ -184,15 +189,15 @@ const Calendar = () => {
 
     useEffect(() => {
         const colors = [
-            '#008000', // Verde
-            '#FF0000', // Rosso
-            '#0000FF', // Blu
-            '#FFA500', // Arancione
-            '#800080', // Viola
-            '#00FFFF', // Ciano
-            '#FFC0CB', // Rosa
-            '#FFD700', // Oro
-            '#00FF00', // Verde lime
+            '#81d152', // Verde
+            '#ff5347', // Rosso
+            '#1034a6', // Blu
+            '#ff9d4f', // Arancione
+            '#5b4db7', // Viola
+            '#73c2fb', // Ciano
+            '#ff8c94', // Rosa
+            '#d7be9', // Oro
+            '#bcd97c', // Verde lime
         ];
 
 
@@ -201,9 +206,10 @@ const Calendar = () => {
             return acc;
         }, {});
 
-        assignedColors["LlFzgMM8KNJoR18KvXpU"] = "grey"
-        assignedColors["nope"] = "grey"
-        assignedColors["1"] = "grey"
+        assignedColors["LlFzgMM8KNJoR18KvXpU"] = "#bcb8b6"
+        assignedColors["nope"] = "#bcb8b6"
+        assignedColors["1"] = "#bcb8b6"
+        assignedColors["i4x1IcxsgGLUHZpfz7p7"] = "#111e6c"
 
         setFonicoColors(assignedColors);
     }, [fonici]);
@@ -332,57 +338,70 @@ const Calendar = () => {
     };
 
     const handleInsert = () => {
-        const uid = uuidv4()
+        const uid = uuidv4();
+        const mergedSlots = []; // Array per memorizzare le prenotazioni unite
+        let currentSlot = null;
+    
+        selectedSlots.sort((a, b) => a - b); // Ordina gli slot per data
+    
         selectedSlots.forEach(slot => {
             if (slot instanceof Date) {
                 const inizio = new Date(slot);
                 const fine = new Date(inizio);
                 fine.setHours(inizio.getHours() + 1);
-                
-                for (let i = 0; i < (repeat || 1); i++) {
-                    const newInizio = new Date(inizio);
-                    const newFine = new Date(fine);
-                    newInizio.setDate(inizio.getDate() + i * 7)
-                    newFine.setDate(fine.getDate() + i * 7)
-
-                    if (isPeriod) {
-                        addPrenotazione({
-                            nomeUtente: username || 'Blocco',
-                            studio: value,
-                            telefono: phoneNumber || 'Blocco',
-                            services,
-                            inizio: newInizio,
-                            fine: newFine,
-                            stato: 2,
-                            fonico: selectedFonico,
-                            period: uid
-                        });
+    
+                // Se non ci sono slot correnti, inizializza
+                if (!currentSlot) {
+                    currentSlot = { inizio, fine };
+                } else {
+                    // Controlla se il nuovo slot è contiguo al corrente
+                    const lastFine = new Date(currentSlot.fine);
+                    lastFine.setHours(lastFine.getHours() + 1); // Aggiungi un'ora per il confronto
+    
+                    if (inizio.getTime() === lastFine.getTime()) {
+                        // Unisci i slot
+                        currentSlot.fine = fine; // Aggiorna la fine
                     } else {
-                        addPrenotazione({
-                            nomeUtente: username || 'Blocco',
-                            studio: value,
-                            telefono: phoneNumber || 'Blocco',
-                            services,
-                            inizio: newInizio,
-                            fine: newFine,
-                            stato: 2,
-                            fonico: selectedFonico
-                        });
+                        // Aggiungi il slot corrente all'array e inizia un nuovo slot
+                        mergedSlots.push(currentSlot);
+                        currentSlot = { inizio, fine };
                     }
                 }
-                setIsPeriod(false)
             } else {
                 console.error('Invalid slot format:', slot);
             }
         });
+    
+        // Aggiungi l'ultimo slot se esiste
+        if (currentSlot) {
+            mergedSlots.push(currentSlot);
+        }
+    
+        // Inserisci le prenotazioni
+        mergedSlots.forEach(({ inizio, fine }) => {
+            addPrenotazione({
+                nomeUtente: username || 'Blocco',
+                studio: value,
+                telefono: phoneNumber || 'Blocco',
+                services,
+                inizio,
+                fine,
+                stato: 2,
+                fonico: selectedFonico,
+                note: "",
+                prenotatoDa: "gestionale",
+                period: uid
+            });
+        });
+    
+        // Reset dello stato
         setServiceModalShow(false);
         setSelectedSlots([]);
         handleServiceModalClose();
-        setBlockMode(false)
-        setUsername("")
-        setSelectedFonico("")
-        setPhoneNumber("")
-
+        setBlockMode(false);
+        setUsername("");
+        setSelectedFonico("");
+        setPhoneNumber("");
     };
 
 
@@ -427,7 +446,7 @@ const Calendar = () => {
         if (nextBooking) {
             endHourOptions = Array.from({ length: nextBooking.startHour - startHour }, (_, i) => startHour + i + 1);
         } else {
-            endHourOptions = Array.from({ length: 22 - startHour }, (_, i) => startHour + i + 1);
+            endHourOptions = Array.from({ length: 22 - startHour + 6 }, (_, i) => (startHour + i + 1) % 24);
         }
 
         // Imposta le opzioni per l'orario di fine
@@ -538,7 +557,8 @@ const Calendar = () => {
                     ...newPrenotazione,
                     inizio: newInizio,
                     fine: newFine,
-                    studio: studioPren
+                    studio: studioPren,
+                    prenotatoDa: "gestionale"
                 };
                 console.log(newPrenotazioneWithTimestamps)
                 addPrenotazione(newPrenotazioneWithTimestamps);
@@ -615,14 +635,14 @@ const Calendar = () => {
                         .map((day, index) => (
                             <div key={index} className="day-slide" style={{ width: '200px', backgroundColor: "transparent" }}>
                                 <button
-                                    className={`day-button ${day.date === selectedDay ? 'selected' : ''} d-flex flex-column justify-content-center`}
+                                    className={`day-button ${day.date === selectedDay ? 'selected' : ''} d-flex flex-column justify-content-center align-items-start`}
                                     onClick={() => setSelectedDay(day.date)}
-                                    style={{ width: '200px', backgroundColor: "white", border: day.date === selectedDay ? "2px solid #08B1DF" : "2px solid black", color: day.date === selectedDay ? "white" : "black", textAlign: "start" }}
+                                    style={{ width: '160px', backgroundColor: "white", border: day.date === selectedDay ? "2px solid #08B1DF" : "2px solid black", color: day.date === selectedDay ? "white" : "black", textAlign: "start", height: "fit-content" }}
                                 >
-                                    <p className='text-start w-75 fs-5'>
+                                    <p className='text-start w-75 fs-6 m-0 text-start'>
                                         {`${giorniSettimana[new Date(day.date).getDay()]}`}
                                     </p>
-                                    <p className='text-start w-75 fs-5' style={{ fontWeight: 800, marginTop: "-20px" }}>
+                                    <p className='text-start w-75 fs-6 m-0' style={{ fontWeight: 800, marginTop: "-20px", whiteSpace: 'nowrap' }}>
                                         {`${new Date(day.date).getDate()} ${months[new Date(day.date).getMonth()]}`}
                                     </p>
                                 </button>
@@ -638,11 +658,11 @@ const Calendar = () => {
                             </tr>
                         </thead>
                         <tbody style={{ overflow: "hidden" }}>
-                            {Array.from({ length: 13 }, (_, i) => {
-                                const hour = i + 10;
+                            {Array.from({ length: 19 }, (_, i) => { // Cambiato da 13 a 18 per includere le ore fino alle 4
+                                const hour = (i + 10) % 24; // Calcola l'ora in formato 24 ore
                                 const timeSlot = `${String(hour).padStart(2, '0')}:00`;
+                                const isNextDay = hour < 10; // Controlla se è un'ora del giorno successivo
 
-                                // Controlla se questo slot è già stato occupato da un rowspan e salta la creazione di un nuovo <td>
                                 if (occupiedSlots[`${selectedDay}-${hour}`]) {
                                     return (
                                         <tr key={timeSlot}>
@@ -654,7 +674,11 @@ const Calendar = () => {
                                 }
 
                                 const bookings = bookingsByDay[selectedDay] || [];
-                                const currentBookings = bookings.filter(b => b.startHour <= hour && b.endHour > hour);
+                                const currentBookings = bookings.filter(b => {
+                                    const startHour = b.startHour % 24; // Gestisci l'ora in formato 24 ore
+                                    const endHour = b.endHour % 24; // Gestisci l'ora in formato 24 ore
+                                    return (startHour <= hour && endHour > hour) || (isNextDay && startHour < 10 && endHour >= 24);
+                                });
 
                                 let cellContent = null;
                                 let rowSpan = 1;
@@ -665,7 +689,7 @@ const Calendar = () => {
 
                                     // Segna gli slot come occupati
                                     for (let r = 0; r < rowSpan; r++) {
-                                        occupiedSlots[`${selectedDay}-${hour + r}`] = true;
+                                        occupiedSlots[`${selectedDay}-${(hour + r) % 24}`] = true; // Gestisci l'ora in formato 24 ore
                                     }
 
                                     const fonico = booking.fonico ? booking.fonico : "nope";
@@ -683,8 +707,8 @@ const Calendar = () => {
                                             justifyContent: 'center',
                                             boxSizing: 'border-box'
                                         }} onClick={() => handleShowModal(booking)}>
-                                            <b style={{ fontWeight: 900 }}>{booking.nomeUtente}, {findFonico(fonico) !== "" ? findFonico(fonico) : "senza fonico"}</b>
-                                            <b>{booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}-{booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
+                                            <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.nomeUtente}, {findFonico(fonico) !== "" ? findFonico(fonico) : "senza fonico"}</b>
+                                            <b style={{ fontSize: isMobile ? "13.5px" : "15px" }}>{booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}-{booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
                                         </div>
                                     );
                                 } else {
@@ -703,7 +727,7 @@ const Calendar = () => {
                                         <td
                                             rowSpan={rowSpan}
                                             style={{
-                                                backgroundColor: cellContent && currentBookings.length > 0 ? fonicoColors[currentBookings[0]?.fonico] || "grey" : 'white',
+                                                backgroundColor: cellContent && currentBookings.length > 0 ? fonicoColors[currentBookings[0]?.fonico] || "#bcb8b6" : 'white',
                                                 verticalAlign: 'middle',
                                                 padding: '0',
                                                 whiteSpace: "nowrap"
@@ -719,8 +743,8 @@ const Calendar = () => {
                     </Table>
                 )}
             </div>
-        );
-    };
+        )
+    }
 
     const renderWeekly = () => {
         const bookingsByDay = currentWeek.reduce((acc, day) => {
@@ -736,6 +760,9 @@ const Calendar = () => {
                     }
                 })
                 .map(pren => {
+                    if(pren.nomeUtente == "teduaa"){
+                        console.log(pren)
+                    }
                     const startHour = pren.inizio.toDate().getHours();
                     const endHour = pren.fine.toDate().getHours();
                     return {
@@ -747,20 +774,27 @@ const Calendar = () => {
             return acc;
         }, {});
 
-        const occupiedSlots = {}; // Nuovo oggetto per tenere traccia delle celle occupate
+
+
+        const occupiedSlots = {};
 
         const rows = [];
-        for (let i = 0; i < 13; i++) {
-            const hour = i + 10;
+        for (let i = 0; i < 19; i++) {
+            const hour = (i + 10) % 24;
             const timeSlot = `${String(hour).padStart(2, '0')}:00`;
+            const isNextDay = hour < 10;
 
             const row = {
                 timeSlot,
                 cells: currentWeek.map((day, colIndex) => {
                     const bookings = bookingsByDay[day.date] || [];
-                    const currentBookings = bookings.filter(b => b.startHour <= hour && b.endHour > hour);
+                    const currentBookings = bookings.filter(b => {
+                        const startHour = b.startHour % 24;
+                        const endHour = b.endHour % 24;
+                        return (startHour <= hour && endHour > hour) || (isNextDay && startHour < 10 && endHour >= 24);
+                    });
                     let isContent = false;
-                    let fonico = "nope"
+                    let fonico = "nope";
                     let cellContent = null;
                     let rowSpan = 1;
 
@@ -776,10 +810,10 @@ const Calendar = () => {
 
                         // Segna gli slot come occupati
                         for (let r = 0; r < rowSpan; r++) {
-                            occupiedSlots[`${day.date}-${hour + r}`] = true;
+                            occupiedSlots[`${day.date}-${(hour + r) % 24}`] = true; // Gestisci l'ora in formato 24 ore
                         }
 
-                        fonico = booking.fonico ? booking.fonico : "nope"
+                        fonico = booking.fonico ? booking.fonico : "nope";
 
                         cellContent = (
                             <div style={{
@@ -793,8 +827,8 @@ const Calendar = () => {
                                 justifyContent: 'center',
                                 boxSizing: 'border-box'
                             }} onClick={() => blockMode ? null : handleShowModal(booking)}>
-                                <b style={{ fontWeight: 900 }}>{booking.nomeUtente}, {findFonico(booking.fonico) !== "" ? findFonico(booking.fonico) : "senza fonico"}</b>
-                                <b> {booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}-{booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
+                                <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.nomeUtente}, {findFonico(booking.fonico) !== "" ? findFonico(booking.fonico) : "senza fonico"}</b>
+                                <b style={{ fontSize: isMobile ? "13.5px" : "15px" }}> {booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}-{booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
                             </div>
                         );
                     } else {
@@ -906,12 +940,15 @@ const Calendar = () => {
                     <Select
                         value={view}
                         onChange={(e) => {
-                            setView(e.target.value)
-                            setBlockMode(false)
-                            if (e.target.value == "weekly")
-                                setSelectedDay(getFormattedDate(new Date()))
+                            setView(e.target.value);
+                            setBlockMode(false);
+                            if (e.target.value === "weekly") {
+                                setSelectedDay(getFormattedDate(new Date()));
+                            }
                         }}
+                        onClick={(e) => e.stopPropagation()} // Aggiungi questo per gestire il click
                         style={{ paddingRight: "100px" }}
+                        displayEmpty
                     >
                         <MenuItem value="daily">Giornaliero</MenuItem>
                         <MenuItem value="weekly">Settimanale</MenuItem>
@@ -997,6 +1034,16 @@ const Calendar = () => {
                                             }
                                         </select>
 
+                                        <Form.Group controlId="formNote">
+                                            <Form.Label>Note</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows={3}
+                                                value={selectedPrenotazione.note ? selectedPrenotazione.note : ""}
+                                                onChange={(e) => handleInputChange('note', e.target.value)}
+                                            />
+                                        </Form.Group>
+
                                     </div>
                                 ) : (
                                     <div>
@@ -1026,6 +1073,8 @@ const Calendar = () => {
                                         <p>Studio: {selectedPrenotazione.studio}</p>
                                         <p>Stato: {selectedPrenotazione.stato}</p>
                                         <p>Fonico: {findFonico(selectedPrenotazione.fonico)}</p>
+                                        <p>Note: {selectedPrenotazione.note ? selectedPrenotazione.note : ""}</p>
+                                        <p>Prenotato da: {selectedPrenotazione.prenotatoDa ? selectedPrenotazione.prenotatoDa : ""}</p>
                                     </div>
                                 )}
                             </div>
@@ -1137,6 +1186,17 @@ const Calendar = () => {
                                 }
                             </select>
 
+                            <Form.Group controlId="formNote">
+                                <Form.Label>Note</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    placeholder="Note"
+                                    value={newPrenotazione.note}
+                                    onChange={(e) => handleNewInputChange('note', e.target.value)}
+                                />
+                            </Form.Group>
+
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
@@ -1233,6 +1293,17 @@ const Calendar = () => {
                                     style={{ marginTop: '10px' }}
                                 />
                             )}
+                        </Form.Group>
+                        <Form.Group controlId="formNote">
+                            <Form.Label>Telefono</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                placeholder="Note"
+                                rows={3}
+                                value={newPrenotazione.note}
+                                onChange={(e) => handleNewInputChange('note', e.target.value)}
+
+                            />
                         </Form.Group>
                     </Form>
                 </Modal.Body>

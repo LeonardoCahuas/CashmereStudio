@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../../assets/cashlogocolor.png'; // Update this path to your actual logo file
-import './Footer.css'; // You can style this component in a separate CSS file
+import logo from '../../assets/cashlogocolor.png';
+import './Footer.css';
 
 const Footer = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
@@ -43,7 +43,7 @@ const Footer = () => {
                     <div className="d-flex flex-column justify-content-center align-items-center m-0">
                         <a href="https://www.google.com/maps?q=via+oreste+salomone+61+milano" target="_blank" rel="noopener noreferrer" className="footer-link m-0" style={{ color: "white", marginBottom: "10px" }}>{isMobile ? "Dove siamo" : "Via Oreste Salomone 61, Milano"}</a>
                     </div>
-                    <a href="tel:+393514206294" className="footer-link d-block" style={{ color: "white" }}>{isMobile ? "Telefono" : "+39 351 420 6294"}</a>
+                    <a href="https://wa.me/+393514206294" className="footer-link d-block" style={{ color: "white" }}>{isMobile ? "Telefono" : "+39 351 420 6294"}</a>
                     <a href="mailto:cashmerestudiomilano@gmail.com" className="footer-link m-0" style={{ color: "white", marginBottom: "10px" }}>{isMobile ? "Mail" : "cashmerestudiomilano@gmail.com"}</a>
                 </div>
             </div>

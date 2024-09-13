@@ -106,8 +106,7 @@ function StudioSection({ title, description, bgColor, index }) {
 
     return (
         <div className="studio-section d-flex flex-column align-items-center" style={{ backgroundColor: bgColor, marginTop: "-25px" }}>
-            <h1 className="studio-title" style={{ color: bgColor === "black" ? "white" : "black", paddingTop: "70px", fontSize: isMobile ? "40px" : "70px", fontWeight: 900, width: "100vw", borderTop: bgColor == "black" ? "1px solid #353535" : "1px solid #dcdcdc", marginTop: "40px" }}>{title}</h1>
-            <p className="studio-description">{description}</p>
+            <h1 className="studio-title" style={{ color: bgColor === "black" ? "white" : "black", paddingTop: "70px", fontSize: isMobile ? "40px" : "70px", fontWeight: 900, width: "100vw", marginTop: "40px" }}>{title}</h1>
             <div className="studio-buttons">
                 <Link to={`/studio${index}`}>
                     <button style={{ fontWeight: 900 }} className="button button-filled">Scopri di più</button>
@@ -135,7 +134,7 @@ function StudioSection({ title, description, bgColor, index }) {
 
 function Studios() {
     return (
-        <div className='bg-white d-flex flex-column align-items-center' style={{ marginBottom: "-30px" }}>
+        <div className='bg-white d-flex flex-column align-items-center' style={{ marginBottom: "0px" }}>
             <h1 className="studios-header">I NOSTRI STUDI</h1>
             <StudioSection
                 title="Studio 1"
