@@ -21,7 +21,7 @@ function Header() {
     }, []);
 
     return (
-        <div className="w-100 header bg-black p-0">
+        <div className="w-100 header bg-white p-0" style={{minHeight:"90vh"}}>
             <div className='h-100'>
                 <ReactPlayer
                     url={isMobile ? videomob : videodesk}

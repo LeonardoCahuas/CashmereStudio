@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import logo from "../../assets/cashlogo.png";
 import logo1 from "../../assets/cashlogocolor.png";
 import './Navbar.css';
-import stu1 from "../../assets/mem.png";
-import stu2 from "../../assets/rec.png";
-import stu3 from "../../assets/prod.png";
+import stu1 from "../../assets/Studio1/CV1A3622.jpg";
+import stu2 from "../../assets/Studio2/CV1A3606.jpg";
+import stu3 from "../../assets/Studio3/CV1A3644.jpg";
 import service1 from "../../assets/service1.png";
 import service2 from "../../assets/service2.png";
 import service3 from "../../assets/service3.png";
@@ -252,28 +252,28 @@ export function Navbar({ isHome }) {
                                             <i className="fas fa-map-marker-alt" style={{ color: "grey", fontSize: "14px" }}></i>
                                             <div>
                                                 <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Indirizzo:</label>
-                                                <span className="ms-2"  style={{fontSize: "14px" }} >Via Oreste Salomone 61, Milano</span>
+                                                <a href="https://www.google.com/maps?q=via+oreste+salomone+61+milano" className="ms-2"  style={{fontSize: "14px", color:"white" }} >Via Oreste Salomone 61, Milano</a>
                                             </div>
                                         </div>
                                         <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
                                             <i className="fas fa-phone-alt text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
                                                 <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Telefono:</label>
-                                                <span className="ms-2"  style={{fontSize: "14px" }} >+39 351 420 6294</span>
+                                                <a href="https://wa.me/+393514206294" className="ms-2"  style={{fontSize: "14px", color:"white" }} >+39 351 420 6294</a>
                                             </div>
                                         </div>
                                         <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
                                             <i className="fas fa-envelope text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
                                                 <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Email:</label>
-                                                <span className="ms-2"  style={{fontSize: "14px" }} >cashmerestudiomilano@gmail.com</span>
+                                                <a href="mailto:cashmerestudiomilano@gmail.com" className="ms-2"  style={{fontSize: "14px", color:"white" }} >cashmerestudiomilano@gmail.com</a>
                                             </div>
                                         </div>
                                         <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
                                             <i className="fab fa-instagram text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
                                                 <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Instagram:</label>
-                                                <span className="ms-2"  style={{fontSize: "14px" }} >@cashmerestudiomilano</span>
+                                                <a href="https://www.instagram.com/cashmerestudiomilano?igsh=MWY0eXZxeTZ0OW9uaQ==" className="ms-2"  style={{fontSize: "14px", color:"white" }} >@cashmerestudiomilano</a>
                                             </div>
                                         </div>
                                     </div>

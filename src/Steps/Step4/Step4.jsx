@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import ScrollToTop from '../../ScrollToTop';
+
 
 const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, studio, goBack, services, needFonico }) => {
     const [nomeUtente, setNomeUtente] = useState('');
@@ -36,7 +36,9 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
                 studio,
                 stato: 1,
                 services: services,
-                sessionWithFonico: needFonico
+                sessionWithFonico: needFonico,
+                prenotatoDa:"sito web",
+                note:""
             });
             alert("Prenotazione richiesta con successo. Cashmere Studio ti confermerà l'appuntamento il prima possibile");
             setNomeUtente('');
@@ -53,7 +55,7 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
 
 
     return (
-        <ScrollToTop>
+        
             <div className='d-flex flex-column align-items-center' style={{ paddingBottom: "70px" }}>
                 <div className="mt-5 text-start" style={{ border: "1px solid black", padding: isMobile ? "30px" : "50px", borderRadius: "15px", width: isMobile ? "80%" : "33%" }}>
                     <p style={{ textDecoration: "underline", cursor: "pointer", width: "fit-content", color: "#08B1DF" }} onClick={() => goBack()}>{"< Indietro"}</p>
@@ -78,7 +80,7 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
                     </form>
                 </div>
             </div>
-        </ScrollToTop>
+        
     );
 };
 

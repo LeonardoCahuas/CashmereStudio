@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import usePrenotazioni from '../../booking/useBooking';
 import './Studios.css';
 import stu1 from "../../assets/stu1.png";
-import stu2 from "../../assets/stu2.png";
+import stu2 from "../../assets/Studio2/CV1A3606.jpg";
 import stu3 from "../../assets/stu3.png";
 
 const getLocalDateTimeString = () => {
@@ -52,7 +52,6 @@ const Studio = ({ occupato, prenotazione, index }) => {
               }) + " ore " +
                 prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
             </p>
-
             <p>
               <span style={{ color: "grey", textAlign: "start", whiteSpace: "nowrap", marginRight:"10px"  }}>Fine:</span>
               {occupato && prenotazione.fine.toDate().toLocaleDateString('it-IT', {
@@ -63,7 +62,6 @@ const Studio = ({ occupato, prenotazione, index }) => {
               }) + " ore " +
                 prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
             </p>
-
             <p><span style={{ color: "grey", textAlign: "start", whiteSpace: "nowrap", marginRight:"10px" }}>Telefono:</span> {occupato && prenotazione.telefono}</p>
             <p><span style={{ color: "grey", textAlign: "start", whiteSpace: "nowrap", marginRight:"10px"  }}>Fonico:</span> {occupato && findFonico(prenotazione.fonico)}</p>
           </div>

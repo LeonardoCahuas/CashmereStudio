@@ -4,7 +4,6 @@ import usePrenotazioni from '../../booking/useBooking';
 import './Step2.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import ScrollToTop from '../../ScrollToTop';
 const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
 
 const giorniSettimana = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -14,7 +13,7 @@ const NextArrow = (props) => {
   return (
     <div
       className={`${className} slick-next flex-column align-items-center justify-content-center`}
-      style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", right:"-30px" }}
+      style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", right: "-30px" }}
       onClick={onClick}
     >
       <i class="fa-solid fa-chevron-right" style={{ color: "black", fontSize: "40px", position: "absolute", right: '0px', backgroundColor: "white", width: "40px", height: "40px", borderRadius: "50%" }}></i>
@@ -27,7 +26,7 @@ const PrevArrow = (props) => {
   return (
     <div
       className={`${className} slick-next flex-column align-items-center justify-content-center`}
-      style={{ ...style, borderRadius: '50%',  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", left:"-0px"}}
+      style={{ ...style, borderRadius: '50%', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", left: "-0px" }}
       onClick={onClick}
     >
       <i class="fa-solid fa-chevron-left" style={{ color: "black", fontSize: "40px", position: "absolute", right: '0px', backgroundColor: "white", width: "40px", height: "40px", borderRadius: "50%" }}></i>
@@ -39,12 +38,16 @@ const settings = {
   dots: false,
   infinite: false,
   speed: 500,
-  slidesToShow: 2,
+  slidesToShow: 1,
   slidesToScroll: 1,
   nextArrow: <NextArrow />,
   prevArrow: <PrevArrow />,
   className: 'custom-slider',
-  rows: 1
+  rows: 1,
+  beforeChange: (current, next) => {
+    const totalSlides = getMonthDays().filter(day => day).length; // Calcola il numero totale di slot disponibili
+    if (next < 0 || next >= 2) return false; // Limita lo scorrimento oltre gli slot disponibili
+  }
 };
 
 const getFormattedDate = (date) => {
@@ -146,7 +149,7 @@ const Step2 = ({ setBooking, goBack, studio }) => {
       (p) => getFormattedDate(new Date(p.inizio.seconds * 1000)) === selectedDay && p.studio == studio && p.stato == 2
     );
     let occupied = [];
-console.log(selectedDayPrenotazioni)
+    console.log(selectedDayPrenotazioni)
     // Collect slots that need to be marked as occupied
     selectedDayPrenotazioni.forEach((p) => {
       const startDate = new Date(p.inizio.seconds * 1000);
@@ -205,9 +208,9 @@ console.log(selectedDayPrenotazioni)
       })();
 
       const isSlotClickable = (
-        (!selectedStart) ||  // Non è stato selezionato l'inizio
-        (selectedStart && (isSelectedStart || isClickable && canSelectEnd))  // È stato selezionato l'inizio e l'ora è selezionata o è cliccabile
-      );
+        (!selectedStart && !isOccupied) ||  // Non è stato selezionato l'inizio e non è occupato
+        (selectedStart && (isSelectedStart || (isClickable && canSelectEnd)))  // È stato selezionato l'inizio e l'ora è selezionata o è cliccabile
+    ) && !isOccupied; // Aggiunto per assicurarsi che non sia occupato
 
       slots.push(
         <div
@@ -216,7 +219,7 @@ console.log(selectedDayPrenotazioni)
           onClick={() => isSlotClickable && handleSlotClick(time)}
           style={{
             pointerEvents: isSlotClickable ? 'auto' : 'none',
-            opacity: isSlotClickable ? 1 : 0.5,
+            opacity: isOccupied ? 1 : isSelectedStart ? 1 : isSlotClickable ? 1 : 0.5,
           }}
         >
           {time}
@@ -225,7 +228,7 @@ console.log(selectedDayPrenotazioni)
     }
 
     slots.push(
-      <div className=' slot d-flex flex-row align-items-center justify-content-center ripristina' onClick={() => annulla()} style={{ paddingBottom: "0px", gap: "4px", height: "30px", border: "1px solid black", paddingRight:"15px", paddingLeft:"15px" }}>
+      <div className=' slot d-flex flex-row align-items-center justify-content-center ripristina' onClick={() => annulla()} style={{ paddingBottom: "0px", gap: "4px", height: "30px", border: "1px solid black", paddingRight: "15px", paddingLeft: "15px" }}>
         <p className='m-0 p-0'>Ripristina</p>
       </div>
     );
@@ -234,8 +237,7 @@ console.log(selectedDayPrenotazioni)
   };
 
   return (
-    <ScrollToTop>
-      <div className="container mt-5 text-start">
+      <div className="container mt-5 text-start" style={{paddingBottom:isMobile ? "50px" : "250px"}}>
         <div style={{ paddingLeft: isMobile ? "20px" : "0px" }}>
           <p style={{ textDecoration: "underline", cursor: "pointer", width: "fit-content" }} onClick={() => goBack()}>{"< Indietro"}</p>
           <h2 className="mb-3 text-start fs-1" style={{ fontWeight: '800' }}>
@@ -244,20 +246,20 @@ console.log(selectedDayPrenotazioni)
           <h6 className="mt-5 fs-5 mb-4">Seleziona data</h6>
         </div>
         <div className="w-100 d-flex flex-row custom-slider-container" style={{ height: '130px' }}>
-          <Slider {...settings} className="week-slider custom-slider w-100" style={{ height: '130px', padding: isMobile ? "0px" : '30px' }}>
+          <Slider {...settings} className="week-slider custom-slider w-100" style={{ height: '100px', padding: isMobile ? "0px" : '0px', paddingLeft:"30px", paddingRight:"30px" }}>
             {getMonthDays()
               .filter((day) => day)
               .map((day, index) => (
-                <div key={index} className="day-slide" style={{backgroundColor: "transparent" }}>
+                <div key={index} className="day-slide" style={{ backgroundColor: "transparent" }}>
                   <button
                     className={`day-button ${day.date === selectedDay ? 'selected' : ''} d-flex flex-column justify-content-center`}
                     onClick={() => setSelectedDay(day.date)}
-                    style={{ width: isMobile ? "150px" : '150px', backgroundColor: "white", border: day.date === selectedDay ? "2px solid #08B1DF" : "2px solid black", color: day.date === selectedDay ? "white" : "black", textAlign: "start", paddingTop:"15px", paddingBottom:"15px", height:"fit-content" }}
+                    style={{ width: isMobile ? "130px" : '150px', backgroundColor: "white", border: day.date === selectedDay ? "2px solid #08B1DF" : "2px solid black", color: day.date === selectedDay ? "white" : "black", textAlign: "start", paddingTop: "15px", paddingBottom: "15px", height: "fit-content" }}
                   >
-                    <p className='text-start w-75 fs-5'>
+                    <p className='text-start w-100 fs-5'>
                       {`${giorniSettimana[new Date(day.date).getDay()]}`}
                     </p>
-                    <p className='text-start w-75 fs-6' style={{ fontWeight: 800, marginTop: "-20px", marginBottom:'0px', whiteSpace:"nowrap" }}>
+                    <p className='text-start w-100 fs-6' style={{ fontWeight: 800, marginTop: "-20px", marginBottom: '0px', whiteSpace: "nowrap" }}>
                       {`${new Date(day.date).getDate()} ${months[new Date(day.date).getMonth()]}`}
                     </p>
                   </button>
@@ -270,8 +272,8 @@ console.log(selectedDayPrenotazioni)
           <div className='d-flex flex-row align-items-start justify-content-between' style={{ width: "100%" }}>
             <div>
               <h3 className=" mt-5">Seleziona fascia oraria </h3>
-              <p className='mb-3' style={{marginTop:"-10px"}}>(minimo 1 ora)</p>
-              </div>
+              <p className='mb-3' style={{ marginTop: "-10px" }}>(minimo 1 ora)</p>
+            </div>
 
           </div>
         }
@@ -284,8 +286,8 @@ console.log(selectedDayPrenotazioni)
           selectedDay &&
           <div className={`slots-container ${isMobile ? "p-4" : ""} ${selectedStart && selectedEnd ? "" : "mb-4"}`}>{renderSlots()}</div>
         }
-        <p className='mb-3 mt-1'>(Per prenotazioni superiori alle 4 ore scrivici su Whatsapp al numero <b>351 420 6294</b> o su Instagram a: <b>@cashmerestudiomilano</b>)</p>
-            
+        <p className='mb-3 mt-1'>(Per prenotazioni superiori alle 4 ore scrivici su Whatsapp al numero <a href="https://wa.me/+393514206294" style={{ color: "black" }}><b>351 420 6294</b> </a>  o su Instagram a: <b>@cashmerestudiomilano</b>)</p>
+
         {
           selectedStart && selectedEnd && (
             <div className='w-100 d-flex flex-column align-items-center'>
@@ -296,8 +298,6 @@ console.log(selectedDayPrenotazioni)
           )
         }
       </div>
-
-    </ScrollToTop>
   );
 };
 

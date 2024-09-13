@@ -16,14 +16,15 @@ const formatDate = (timestamp) => {
   if (!timestamp || !timestamp._seconds) {
     return 'Data non valida';
   }
-  const date = new Date(timestamp._seconds * 1000); // converti in millisecondi
+  const date = new Date(timestamp._seconds * 1000);
   const options = {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   };
-  return new Intl.DateTimeFormat('it-IT', options).format(date);
+  // Formatta la data e sostituisci gli spazi con '+'
+  return new Intl.DateTimeFormat('it-IT', options).format(date).replace(/ /g, '+');
 };
 
 // Funzione per formattare l'orario (ora, minuti)
@@ -40,6 +41,13 @@ export const sendBookingConfirmation = functions.firestore
   .document('prenotazioni/{bookingId}')
   .onCreate((snap) => {
     const booking = snap.data();
+
+    // Controlla se prenotatoDa è uguale a "gestionale"
+    if (booking.prenotatoDa == "gestionale") {
+      console.log('Nessun messaggio inviato: prenotazione effettuata da gestionale.');
+      return null; // Esci dalla funzione senza inviare messaggi
+    }
+
     const phoneNumber = `${booking.telefono}`; // Il numero di telefono del cliente
     const studioPhoneNumber = '+393383931206'; // Numero dello studio
 
@@ -50,27 +58,27 @@ export const sendBookingConfirmation = functions.firestore
     // Messaggio per il cliente
     const clientMessage = `Prenotazione confermata per ${giornoInizio} dalle ore ${oraInizio} alle ore ${oraFine} nello studio ${booking.studio}.`;
 
-    const studioMessage = `Richiesta prenotazione. Chat con il cliente: https://wa.me/${booking.telefono}?text=Ciao%20${booking.nomeUtente},%20abbiamo%20ricevuto%20una%20prenotazione%20il%20giorno%20${formatDate(booking.inizio)}%20dalle%20${formatTimeWithTimezone(booking.inizio)}%20alle%20${formatTimeWithTimezone(booking.fine)}%20con%20servizi%20${booking.servizi.join(', ')}`;
+    const studioMessage = `Richiesta prenotazione. Chat con il cliente: https://wa.me/${booking.telefono}?text=Ciao+${booking.nomeUtente},+abbiamo+ricevuto+una+prenotazione+il+giorno+${formatDate(booking.inizio)}+dalle+${formatTimeWithTimezone(booking.inizio)}+alle+${formatTimeWithTimezone(booking.fine)}+con+servizi+${booking.services.join(',')}`;
     // Invia il messaggio al cliente
     return twilioClient.messages.create({
       body: clientMessage,
       from: twilioPhoneNumber,
       to: phoneNumber
     })
-      .then(() => {
-        // Invia il messaggio allo studio
-        return twilioClient.messages.create({
-          body: studioMessage,
-          from: twilioPhoneNumber,
-          to: studioPhoneNumber
-        });
-      })
-      .then(() => {
-        console.log(`Messaggi inviati con successo a ${phoneNumber} e ${studioPhoneNumber}`);
-      })
-      .catch(error => {
-        console.error(`Errore nell'invio dei messaggi:`, error);
+    .then(() => {
+      // Invia il messaggio allo studio
+      return twilioClient.messages.create({
+        body: studioMessage,
+        from: twilioPhoneNumber,
+        to: studioPhoneNumber
       });
+    })
+    .then(() => {
+      console.log(`Messaggi inviati con successo a ${phoneNumber} e ${studioPhoneNumber}`);
+    })
+    .catch(error => {
+      console.error(`Errore nell'invio dei messaggi:`, error);
+    });
   });
 
 // Funzione per inviare promemoria

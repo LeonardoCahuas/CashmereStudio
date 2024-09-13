@@ -20,7 +20,7 @@ const info = {
     "prod": {
         image:prod,
         title: "PRODUZIONE",
-        parag1: "Il nostro servizio di produzione musicale offre beat personalizzati di alta qualità.Perfetti per ogni genere musicale, e realizzati su misura per valorizzare le idee dell’artista.",
+        parag1: "Il nostro servizio di produzione musicale offre beat personalizzati di alta qualità.      Perfetti per ogni genere musicale, e realizzati su misura per valorizzare le idee dell’artista.",
     }
 }
 export default info
