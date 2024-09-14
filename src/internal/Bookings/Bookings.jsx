@@ -152,29 +152,35 @@ const Bookings = () => {
       </div>
       <div className="controls">
         <Form.Group controlId="sortOrder">
-          <Form.Label>Ordina per Data</Form.Label>
+          <Form.Label style={{fontWeight:"600"}}>Ordina per Data</Form.Label>
           <Form.Control as="select" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
             <option value="asc">Crescente</option>
             <option value="desc">Decrescente</option>
           </Form.Control>
         </Form.Group>
+        <hr/>
+        <br/>
         <Form.Group controlId="selectedDate">
-          <Form.Label>Filtra per Data</Form.Label>
+          <Form.Label style={{fontWeight:"600"}}>Filtra per Data</Form.Label>
           <Form.Control
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
         </Form.Group>
+        <hr/>
+        <br/>
         <Form.Group controlId="selectedStudio">
-          <Form.Label>Filtra per Studio</Form.Label>
+          <Form.Label style={{fontWeight:"600"}}>Filtra per Studio</Form.Label>
           <Form.Control as="select" value={selectedStudio} onChange={(e) => setSelectedStudio(e.target.value)}>
             <option value="">Tutti</option>
             <option value="1">Studio 1</option>
             <option value="2">Studio 2</option>
             <option value="3">Studio 3</option>
           </Form.Control>
-          <Form.Label>Filtra per fonico</Form.Label>
+        <hr/>
+        <br/>
+          <Form.Label style={{fontWeight:"600"}}>Filtra per fonico</Form.Label>
           <Form.Control as="select" onChange={(e) => setSelectedFonico(e.target.value)} value={selectedFonico}>
             <option value="">tutti</option>
             {fonici.filter(f => f.id != 1).map((fonico) => (
@@ -186,8 +192,10 @@ const Bookings = () => {
               Senza fonico
             </option>
           </Form.Control>
+        <hr/>
+        <br/>
           <Form.Group controlId="usernameFilter">
-            <Form.Label>Filtra per Nome Utente</Form.Label>
+            <Form.Label style={{fontWeight:"600"}}>Filtra per Nome Utente</Form.Label>
             <Form.Control
               type="text"
               value={usernameFilter}
@@ -195,6 +203,7 @@ const Bookings = () => {
             />
           </Form.Group>
         </Form.Group>
+        <br/>
       </div>
       {prenotazioni.length < 1 ? (
         <div>Loading...</div>

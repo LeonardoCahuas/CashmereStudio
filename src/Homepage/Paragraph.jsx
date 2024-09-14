@@ -37,7 +37,7 @@ const Paragraph = () => {
             <div className="w-100 d-flex align-items-center justify-content-start" style={{  paddingLeft: isMobile ? "0px" : "50px", paddingRight: isMobile ? "0px" : "50px", flexDirection: isMobile ?"column" : "row", gap:"20px" }}>
                 <img src={logo} alt="Cashmere Studio Logo" style={{ width:  '40px', marginRight: isMobile ? "5px" : '20px' }} />
                 <h1 className="title m-0" style={{fontSize: isMobile ? "35px" : "45px", whiteSpace:"nowrap", width:"100%", textAlign:"start"}}> {/* Applica la classe CSS */}
-                    Cashmere Studio Milano
+                    CASHMERE STUDIO MILANO
                 </h1>
             </div>
             <div style={{ textAlign: 'left', color: 'black', paddingLeft: isMobile ? "0px" : "50px", paddingRight: isMobile ? "0px" : "50px" }}>

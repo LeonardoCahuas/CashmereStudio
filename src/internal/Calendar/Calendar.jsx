@@ -23,6 +23,23 @@ const formatDateForInput = (date) => {
     const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
     return localDate.toISOString().slice(0, 16);
 };
+function formatTimestampToTime(timestamp) {
+    // Converti il timestamp in millisecondi
+    const milliseconds = timestamp.seconds * 1000;
+
+    // Crea un oggetto Date a partire dai millisecondi
+    const date = new Date(milliseconds);
+
+    // Usa toLocaleTimeString per ottenere l'orario in formato HH:MM (24 ore)
+    const formattedTime = date.toLocaleTimeString('it-IT', {
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+
+    return formattedTime;
+}
+
+
 
 function formatDate(dateString) {
     const weekdays = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -177,7 +194,6 @@ const Calendar = () => {
         rows: 1
     };
 
-
     const findFonico = (id) => {
         const fonico = fonici.find((fon) => fon.id == id)
         return fonico && fonico.nome ? fonico.nome : ""
@@ -199,7 +215,6 @@ const Calendar = () => {
             '#d7be9', // Oro
             '#bcd97c', // Verde lime
         ];
-
 
         let assignedColors = fonici.reduce((acc, fonico, index) => {
             acc[fonico.id] = colors[index % colors.length]; // Assegna un colore a ogni fonico usando l'ID
@@ -250,7 +265,7 @@ const Calendar = () => {
     };
 
     useEffect(() => {
-        if (selectedPrenotazione && selectedPrenotazione.inizio && selectedPrenotazione.fine) {
+        if (selectedPrenotazione && selectedPrenotazione.inizio && selectedPrenotazione.fine && !isEditing) {
             setInizio(formatDateForInput(selectedPrenotazione.inizio.toDate()))
             setFine(formatDateForInput(selectedPrenotazione.fine.toDate()))
         }
@@ -303,6 +318,35 @@ const Calendar = () => {
         }));
     };
 
+    const handleHourChangeEdit = (hour, type) => {
+        setSelectedPrenotazione(prev => {
+            // Ottieni la data corrente in base al tipo di timestamp da modificare
+            const baseDate = new Date(type === 'inizio' ? prev.inizio.seconds * 1000 : prev.fine.seconds * 1000);
+
+            // Estrai l'anno, mese e giorno dalla data di base
+            const year = baseDate.getFullYear();
+            const month = baseDate.getMonth();
+            const day = baseDate.getDate();
+
+            // Crea una nuova data con il giorno di base e l'orario fornito
+            const [selectedHour, selectedMinute] = hour.split(':').map(Number);
+            const newDate = new Date(year, month, day, selectedHour, selectedMinute);
+
+            // Crea il nuovo timestamp
+            const newTimestamp = {
+                seconds: Math.floor(newDate.getTime() / 1000),
+                nanoseconds: 0
+            };
+
+            // Restituisci il nuovo stato aggiornato
+            return {
+                ...prev,
+                [type]: newTimestamp
+            };
+        });
+    };
+
+
 
     const handleFonicoSelection = (fonico) => {
         setSelectedFonico(fonico)
@@ -339,17 +383,17 @@ const Calendar = () => {
 
     const handleInsert = () => {
         const uid = uuidv4();
-        const mergedSlots = []; // Array per memorizzare le prenotazioni unite
+        const mergedSlots = [];
         let currentSlot = null;
-    
-        selectedSlots.sort((a, b) => a - b); // Ordina gli slot per data
-    
+
+        selectedSlots.sort((a, b) => a - b);
+
         selectedSlots.forEach(slot => {
             if (slot instanceof Date) {
                 const inizio = new Date(slot);
                 const fine = new Date(inizio);
                 fine.setHours(inizio.getHours() + 1);
-    
+
                 // Se non ci sono slot correnti, inizializza
                 if (!currentSlot) {
                     currentSlot = { inizio, fine };
@@ -357,7 +401,7 @@ const Calendar = () => {
                     // Controlla se il nuovo slot è contiguo al corrente
                     const lastFine = new Date(currentSlot.fine);
                     lastFine.setHours(lastFine.getHours() + 1); // Aggiungi un'ora per il confronto
-    
+
                     if (inizio.getTime() === lastFine.getTime()) {
                         // Unisci i slot
                         currentSlot.fine = fine; // Aggiorna la fine
@@ -371,12 +415,12 @@ const Calendar = () => {
                 console.error('Invalid slot format:', slot);
             }
         });
-    
+
         // Aggiungi l'ultimo slot se esiste
         if (currentSlot) {
             mergedSlots.push(currentSlot);
         }
-    
+
         // Inserisci le prenotazioni
         mergedSlots.forEach(({ inizio, fine }) => {
             addPrenotazione({
@@ -393,7 +437,7 @@ const Calendar = () => {
                 period: uid
             });
         });
-    
+
         // Reset dello stato
         setServiceModalShow(false);
         setSelectedSlots([]);
@@ -676,16 +720,25 @@ const Calendar = () => {
                                 const bookings = bookingsByDay[selectedDay] || [];
                                 const currentBookings = bookings.filter(b => {
                                     const startHour = b.startHour % 24; // Gestisci l'ora in formato 24 ore
-                                    const endHour = b.endHour % 24; // Gestisci l'ora in formato 24 ore
+                                    let endHour = b.endHour % 24; // Gestisci l'ora in formato 24 ore
+
+                                    if (endHour < startHour) { // Gestione prenotazione che attraversa mezzanotte
+                                        endHour += 24;
+                                    }
                                     return (startHour <= hour && endHour > hour) || (isNextDay && startHour < 10 && endHour >= 24);
                                 });
 
                                 let cellContent = null;
                                 let rowSpan = 1;
-
+                                let idEl;
                                 if (currentBookings.length > 0) {
                                     const booking = currentBookings[0];
-                                    rowSpan = booking.endHour - booking.startHour;
+
+                                    if (booking.endHour < booking.startHour) { // Se attraversa mezzanotte
+                                        rowSpan = (24 - booking.startHour) + booking.endHour;
+                                    } else {
+                                        rowSpan = booking.endHour - booking.startHour;
+                                    }
 
                                     // Segna gli slot come occupati
                                     for (let r = 0; r < rowSpan; r++) {
@@ -693,7 +746,7 @@ const Calendar = () => {
                                     }
 
                                     const fonico = booking.fonico ? booking.fonico : "nope";
-
+                                    idEl = uuidv4()
                                     cellContent = (
                                         <div style={{
                                             backgroundColor: fonicoColors[fonico] || "grey",
@@ -706,8 +759,10 @@ const Calendar = () => {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             boxSizing: 'border-box'
-                                        }} onClick={() => handleShowModal(booking)}>
+                                        }}
+                                            id={idEl} onClick={() => handleShowModal(booking)}>
                                             <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.nomeUtente}, {findFonico(fonico) !== "" ? findFonico(fonico) : "senza fonico"}</b>
+                                            <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.note ? booking.note : ""}</b>
                                             <b style={{ fontSize: isMobile ? "13.5px" : "15px" }}>{booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}-{booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
                                         </div>
                                     );
@@ -732,6 +787,10 @@ const Calendar = () => {
                                                 padding: '0',
                                                 whiteSpace: "nowrap"
                                             }}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Blocca la propagazione per evitare loop
+                                                document.getElementById(idEl).click(); // Simula il click sul pulsante interno
+                                            }}
                                         >
                                             {cellContent}
                                         </td>
@@ -745,6 +804,7 @@ const Calendar = () => {
             </div>
         )
     }
+
 
     const renderWeekly = () => {
         const bookingsByDay = currentWeek.reduce((acc, day) => {
@@ -760,7 +820,7 @@ const Calendar = () => {
                     }
                 })
                 .map(pren => {
-                    if(pren.nomeUtente == "teduaa"){
+                    if (pren.nomeUtente == "teduaa") {
                         console.log(pren)
                     }
                     const startHour = pren.inizio.toDate().getHours();
@@ -774,10 +834,7 @@ const Calendar = () => {
             return acc;
         }, {});
 
-
-
         const occupiedSlots = {};
-
         const rows = [];
         for (let i = 0; i < 19; i++) {
             const hour = (i + 10) % 24;
@@ -790,30 +847,42 @@ const Calendar = () => {
                     const bookings = bookingsByDay[day.date] || [];
                     const currentBookings = bookings.filter(b => {
                         const startHour = b.startHour % 24;
-                        const endHour = b.endHour % 24;
+                        let endHour = b.endHour % 24;
+                        if (endHour < startHour) {
+                            endHour += 24;
+                        }
                         return (startHour <= hour && endHour > hour) || (isNextDay && startHour < 10 && endHour >= 24);
                     });
+
                     let isContent = false;
                     let fonico = "nope";
                     let cellContent = null;
                     let rowSpan = 1;
+                    let idEl;
+
+                    // Evita la creazione di celle per slot già occupati dalla prenotazione del giorno precedente
+                    if (occupiedSlots[`${day.date}-${hour}`]) {
+                        return null;
+                    }
 
                     if (currentBookings.length > 0) {
                         isContent = true;
                         const booking = currentBookings[0];
-                        rowSpan = booking.endHour - booking.startHour;
 
-                        // Controlla se lo slot è già occupato
-                        if (occupiedSlots[`${day.date}-${hour}`]) {
-                            return null;
+                        // Se la prenotazione attraversa la mezzanotte, aggiustiamo il rowSpan
+                        if (booking.endHour < booking.startHour) {
+                            rowSpan = (24 - booking.startHour) + booking.endHour;
+                        } else {
+                            rowSpan = booking.endHour - booking.startHour;
                         }
 
-                        // Segna gli slot come occupati
+                        // Marca tutti gli slot coperti dalla prenotazione (inclusi quelli che attraversano la mezzanotte)
                         for (let r = 0; r < rowSpan; r++) {
-                            occupiedSlots[`${day.date}-${(hour + r) % 24}`] = true; // Gestisci l'ora in formato 24 ore
+                            occupiedSlots[`${day.date}-${(hour + r) % 24}`] = true;
                         }
 
                         fonico = booking.fonico ? booking.fonico : "nope";
+                        idEl = uuidv4();
 
                         cellContent = (
                             <div style={{
@@ -825,13 +894,18 @@ const Calendar = () => {
                                 flexDirection: "column",
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                boxSizing: 'border-box'
-                            }} onClick={() => blockMode ? null : handleShowModal(booking)}>
+                                boxSizing: 'border-box',
+                                flex: 1
+                            }} onClick={() => blockMode ? null : handleShowModal(booking)}
+                                id={idEl}
+                            >
                                 <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.nomeUtente}, {findFonico(booking.fonico) !== "" ? findFonico(booking.fonico) : "senza fonico"}</b>
+                                <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.note ? booking.note : ""}</b>
                                 <b style={{ fontSize: isMobile ? "13.5px" : "15px" }}> {booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}-{booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
                             </div>
                         );
                     } else {
+                        // Se non ci sono prenotazioni correnti, inserisci la cella vuota o cliccabile
                         cellContent = (
                             <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(day.date, hour) : addBook(day, timeSlot)}>
                                 {timeSlot}
@@ -843,10 +917,12 @@ const Calendar = () => {
                         content: cellContent,
                         rowSpan,
                         isContent,
-                        fonico: fonico
+                        fonico: fonico,
+                        idEl: idEl
                     };
                 })
             };
+
 
             rows.push(row);
         }
@@ -873,7 +949,7 @@ const Calendar = () => {
                                 {cells.map((cell, colIndex) => {
                                     if (!cell) return null; // Salta le celle già occupate
 
-                                    const { content, rowSpan, isContent, fonico } = cell;
+                                    const { content, rowSpan, isContent, fonico, idEl } = cell;
 
                                     return (
                                         <td
@@ -884,6 +960,10 @@ const Calendar = () => {
                                                 backgroundColor: isContent && fonicoColors[fonico] != undefined ? fonicoColors[fonico] : isContent && fonicoColors[fonico] == undefined ? "grey" : selectedSlots.some(s => s.getTime() === new Date(`${currentWeek[colIndex].date}T${timeSlot}`).getTime()) ? 'black' : 'white',
                                                 verticalAlign: 'middle',
                                                 padding: '0',
+                                            }}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Blocca la propagazione per evitare loop
+                                                document.getElementById(idEl).click(); // Simula il click sul pulsante interno
                                             }}
                                         >
                                             {content}
@@ -919,6 +999,7 @@ const Calendar = () => {
                     <Tab className='studiointernalbbutt p-1' onClick={() => setBlockMode(false)} label="Studio 1" style={{ background: value === 1 ? "black" : "white", color: value === 1 ? "white" : "black", border: "1px solid black" }} />
                     <Tab label="Studio 2" className='p-1' onClick={() => setBlockMode(false)} style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
                     <Tab label="Studio 3" className='p-1' onClick={() => setBlockMode(false)} style={{ background: value === 3 ? "black" : "white", color: value === 3 ? "white" : "black", border: "1px solid black" }} />
+                    <Tab label="Studio 4" className='p-1' onClick={() => setBlockMode(false)} style={{ background: value === 4 ? "black" : "white", color: value === 4 ? "white" : "black", border: "1px solid black" }} />
                 </Tabs>
                 {view == "weekly" && <div className='d-flex flex-row align-items-center justify-content-center mb-2' style={{ gap: "20px" }}>
                     <MuiButton variant="contained" color="primary" onClick={toggleBlockMode} style={{ marginLeft: '20px', background: "transparent", border: "2px solid black", color: "black" }}>
@@ -1009,6 +1090,7 @@ const Calendar = () => {
                                                 onChange={(e) => handleInputChange('telefono', e.target.value)}
                                             />
                                         </Form.Group>
+
                                         <Form.Group controlId="formServizi">
                                             <Form.Label>Servizi</Form.Label>
                                             {['Produzione', 'Rec', 'MixAndMaster'].map(service => (
@@ -1022,6 +1104,50 @@ const Calendar = () => {
                                                 />
                                             ))}
                                         </Form.Group>
+
+                                        {/* <Form.Group controlId="formHourStart">
+                                            <Form.Label>Inizio</Form.Label>
+                                            <Form.Control
+                                                as="select"
+                                                value={formatTimestampToTime(selectedPrenotazione.inizio)}
+                                                onChange={(e) => handleHourChangeEdit(e.target.value, 'inizio')}
+                                            >
+                                                {endHoursOptions.map(hour => (
+                                                    <option key={hour} value={hour}>
+                                                        {hour}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
+
+                                        <Form.Group controlId="formHourEnd">
+                                            <Form.Label>Fine</Form.Label>
+                                            <Form.Control
+                                                as="select"
+                                                value={formatTimestampToTime(selectedPrenotazione.fine)}
+                                                onChange={(e) => handleHourChangeEdit(e.target.value, 'fine')}
+                                            >
+                                                {endHoursOptions.map(hour => (
+                                                    <option key={hour} value={hour}>
+                                                        {hour}
+                                                    </option>
+                                                ))}
+                                            </Form.Control>
+                                        </Form.Group>
+
+                                        <Form.Group controlId="formStudio">
+                                            <Form.Label>Studio</Form.Label>
+                                            <select
+                                                value={selectedPrenotazione.studio} // Usa il valore per controllare l'opzione selezionata
+                                                onChange={(e) => handleInputChange('studio', Number(e.target.value))} // Converti il valore in numero
+                                            >
+                                                {[1, 2, 3].map(studio => (
+                                                    <option key={studio} value={studio}>
+                                                        {studio}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </Form.Group> */}
 
                                         <label className='mt-3'>Cambia fonico:</label>
                                         <select className='m-3' onChange={(e) => handleFonicoSelectionEdit(e.target.value)}>
@@ -1043,7 +1169,6 @@ const Calendar = () => {
                                                 onChange={(e) => handleInputChange('note', e.target.value)}
                                             />
                                         </Form.Group>
-
                                     </div>
                                 ) : (
                                     <div>
@@ -1051,15 +1176,7 @@ const Calendar = () => {
                                         <p>Nome Utente: {selectedPrenotazione.nomeUtente}</p>
                                         <p>Telefono: {selectedPrenotazione.telefono}</p>
                                         <div className='d-flex flex-row align-items-center justify-content-start mb-3'>Servizi: <p className='text-white'>...</p> {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p key={servi} className="m-0">{servi}, {" "}</p>)}</div>
-                                        <p>
-                                            Inizio: {selectedPrenotazione.inizio.toDate().toLocaleDateString('it-IT', {
-                                                weekday: 'long',
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            }) + " ore " +
-                                                selectedPrenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                                        </p>
+
                                         <p>
                                             Fine: {selectedPrenotazione.fine.toDate().toLocaleDateString('it-IT', {
                                                 weekday: 'long',
@@ -1071,7 +1188,6 @@ const Calendar = () => {
                                         </p>
 
                                         <p>Studio: {selectedPrenotazione.studio}</p>
-                                        <p>Stato: {selectedPrenotazione.stato}</p>
                                         <p>Fonico: {findFonico(selectedPrenotazione.fonico)}</p>
                                         <p>Note: {selectedPrenotazione.note ? selectedPrenotazione.note : ""}</p>
                                         <p>Prenotato da: {selectedPrenotazione.prenotatoDa ? selectedPrenotazione.prenotatoDa : ""}</p>
