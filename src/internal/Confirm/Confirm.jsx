@@ -2,6 +2,30 @@ import React, { useState, useEffect } from 'react';
 import usePrenotazioni from '../../booking/useBooking';
 import { Modal, Button, Table, Pagination, Form } from 'react-bootstrap';
 
+function createWhatsAppLink(prenotazione) {
+  const { telefono, nomeUtente, inizio, fine, services } = prenotazione;
+
+  // Assicurati che inizio e fine siano oggetti Date
+  const inizioDate = inizio.toDate();
+  const fineDate = fine.toDate();
+
+  // Formattazione della data e dell'orario secondo il formato specificato
+  const formatDate = (date) => date.toLocaleDateString('it-IT');
+  const formatTime = (date) => date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+  // Codifica dei componenti del testo
+  const nomeUtenteEncoded = encodeURIComponent(nomeUtente);
+  const dataInizio = formatDate(inizioDate);
+  const orarioInizio = formatTime(inizioDate);
+  const orarioFine = formatTime(fineDate);
+  const serviziEncoded = services.length > 0 ? encodeURIComponent(services.join(',')) : '';
+
+  // Creazione del testo del messaggio
+  const testo = `Ciao%20${nomeUtenteEncoded},%20abbiamo%20ricevuto%20una%20prenotazione%20il%20giorno%20${encodeURIComponent(dataInizio)}%20dalle%20${encodeURIComponent(orarioInizio)}%20alle%20${encodeURIComponent(orarioFine)}${serviziEncoded.length > 0 ? `%20con%20servizi%20${serviziEncoded}` : "%20"}.%20Il%20prezzo%20della%20tua%20sessione%20è%20di`;
+
+  // Creazione del link
+  return `https://wa.me/${telefono}?text=${testo}`;
+}
 
 function Confirm() {
   const { prenotazioni, loading, error, updatePrenotazioneStato, fonici } = usePrenotazioni();
@@ -24,7 +48,7 @@ function Confirm() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   useEffect(() => {
     console.log("fonici")
     console.log(fonici)
@@ -89,7 +113,7 @@ function Confirm() {
               <tr key={prenotazione.id}>
                 <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}>{prenotazione.nomeUtente}</a>}</td>
                 <td>
-                  <a href={`https://wa.me/${prenotazione.telefono}?text=Ciao%20${prenotazione.nomeUtente},%20abbiamo%20ricevuto%20una%20prenotazione%20il%20giorno%20${prenotazione.inizio.toDate().toLocaleDateString('it-IT')}%20dalle%20${prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}%20alle%20${prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}%20con%20servizi%20${prenotazione.services.join(', ')}`}><i className="fa fa-phone"></i>{prenotazione.telefono}</a>
+                  <a href={createWhatsAppLink(prenotazione)}><i className="fa fa-phone"></i>{prenotazione.telefono}</a>
                 </td>
                 {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
 

@@ -1,6 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 @font-face {
     font-family: 'ZuumeRough';
-    src: url('./ZuumeRough-BoldItalic.otf') format('opentype'); /* Assicurati che il percorso sia corretto */
+    src: url('https://fonts.googleapis.com/css2?family=Anton&display=swap') format('opentype'); /* Assicurati che il percorso sia corretto */
     font-weight: bold;
     font-style: italic;
 }
@@ -9,6 +10,6 @@
     font-size: 3em;
     font-weight: bold;
     color: #1c2b33;
-    font-family: 'ZuumeRough', sans-serif; /* Usa il font importato */
+    font-family: 'Anton', sans-serif; /* Usa il font importato */
     line-height: 1.2; /* Altezza della linea per rendere le lettere più alte */
 }

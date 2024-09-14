@@ -82,7 +82,12 @@ const Studios = () => {
   const getStudioStatus = (studioNumber) => {
     const studioPrenotazioni = prenotazioni.filter(prenotazione => prenotazione.studio === studioNumber && prenotazione.stato === 2);
     const currentPrenotazione = studioPrenotazioni.find(prenotazione => {
-      const inizio = prenotazione.inizio.toDate();
+      let inizio
+      try{
+        inizio = prenotazione.inizio.toDate();
+      }catch{
+        console.log(prenotazione)
+      }
       const fine = prenotazione.fine.toDate();
       return new Date(selectedDateTime) >= inizio && new Date(selectedDateTime) <= fine;
     });
