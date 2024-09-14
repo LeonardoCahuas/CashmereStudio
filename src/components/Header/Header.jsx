@@ -21,7 +21,7 @@ function Header() {
     }, []);
 
     return (
-        <div className="w-100 header bg-white p-0" style={{minHeight:"90vh"}}>
+        <div className="w-100 header" style={{minHeight:"100vh", backgroundImage: "linear-gradient(to bottom, black 99%, black 99%, white 0%)"}}>
             <div className='h-100'>
                 <ReactPlayer
                     url={isMobile ? videomob : videodesk}
@@ -30,6 +30,7 @@ function Header() {
                     muted={true}
                     playsinline={true}
                     width="100%"
+                    style={{ overflow: "hidden" }}
                     height="100%"
                     preload="auto"
                     config={{

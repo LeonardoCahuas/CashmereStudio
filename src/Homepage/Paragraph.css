@@ -1,8 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 
 .title {
-    font-weight: bold;
+    font-weight: lighter;
     color: #1c2b33;
     font-family: 'Anton', sans-serif; /* Usa il font importato */
-    line-height: 1.2; /* Altezza della linea per rendere le lettere più alte */
 }

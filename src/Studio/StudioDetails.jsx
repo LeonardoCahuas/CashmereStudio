@@ -50,9 +50,9 @@ function StudioDetails({ index }) {
                 </Link>
             </div>
             <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
-                <div className='studio-img' style={{ width: '100%', height: isMobile ? 'auto' : 'auto' }}>
+                <div className='studio-img' style={{ width: '100%', height: isMobile ? 'auto' : 'auto',minHeight:"80vh", backgroundColor:"black" }}>
 
-                <ReactPlayer
+                    <ReactPlayer
                         url={getVideoSource()}
                         playing={true}
                         loop={true}
@@ -95,7 +95,7 @@ function StudioDetails({ index }) {
                 </ul>
                 <div className='w-100'>
                     <h4 style={{ fontSize: "20px", fontWeight: 700, width: "100%", textAlign: isMobile ? "center" : "left", marginTop: "50px" }}>Descrizione</h4>
-                    <p style={{ color: 'grey', textAlign: isMobile ? "center" : "left",  paddingBottom: isMobile ? "50px" : "auto", width: "100%" }}>
+                    <p style={{ color: 'grey', textAlign: isMobile ? "center" : "left", paddingBottom: isMobile ? "50px" : "auto", width: "100%" }}>
                         {info[index].description}
                     </p>
                 </div>
