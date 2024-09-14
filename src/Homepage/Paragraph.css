@@ -1,10 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
-@font-face {
-    font-family: 'ZuumeRough';
-    src: url('https://fonts.googleapis.com/css2?family=Anton&display=swap') format('opentype'); /* Assicurati che il percorso sia corretto */
-    font-weight: bold;
-    font-style: italic;
-}
 
 .title {
     font-weight: bold;
