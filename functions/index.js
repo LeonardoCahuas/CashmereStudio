@@ -37,9 +37,10 @@ const formatTimeWithTimezone = (timestamp) => {
 };
 
 // Funzione per inviare messaggio di conferma
-export const sendBookingConfirmation = functions.firestore
+/* export const sendBookingConfirmation = functions.firestore
   .document('prenotazioni/{bookingId}')
   .onCreate((snap) => {
+    return null;
     const booking = snap.data();
 
     // Controlla se prenotatoDa è uguale a "gestionale"
@@ -80,9 +81,9 @@ export const sendBookingConfirmation = functions.firestore
       console.error(`Errore nell'invio dei messaggi:`, error);
     });
   });
-
+ */
 // Funzione per inviare promemoria
-export const sendReminder = functions.pubsub.schedule('0 18 * * *').timeZone('Europe/Rome').onRun(async () => {
+/* export const sendReminder = functions.pubsub.schedule('0 18 * * *').timeZone('Europe/Rome').onRun(async () => {
   const db = admin.firestore();
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -114,4 +115,4 @@ export const sendReminder = functions.pubsub.schedule('0 18 * * *').timeZone('Eu
   } catch (error) {
     console.error('Errore nell\'invio dei promemoria:', error);
   }
-});
+}); */

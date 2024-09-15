@@ -39,11 +39,8 @@ const usePrenotazioni = (selectedDateTime) => {
     };
 
     fetchData();
-  }, [selectedDateTime, change]);
+  }, [selectedDateTime]);
 
-  const setNewChange = () => {
-    setChange(prevChange => prevChange + 1);
-  };
 
   const updateLocalStorage = (prenotazioniData, foniciData) => {
     if (prenotazioniData) {
@@ -61,7 +58,6 @@ const usePrenotazioni = (selectedDateTime) => {
       const docRef = await addDoc(collection(db, 'prenotazioni'), prenotazione);
       const updatedPrenotazioni = [...prenotazioni, { id: docRef.id, ...prenotazione }];
       updateLocalStorage(updatedPrenotazioni, fonici);
-      setNewChange();
     } catch (err) {
       setError(err.message);
     }
@@ -187,7 +183,6 @@ const usePrenotazioni = (selectedDateTime) => {
     setNonDisponibilita,
     addFonico,
     eliminaFonico,
-    setNewChange,
     setChange,
     handleDeleteAllPeriodPren
   };

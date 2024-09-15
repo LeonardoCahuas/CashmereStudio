@@ -34,6 +34,10 @@ function Confirm() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
   const [selectedFonico, setSelectedFonico] = useState(0)
+  const [contactConfirm, setContactConfirm] = useState(false)
+  const [userToContact, setUserToContact] = useState("")
+  const [idToContact, setIdToContact] = useState("")
+  const [prenToContact, setPrenToContact] = useState({})
 
   useEffect(() => {
     const handleResize = () => {
@@ -78,7 +82,16 @@ function Confirm() {
   const handleCloseModal = () => {
     setSelectedPrenotazione(null);
     setShowModal(false);
+    setContactConfirm(false)
   };
+
+  const confirmContact = () => {
+    console.log("modale conferma")
+    setContactConfirm(true)
+  }
+  const redirectWhatsapp = () => {
+    updatePrenotazioneStato(idToContact, 3, 0)
+  }
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -87,8 +100,8 @@ function Confirm() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1).slice(indexOfFirstItem, indexOfLastItem);
-  const totalItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1).length;
+  const currentItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1 || prenotazione.stato === 3).slice(indexOfFirstItem, indexOfLastItem);
+  const totalItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1 || prenotazione.stato === 3).length;
 
   return (
     <div className='w-100 d-flex flex-column align-items-center'>
@@ -99,6 +112,7 @@ function Confirm() {
             <tr>
               <th>Nome Instagram</th>
               <th>Telefono</th>
+              <th>Stato</th>
               {!isMobile && <th>Servizi</th>}
 
               {!isMobile && <th>Inizio</th>}
@@ -113,7 +127,15 @@ function Confirm() {
               <tr key={prenotazione.id}>
                 <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}>{prenotazione.nomeUtente}</a>}</td>
                 <td>
-                  <a href={createWhatsAppLink(prenotazione)}><i className="fa fa-phone"></i>{prenotazione.telefono}</a>
+                  <button onClick={() => {
+                    setUserToContact(createWhatsAppLink(prenotazione))
+                    setIdToContact(prenotazione.id)
+                    setPrenToContact(prenotazione)
+                    confirmContact()
+                  }} style={{ color: prenotazione.stato == 1 ? "red" : "green", backgroundColor: "transparent", background: "transparent" }}><i className="fa fa-phone"></i>{prenotazione.telefono}</button>
+                </td>
+                <td>
+                  {prenotazione.stato == 1 ? "da contattare" : "contattato" }
                 </td>
                 {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
 
@@ -214,6 +236,20 @@ function Confirm() {
               <Button variant="success" onClick={() => handleConferma(selectedPrenotazione.id)}>Conferma</Button>
               <Button variant="danger" onClick={() => handleRifiuta(selectedPrenotazione.id)}>Rifiuta</Button>
             </Modal.Footer>
+          </Modal>
+        )}
+
+        {contactConfirm && (
+          <Modal show={contactConfirm} onHide={handleCloseModal}>
+            <Modal.Header closeButton>
+              <Modal.Title>Contatta cliente</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p>Sei sicuro di voler contattare il clinete in attesa di conferma?</p>
+              <a href={createWhatsAppLink(prenToContact)} style={{ textDecoration: "underline", color: "green", marginRight: "20px" }} onClick={redirectWhatsapp}>Si, Conferma</a>
+              <a onClick={() => setContactConfirm(false)} style={{ textDecoration: "underline", color: "red" }} >No, Chiudi</a>
+
+            </Modal.Body>
           </Modal>
         )}
       </div>
