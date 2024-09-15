@@ -7,6 +7,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import usePrenotazioni from '../../booking/useBooking';
 import { v4 as uuidv4 } from 'uuid';
+import { Timestamp } from 'firebase/firestore';
 
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 
@@ -19,6 +20,7 @@ const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'l
 const giorniSettimana = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
 
 const formatDateForInput = (date) => {
+    console.log(date)
     // Assumiamo che date sia un oggetto Date
     const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
     return localDate.toISOString().slice(0, 16);
@@ -139,6 +141,7 @@ const Calendar = () => {
     const [inizio, setInizio] = useState()
     const [fine, setFine] = useState()
     const [endHoursOptions, setEndHoursOptions] = useState(hours)
+    const [endHoursOptionsEdit, setEndHoursOptionsEdit] = useState(hours)
     const [newPrenStart, setNewPrenStart] = useState(
         { day: "", time: "" }
         ,)
@@ -264,14 +267,6 @@ const Calendar = () => {
         }
     };
 
-    useEffect(() => {
-        if (selectedPrenotazione && selectedPrenotazione.inizio && selectedPrenotazione.fine && !isEditing) {
-            setInizio(formatDateForInput(selectedPrenotazione.inizio.toDate()))
-            setFine(formatDateForInput(selectedPrenotazione.fine.toDate()))
-        }
-    }, [selectedPrenotazione])
-
-
     const handleShowModal = (prenotazione) => {
         setSelectedPrenotazione(prenotazione);
         setShowModal(true);
@@ -312,6 +307,7 @@ const Calendar = () => {
 
     const handleHourChange = (event) => {
         const value = event.target.value;
+        console.log("value" + value)
         setNewPrenotazione(prev => ({
             ...prev,
             fine: value
@@ -319,31 +315,29 @@ const Calendar = () => {
     };
 
     const handleHourChangeEdit = (hour, type) => {
-        setSelectedPrenotazione(prev => {
-            // Ottieni la data corrente in base al tipo di timestamp da modificare
-            const baseDate = new Date(type === 'inizio' ? prev.inizio.seconds * 1000 : prev.fine.seconds * 1000);
+        console.log(hour)
+        if (type == "inizio") {
+            setInizio(hour)
+        } else if (type == "fine") {
+            setFine(hour)
+        }
+        const combinedDateTime = `${selectedDay.date}T${hour}:00`;
 
-            // Estrai l'anno, mese e giorno dalla data di base
-            const year = baseDate.getFullYear();
-            const month = baseDate.getMonth();
-            const day = baseDate.getDate();
+        // Crea un oggetto Date dalla stringa ISO
+        const baseDate = new Date(combinedDateTime);
+        const timestampnew = Timestamp.fromDate(baseDate);
 
-            // Crea una nuova data con il giorno di base e l'orario fornito
-            const [selectedHour, selectedMinute] = hour.split(':').map(Number);
-            const newDate = new Date(year, month, day, selectedHour, selectedMinute);
 
-            // Crea il nuovo timestamp
-            const newTimestamp = {
-                seconds: Math.floor(newDate.getTime() / 1000),
-                nanoseconds: 0
-            };
-
-            // Restituisci il nuovo stato aggiornato
-            return {
-                ...prev,
-                [type]: newTimestamp
-            };
-        });
+        const updatedPrenotazione = {
+            ...selectedPrenotazione,
+            [type]: timestampnew
+        };
+        /* setSelectedPrenotazione(prev => ({
+            ...prev,
+            [type]: value
+        })); */
+        /* setSelectedPrenotazione({...selectedPrenotazione, [type]: hour}) */
+        /* modificaPrenotazione(selectedPrenotazione.id, updatedPrenotazione) */
     };
 
 
@@ -450,11 +444,46 @@ const Calendar = () => {
 
 
     const handleSaveChanges = () => {
+
+        console.log(selectedDay)
+
+        const combinedDateTimeInizio = view == "weekly" ?  `${selectedDay.date}T${inizio}:00` : `${selectedDay}T${inizio}:00`
+
+        // Crea un oggetto Date dalla stringa ISO
+        const baseDateInizio = new Date(combinedDateTimeInizio);
+        const timestampnewInizio = Timestamp.fromDate(baseDateInizio);
+
+        const combinedDateTimeFine = view == "weekly" ?  `${selectedDay.date}T${fine}:00` : `${selectedDay}T${fine}:00`
+
+        // Crea un oggetto Date dalla stringa ISO
+        const baseDateFine = new Date(combinedDateTimeFine);
+        const timestampnewFine = Timestamp.fromDate(baseDateFine);
+        console.log(selectedPrenotazione.inizio)
+        console.log(timestampnewInizio)
+        console.log(selectedPrenotazione.fine)
+        console.log(timestampnewFine)
+        console.log(selectedPrenotazione)
+        console.log({
+            ...selectedPrenotazione,
+            inizio: timestampnewInizio,
+            fine: timestampnewFine
+        })
+        modificaPrenotazione(selectedPrenotazione.id, {
+            ...selectedPrenotazione,
+            inizio: timestampnewInizio,
+            fine: timestampnewFine
+        })
+        setSelectedPrenotazione({
+            ...selectedPrenotazione,
+            inizio: timestampnewInizio,
+            fine: timestampnewFine
+        })
         setIsEditing(false);
-        modificaPrenotazione(selectedPrenotazione.id, selectedPrenotazione)
     };
 
     const handleEdit = () => {
+        setInizio(formatTimestampToTime(selectedPrenotazione.inizio))
+        setFine(formatTimestampToTime(selectedPrenotazione.fine))
         setIsEditing(true);
     };
 
@@ -760,7 +789,11 @@ const Calendar = () => {
                                             justifyContent: 'center',
                                             boxSizing: 'border-box'
                                         }}
-                                            id={idEl} onClick={() => handleShowModal(booking)}>
+                                            id={idEl} onClick={() => {
+                                                setSelectedDay(selectedDay)
+                                                handleShowModal(booking)
+                                            }}
+                                        >
                                             <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.nomeUtente}, {findFonico(fonico) !== "" ? findFonico(fonico) : "senza fonico"}</b>
                                             <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.note ? booking.note : ""}</b>
                                             <b style={{ fontSize: isMobile ? "13.5px" : "15px" }}>{booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}-{booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
@@ -896,7 +929,10 @@ const Calendar = () => {
                                 justifyContent: 'center',
                                 boxSizing: 'border-box',
                                 flex: 1
-                            }} onClick={() => blockMode ? null : handleShowModal(booking)}
+                            }} onClick={() => {
+                                setSelectedDay(day)
+                                blockMode ? null : handleShowModal(booking)
+                            }}
                                 id={idEl}
                             >
                                 <b style={{ fontWeight: 900, fontSize: isMobile ? "13.5px" : "15px" }}>{booking.nomeUtente}, {findFonico(booking.fonico) !== "" ? findFonico(booking.fonico) : "senza fonico"}</b>
@@ -1023,9 +1059,8 @@ const Calendar = () => {
                         onChange={(e) => {
                             setView(e.target.value);
                             setBlockMode(false);
-                            if (e.target.value === "weekly") {
-                                setSelectedDay(getFormattedDate(new Date()));
-                            }
+                            setSelectedDay(getFormattedDate(new Date()));
+
                         }}
                         onClick={(e) => e.stopPropagation()} // Aggiungi questo per gestire il click
                         style={{ paddingRight: "100px" }}
@@ -1105,14 +1140,14 @@ const Calendar = () => {
                                             ))}
                                         </Form.Group>
 
-                                        {/* <Form.Group controlId="formHourStart">
+                                        <Form.Group controlId="gg2">
                                             <Form.Label>Inizio</Form.Label>
                                             <Form.Control
                                                 as="select"
-                                                value={formatTimestampToTime(selectedPrenotazione.inizio)}
+                                                value={inizio}
                                                 onChange={(e) => handleHourChangeEdit(e.target.value, 'inizio')}
                                             >
-                                                {endHoursOptions.map(hour => (
+                                                {endHoursOptionsEdit.map(hour => (
                                                     <option key={hour} value={hour}>
                                                         {hour}
                                                     </option>
@@ -1120,14 +1155,14 @@ const Calendar = () => {
                                             </Form.Control>
                                         </Form.Group>
 
-                                        <Form.Group controlId="formHourEnd">
+                                        <Form.Group controlId="gg1">
                                             <Form.Label>Fine</Form.Label>
                                             <Form.Control
                                                 as="select"
-                                                value={formatTimestampToTime(selectedPrenotazione.fine)}
+                                                value={fine}
                                                 onChange={(e) => handleHourChangeEdit(e.target.value, 'fine')}
                                             >
-                                                {endHoursOptions.map(hour => (
+                                                {endHoursOptionsEdit.map(hour => (
                                                     <option key={hour} value={hour}>
                                                         {hour}
                                                     </option>
@@ -1147,7 +1182,7 @@ const Calendar = () => {
                                                     </option>
                                                 ))}
                                             </select>
-                                        </Form.Group> */}
+                                        </Form.Group>
 
                                         <label className='mt-3'>Cambia fonico:</label>
                                         <select className='m-3' onChange={(e) => handleFonicoSelectionEdit(e.target.value)}>
@@ -1176,7 +1211,15 @@ const Calendar = () => {
                                         <p>Nome Utente: {selectedPrenotazione.nomeUtente}</p>
                                         <p>Telefono: {selectedPrenotazione.telefono}</p>
                                         <div className='d-flex flex-row align-items-center justify-content-start mb-3'>Servizi: <p className='text-white'>...</p> {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p key={servi} className="m-0">{servi}, {" "}</p>)}</div>
-
+                                        <p>
+                                            Inizio: {selectedPrenotazione.inizio.toDate().toLocaleDateString('it-IT', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            }) + " ore " +
+                                                selectedPrenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
                                         <p>
                                             Fine: {selectedPrenotazione.fine.toDate().toLocaleDateString('it-IT', {
                                                 weekday: 'long',
@@ -1186,6 +1229,7 @@ const Calendar = () => {
                                             }) + " ore " +
                                                 selectedPrenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                                         </p>
+
 
                                         <p>Studio: {selectedPrenotazione.studio}</p>
                                         <p>Fonico: {findFonico(selectedPrenotazione.fonico)}</p>
