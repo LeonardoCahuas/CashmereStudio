@@ -66,7 +66,7 @@ const PrevArrow = (props) => {
     return (
         <div
             className={`${className} slick-next flex-column align-items-center justify-content-center`}
-            style={{ ...style, borderRadius: '50%', left: '50px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", backgroundColor: "black" }}
+            style={{ ...style, borderRadius: '50%', left: '50px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
             onClick={onClick}
         >
             <img src={prev} className="arrow-img" alt="Icona freccia" style={{ width: "30px", height: "30px", position: "absolute", right: '0px' }} />
