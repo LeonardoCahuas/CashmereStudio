@@ -1,15 +1,15 @@
-import * as functions from 'firebase-functions';
+/* import * as functions from 'firebase-functions'; */
 import admin from 'firebase-admin';
-import twilio from 'twilio'; // Importa Twilio
+/* import twilio from 'twilio'; // Importa Twilio */
 
 admin.initializeApp();
-
+/* 
 // Configurazione Twilio
 const twilioAccountSid = functions.config().twilio.sid; // SID dell'account Twilio
-const twilioAuthToken = functions.config().twilio.token; // Token di autenticazione Twilio
-const twilioPhoneNumber = functions.config().twilio.number; // Numero di telefono Twilio
+const twilioAuthToken = functions.config().twilio.token; // Token di autenticazione Twilio */
+/* const twilioPhoneNumber = functions.config().twilio.number;  */// Numero di telefono Twilio
 
-const twilioClient = twilio(twilioAccountSid, twilioAuthToken); // Inizializza il client Twilio
+/* const twilioClient = twilio(twilioAccountSid, twilioAuthToken); // Inizializza il client Twilio
 
 // Funzione per formattare la data (giorno, mese, anno)
 const formatDate = (timestamp) => {
@@ -35,7 +35,7 @@ const formatTimeWithTimezone = (timestamp) => {
   const date = new Date(timestamp._seconds * 1000); // converti in millisecondi
   return date.toLocaleTimeString('it-IT', { hour: 'numeric', minute: 'numeric', hour12: false, timeZone: 'Europe/Rome' });
 };
-
+ */
 // Funzione per inviare messaggio di conferma
 /* export const sendBookingConfirmation = functions.firestore
   .document('prenotazioni/{bookingId}')
