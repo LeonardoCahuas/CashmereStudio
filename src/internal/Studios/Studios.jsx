@@ -98,6 +98,7 @@ const Studios = () => {
   const studio1 = getStudioStatus(1);
   const studio2 = getStudioStatus(2);
   const studio3 = getStudioStatus(3);
+  const studio4 = getStudioStatus(4);
 
   useEffect(() => {
     console.log("prenotazioni", prenotazioni);
@@ -122,6 +123,10 @@ const Studios = () => {
           <div className="col-md-4 d-flex flex-column align-items-center">
             <h4>Studio 3</h4>
             <Studio occupato={studio3.occupato} prenotazione={studio3.prenotazione} index={3} />
+          </div>
+          <div className="col-md-4 d-flex flex-column align-items-center">
+            <h4>Studio 4</h4>
+            <Studio occupato={studio4.occupato} prenotazione={studio4.prenotazione} index={4} />
           </div>
         </div>
       

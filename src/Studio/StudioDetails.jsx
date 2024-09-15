@@ -50,7 +50,7 @@ function StudioDetails({ index }) {
                 </Link>
             </div>
             <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
-                <div className='studio-img' style={{ width: '100%', height: isMobile ? 'auto' : 'auto',minHeight:"80vh", backgroundColor:"black" }}>
+                <div className='studio-img' style={{ width: '100%', height: isMobile ? 'auto' : 'auto',minHeight:"80vh", backgroundColor:"black",backgroundImage: "linear-gradient(to bottom, black 85%, black 85%, white 0%)" }}>
 
                     <ReactPlayer
                         url={getVideoSource()}

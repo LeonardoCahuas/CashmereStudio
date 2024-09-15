@@ -56,7 +56,7 @@ const NextArrow = (props) => {
             style={{ ...style, borderRadius: '50%', right: '50px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
             onClick={onClick}
         >
-            <img src={next} className="arrow-img" alt="Icona freccia" style={{ width: "50px", height: "50px", position: "absolute", right: '0px' }} />
+            <img src={next} className="arrow-img" alt="Icona freccia" style={{ width: "30px", height: "30px", position: "absolute", right: '0px' }} />
         </div>
     );
 };
@@ -69,7 +69,7 @@ const PrevArrow = (props) => {
             style={{ ...style, borderRadius: '50%', left: '50px', display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", backgroundColor: "black" }}
             onClick={onClick}
         >
-            <img src={prev} className="arrow-img" alt="Icona freccia" style={{ width: "50px", height: "50px", position: "absolute", right: '0px' }} />
+            <img src={prev} className="arrow-img" alt="Icona freccia" style={{ width: "30px", height: "30px", position: "absolute", right: '0px' }} />
         </div>
     );
 };
@@ -109,10 +109,10 @@ function StudioSection({ title, description, bgColor, index }) {
             <h1 className="studio-title" style={{ color: bgColor === "black" ? "white" : "black", paddingTop: "70px", fontSize: isMobile ? "40px" : "70px", fontWeight: 900, width: "100vw", marginTop: "40px" }}>{title}</h1>
             <div className="studio-buttons">
                 <Link to={`/studio${index}`}>
-                    <button style={{ fontWeight: 900 }} className="button button-filled">Scopri di più</button>
+                    <button style={{ fontWeight: 900 , paddingRight: "10px", paddingLeft:"10px", paddingTop:"5px", paddingBottom:"5px"}} className="button button-filled">Scopri di più</button>
                 </Link>
                 <Link to="/book" >
-                    <button className="button button-outline" style={{ backgroundColor: bgColor == "black" ? "black" : "white", color: bgColor == "black" ? "white" : "#08B1DF" }}>Prenota una sessione</button>
+                    <button className="button button-outline" style={{ backgroundColor: bgColor == "black" ? "black" : "white", color: bgColor == "black" ? "white" : "#08B1DF", paddingRight: "10px", paddingLeft:"10px", paddingTop:"5px", paddingBottom:"5px" }}>Prenota una sessione</button>
                 </Link>
             </div>
             <Slider {...settings} className="studio-slider">

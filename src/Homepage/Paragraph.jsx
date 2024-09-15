@@ -3,11 +3,11 @@ import logo from '../assets/cashblue.png';
 import './Paragraph.css'; // Importa il file CSS
 
 const Paragraph = () => {
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1102);
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 602);
+            setIsMobile(window.innerWidth <= 1102);
         };
 
         window.addEventListener('resize', handleResize);
@@ -41,7 +41,7 @@ const Paragraph = () => {
                 </h1>
             </div>
             <div style={{ textAlign: 'left', color: 'black', paddingLeft: isMobile ? "0px" : "50px", paddingRight: isMobile ? "0px" : "50px" }}>
-                <p>
+                <p style={{fontSize:"15px"}}>
                     Cashmere Studio è il tuo punto di riferimento per la registrazione e la produzione musicale a Milano. <br/><br/>
                     Offriamo un ambiente professionale e attrezzature di alta qualità per garantire risultati eccezionali. 
                     Che tu sia un artista emergente o un professionista affermato, il nostro studio è progettato per soddisfare 

@@ -177,8 +177,8 @@ const Step3 = ({ setService, goBack, setSessionFonico }) => {
             </p>
           </div>
         </div>
-        <div style={{ textAlign: 'center', marginTop: '40px' }}>
-          <h3 style={{ fontSize: isMobile ? "18px" : "20px" }}>Desideri avere il fonico per la tua sessione?</h3>
+        <div style={{ textAlign: 'center', marginTop: '40px', padding:"30px" }}>
+          <h3 style={{ fontSize: isMobile ? "18px" : "20px", marginBottom:"20px" }}>Desideri avere il fonico per la tua sessione o sei interessato solo allaffitto della sala?</h3>
           <div className='w-100 d-flex flex-row justify-content-center' style={{gap:"30px"}}>
             <label style={{ marginRight: '20px', display: "flex", flexDirection: "row", alignItems: "center", gap:"5px" }}>
               <input
@@ -198,7 +198,7 @@ const Step3 = ({ setService, goBack, setSessionFonico }) => {
                   backgroundColor: fonico == "si" ? "#08B1DF" : "white"
                 }}
               />
-              Sì
+              Sì, desidero il fonico
             </label>
             <label style={{ marginRight: '20px', display: "flex", flexDirection: "row", alignItems: "center", gap:"5px"  }}>
               <input
@@ -218,7 +218,7 @@ const Step3 = ({ setService, goBack, setSessionFonico }) => {
                   backgroundColor: fonico == "no" ? "#08B1DF" : "white"
                 }}
               />
-              No
+              No, solo affitto sala
             </label>
           </div>
         </div>
