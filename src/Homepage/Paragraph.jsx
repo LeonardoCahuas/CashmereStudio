@@ -19,7 +19,7 @@ const Paragraph = () => {
     }, []);
 
     return (
-        <div className={`w-100 d-flex flex-column align-items-center justify-content-center bg-white`} style={{paddingTop:"100px",padding:isMobile ? "10px" : "50px", marginTop:"40px"}}>
+        <div className={`w-100 d-flex flex-column align-items-center justify-content-center bg-white`} style={{paddingTop:"100px",  padding:isMobile ? "10px" : "50px", marginTop:"80px", marginBottom:"25px"}}>
         <div 
             className="d-flex align-items-center" 
             style={{ 
