@@ -1,149 +1,162 @@
-
 /* Rimuovere margini e padding dai bottoni del giorno */
 .custom-slider .slick-slide {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin: 0 5px; /* Riduce il margine tra i bottoni */
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin: 0 5px;
+  /* Riduce il margine tra i bottoni */
 }
 
 
 /* Regolare il margine della lista */
 .slick-list {
-    margin: 0; /* Rimuove margine negativo */
+  margin: 0;
+  /* Rimuove margine negativo */
 }
-.slick-dots{
+
+.slick-dots {
   margin-top: 50px;
 }
 
 /* Stili per i pulsanti del giorno */
 .day-button {
-    background: white;
-    border: 2px solid black;
-    border-radius: 4px;
-    padding: 20px; /* Aumenta l'altezza dei blocchi */
-    font-size: 16px; /* Aumenta la dimensione del testo, se necessario */
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100px; /* Imposta un'altezza fissa per i pulsanti */
-    box-sizing: border-box; /* Assicura che padding e border siano inclusi nell'altezza totale */
-    color: black;
+  background: white;
+  border: 2px solid black;
+  border-radius: 4px;
+  padding: 20px;
+  /* Aumenta l'altezza dei blocchi */
+  font-size: 16px;
+  /* Aumenta la dimensione del testo, se necessario */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  /* Imposta un'altezza fissa per i pulsanti */
+  box-sizing: border-box;
+  /* Assicura che padding e border siano inclusi nell'altezza totale */
+  color: black;
 }
 
 .day-button.selected {
-    background: linear-gradient(to right, #6FC7DF, #08B1DF);
-    color: #fff;
-    border-color: #007bff;
+  background: linear-gradient(to right, #6FC7DF, #08B1DF);
+  color: #fff;
+  border-color: #007bff;
 }
 
 /* Stili per le frecce */
-.slick-next, .slick-prev {
-    width: 35px; /* Aumenta la larghezza delle frecce */
-    height: 35px; /* Aumenta l'altezza delle frecce */
-    z-index: 1;
-    background-color: black; /* Assicurati che le frecce abbiano un colore di sfondo visibile */
-    color: white; /* Assicurati che il colore delle frecce sia visibile */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: none; /* Rimuovi l'ombra */
-    position: absolute;
+.slick-next,
+.slick-prev {
+  width: 35px;
+  /* Aumenta la larghezza delle frecce */
+  height: 35px;
+  /* Aumenta l'altezza delle frecce */
+  z-index: 1;
+  background-color: black;
+  /* Assicurati che le frecce abbiano un colore di sfondo visibile */
+  color: white;
+  /* Assicurati che il colore delle frecce sia visibile */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: none;
+  /* Rimuovi l'ombra */
+  position: absolute;
 }
 
-.slick-next:before, .slick-prev:before {
-    font-size: 20px; /* Dimensione del testo delle frecce */
-    color: white; /* Colore del testo delle frecce */
+.slick-next:before,
+.slick-prev:before {
+  font-size: 20px;
+  /* Dimensione del testo delle frecce */
+  color: white;
+  /* Colore del testo delle frecce */
 }
 
 .slick-next {
-    right: -50px; /* Sposta la freccia a destra fuori dal contenitore */
+  right: -50px;
+  /* Sposta la freccia a destra fuori dal contenitore */
 }
 
 .slick-prev {
-    left: -50px; /* Sposta la freccia a sinistra fuori dal contenitore */
+  left: -50px;
+  /* Sposta la freccia a sinistra fuori dal contenitore */
 }
 
 /* Assicurati che il contenitore del slider abbia posizione relativa */
 .week-slider {
-    position: relative;
+  position: relative;
 }
 
 /* Stili per i contenitori delle fasce orarie */
 .slots-container {
-    display: flex;
-    flex-wrap: wrap;
-    
+  display: flex;
+  flex-wrap: wrap;
+
 }
 
 .slot {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
-    margin: 5px; /* Questo può essere regolato per aumentare o ridurre lo spazio tra gli slot */
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50px; /* Imposta un'altezza fissa per i pulsanti */
-    box-sizing: border-box; /* Assicura che padding e border siano inclusi nell'altezza totale */
-    padding-top: 0px;
-    padding-bottom: 0px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 5px;
+  /* Questo può essere regolato per aumentare o ridurre lo spazio tra gli slot */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  /* Imposta un'altezza fissa per i pulsanti */
+  box-sizing: border-box;
+  /* Assicura che padding e border siano inclusi nell'altezza totale */
+  padding-top: 0px;
+  padding-bottom: 0px;
+
 }
 
 .slot.selected {
-    background: #007bff;
-    color: #fff;
-    border-color: #007bff;
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
 }
 
 .slot.occupied {
-    background: #ff5454;
-    color: #fff;
-    border-color: #dc3545;
-    
+  background: #ff5454;
+  color: #fff;
+  border-color: #dc3545;
+
 }
 
-.slot.unavailable {
-    background: #ffc107;
-    color: #fff;
-    border-color: #ffc107;
-}
-/* Aggiungi queste regole CSS al tuo file Date.css */
-
-/* Stile per il contenitore dello slider */
 .custom-slider-container {
-    position: relative;
-    width: 100%;
-  }
-  
-  /* Stile per l'elemento slider */
-  .custom-slider {
-    width: 100%;
-  }
-  
-  /* Stile per i pulsanti di navigazione */
-  .slick-prev,
-  .slick-next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  
-  /* Posizionamento del pulsante di navigazione sinistro */
-  .slick-prev {
-    left: 0;
-  }
-  
-  /* Posizionamento del pulsante di navigazione destro */
-  .slick-next {
-    right: 0;
-  }
+  position: relative;
+  width: 100%;
+}
 
-  /* Stile per i pulsanti di navigazione */
+/* Stile per l'elemento slider */
+.custom-slider {
+  width: 100%;
+}
+
+/* Stile per i pulsanti di navigazione */
+.slick-prev,
+.slick-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Posizionamento del pulsante di navigazione sinistro */
+.slick-prev {
+  left: 0;
+}
+
+/* Posizionamento del pulsante di navigazione destro */
+.slick-next {
+  right: 0;
+}
+
+/* Stile per i pulsanti di navigazione */
 .slick-prev,
 .slick-next {
   position: absolute;
@@ -153,103 +166,116 @@
   border: none;
   cursor: pointer;
   font-size: 20px;
-  z-index: 1; /* Assicura che le freccette siano sopra lo slider */
+  z-index: 1;
+  /* Assicura che le freccette siano sopra lo slider */
 }
 
 /* Posizionamento del pulsante di navigazione sinistro */
 .slick-prev {
   left: 10px;
-  color: black; /* Colore delle freccette */
+  color: black;
+  /* Colore delle freccette */
 }
 
 /* Posizionamento del pulsante di navigazione destro */
 .slick-next {
   right: 10px;
-  color: black; /* Colore delle freccette */
+  color: black;
+  /* Colore delle freccette */
 }
+
 .day-slide {
-    width: 25%; /* Imposta la larghezza su 25% per mostrare 4 giorni contemporaneamente */
-    height: fit-content;
-  }
-  
-  .slot {
-    padding: 0px;
-    border-radius: 20px;
-    background-color: #ccc;
-    color: #000;
-    margin: 5px;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.1s, color 0.1s;
-    padding-left: 30px;
-    padding-right: 30px;
-    height: 30px;
-  }
-  
-  .slot.occupied {
-    background-color: #ff5454;
-    color: #fff;
-    cursor: not-allowed;
-  }
-  .slot.grayed {
-    background-color: #dcdcdc(255, 124, 2);
-    color: #737373;
-    cursor: not-allowed;
-  }
-  
-  .slot.selected-start {
-    background-color: #08B1DF;
-    color: #fff;
-  }
+  width: 25%;
+  /* Imposta la larghezza su 25% per mostrare 4 giorni contemporaneamente */
+  height: fit-content;
+}
 
-  .slot.selected-start-not {
-    background-color: #08B1DF;
-    color: #fff;
-    border-radius: 0;
-    border-top-left-radius:10px ;
-    border-bottom-left-radius:10px ;
-    margin-right: -5px;
-    padding-right: 40px;
-  }
+.slot {
+  padding: 0px;
+  border-radius: 20px;
+  background-color: white;
+  color: #000;
+  margin: 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.1s, color 0.1s;
+  padding-left: 30px;
+  padding-right: 30px;
+  height: 30px;
+  border: 1px solid black
+}
 
-  .selected-end{
-    border-radius: 0;
-    border-top-right-radius:10px ;
-    border-bottom-right-radius:10px ;
-    background-color: #08B1DF;
-    color:white;
-  }
+.slot.occupied {
+  background-color: #ff5454;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.slot.grayed {
+  background-color: #dcdcdc(255, 124, 2);
+  color: #737373;
+  cursor: not-allowed;
+}
+
+.slot.selected-start {
+  background-color: #08B1DF;
+  color: #fff;
+  border:1px solid #08B1DF !important;
+}
+
+.slot.selected-start-not {
+  background-color: #08B1DF;
+  color: #fff;
+  border-radius: 0;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  margin-right: -5px;
+  padding-right: 40px;
+  border:1px solid #08B1DF !important;
+}
+
+.selected-end {
+  border-radius: 0;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  background-color: #08B1DF;
+  color: white;
+  border:1px solid #08B1DF !important;
   
-  .slot.selected-range {
-    background-color: #08B1DF;
-    color: #fff;
-    border-radius: 0;
-    margin-right: -5px;
-    padding-left: 35px;
-    padding-right: 35px;
-  }
-  
-  .slots-container {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  
-  .custom-slider .slick-prev,
-  .custom-slider .slick-next {
-    background: transparent;
-    border: none;
-  }
-  
-  .custom-slider .slick-prev:hover,
-  .custom-slider .slick-next:hover {
-    background: transparent;
-  }
-  
-  .custom-slider .slick-prev:before,
-  .custom-slider .slick-next:before {
-    color: black;
-  }
-  .selectable-item {
+}
+
+.slot.selected-range {
+  background-color: #08B1DF;
+  color: #fff;
+  border-radius: 0;
+  margin-right: -5px;
+  padding-left: 35px;
+  padding-right: 35px;
+  border:1px solid #08B1DF !important;
+}
+
+.slots-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.custom-slider .slick-prev,
+.custom-slider .slick-next {
+  background: transparent;
+  border: none;
+}
+
+.custom-slider .slick-prev:hover,
+.custom-slider .slick-next:hover {
+  background: transparent;
+}
+
+.custom-slider .slick-prev:before,
+.custom-slider .slick-next:before {
+  color: black;
+}
+
+.selectable-item {
   padding: 10px;
   margin: 5px;
   border-radius: 15px;
@@ -270,13 +296,15 @@
   color: white;
 }
 
-.custom-slider-container .slick-prev, .custom-slider-container .slick-next {
+.custom-slider-container .slick-prev,
+.custom-slider-container .slick-next {
   background-color: #ccc;
   border-radius: 50%;
   padding: 10px;
 }
 
-.custom-slider-container .slick-prev:hover, .custom-slider-container .slick-next:hover {
+.custom-slider-container .slick-prev:hover,
+.custom-slider-container .slick-next:hover {
   background-color: #aaa;
 }
 
@@ -310,13 +338,14 @@
   width: 100%;
 }
 
-.ripristina{
+.ripristina:hover {
   background-color: white;
-  transition: all 0.3s
+  transition: all 0.3s;
+  color: black
 }
 
 
-.ripristina:hover{
+.ripristina {
   background-color: black;
-  color:white
+  color: white
 }

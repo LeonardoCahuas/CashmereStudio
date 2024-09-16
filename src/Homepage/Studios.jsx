@@ -18,9 +18,21 @@ import stu31 from "../assets/Studio3/CV1A3644.jpg";
 import stu32 from "../assets/Studio3/CV1A3646.jpg";
 import stu33 from "../assets/Studio3/CV1A3649.jpg";
 
-import stu1mob from "../assets/stu1mob.jpg";
-import stu2mob from "../assets/stu2mob.jpg";
-import stu3mob from "../assets/stu3mob.jpg";
+import stu11mob from "../assets/STUDIO1mob/mob1.jpg";
+import stu12mob from "../assets/STUDIO1mob/mob2.jpg";
+import stu13mob from "../assets/STUDIO1mob/mob3.jpg";
+import stu14mob from "../assets/STUDIO1mob/mob4.jpg";
+import stu15mob from "../assets/STUDIO1mob/mob5.jpg";
+import stu16mob from "../assets/STUDIO1mob/mob6.jpg";
+
+import stu21mob from "../assets/STUDIO2mob/mob1.jpg";
+import stu22mob from "../assets/STUDIO2mob/mob2.jpg";
+import stu23mob from "../assets/STUDIO2mob/mob3.jpg";
+import stu24mob from "../assets/STUDIO2mob/mob4.jpg";
+
+import stu31mob from "../assets/STUDIO3mob/mob1.jpg";
+import stu32mob from "../assets/STUDIO3mob/mob2.jpg";
+import stu33mob from "../assets/STUDIO3mob/mob3.jpg";
 
 import { Link } from 'react-router-dom';
 import next from "../assets/next.png"
@@ -44,6 +56,29 @@ const images = [
         stu31,
         stu32,
         stu33
+    ]
+];
+
+const imagesMob = [
+    "",
+    [
+        stu11mob,
+        stu12mob,
+        stu13mob,
+        stu14mob,
+        stu15mob,
+        stu16mob
+    ],
+    [
+        stu21mob,
+        stu22mob,
+        stu23mob,
+        stu24mob,
+    ],
+    [
+        stu31mob,
+        stu32mob,
+        stu33mob
     ]
 ];
 
@@ -121,7 +156,7 @@ function StudioSection({ title, description, bgColor, index }) {
                         <img key={i} src={img} alt={`studio-${index}-${i}`} className="studio-image" />
                     ))
                 ) : (
-                    images[index].map((img, i) => (
+                    imagesMob[index].map((img, i) => (
                         <img key={i} src={img} alt={`studio-${index}-${i}`} className="studio-image" />
                     ))
                 )}

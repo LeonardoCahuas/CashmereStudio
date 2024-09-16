@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import videodesk from '../../../src/assets/Videos/VIDEOHOME.mp4';
 import fallbackImage1 from '../../../src/assets/headmob.jpg';  // Prima immagine di fallback
-import fallbackImage2 from '../../../src/assets/headmob2.jpg'; // Seconda immagine di fallback
+import fallbackImage2 from '../../../src/assets/STUDIO1mob/mob3.jpg'; // Seconda immagine di fallback
 import './Header.css';
 import { Link } from 'react-router-dom';
 
@@ -28,7 +28,7 @@ function Header() {
                 {isMobile ? (
                     <>
                         {/* Layout per Mobile */}
-                        <div className="mobile-layout" style={{marginTop:"80px"}}>
+                        <div className="mobile-layout" style={{ marginTop: "80px" }}>
                             {/* Prima immagine */}
                             <div className="image-section top-image">
                                 <img
@@ -48,10 +48,12 @@ function Header() {
                             </div>
 
                             {/* Testo centrato */}
-                            <div className="centered-text d-flex flex-column align-items-start p-0 w-75">
-                                <h1 style={{fontSize:"29px", fontWeight:"900"}}>CASHMERE STUDIO</h1>
-                                <p style={{color:"white", fontSize:"15px", fontWeight:"400", textAlign:"start"}}>Prenota una sessione in uno dei nostri 3 studi con attrezzatura di altissimo livello, e sfrutta i nostri servizi di Recording, Mix&Master e Produzione.</p>
-                                <Link to="/book"> <button style={{background:"transparent", backgroundColor:"white", color:"black", fontWeight:"900"}}>PRENOTA ORA</button></Link>
+                            <div className="centered-text d-flex flex-column align-items-center justify-content-center p-0 w-100 h-100" style={{backgroundColor:"rgba(0,0,0,0.43)"}}>
+                                <div className='w-75 d-flex flex-column align-items-start'>
+                                    <h1 style={{ fontSize: "29px", fontWeight: "900", textAlign:"left" }}>CASHMERE STUDIO</h1>
+                                    <p style={{ color: "white", fontSize: "15px", fontWeight: "400", textAlign: "start" }}>Prenota una sessione in uno dei nostri 3 studi con attrezzatura di altissimo livello, e sfrutta i nostri servizi di Recording, Mix&Master e Produzione.</p>
+                                    <Link to="/book"> <button style={{ background: "transparent", backgroundColor: "white", color: "black", fontWeight: "900" }}>PRENOTA ORA</button></Link>
+                                </div>
                             </div>
                         </div>
                     </>

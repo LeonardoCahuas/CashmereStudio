@@ -116,14 +116,3 @@
     transition: transform 0.2s ;
 }
 
-@media (max-width: 902px) {
-    .studio-slider{
-        height: 50vh;
-    }
-    .studio-image {
-        height: 50vh;
-        width: auto;
-        display: block;
-        object-fit: cover;
-    }
-  }
