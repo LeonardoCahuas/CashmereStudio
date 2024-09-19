@@ -104,7 +104,7 @@ function Confirm() {
   const totalItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1 || prenotazione.stato === 3).length;
 
   return (
-    <div className='w-100 d-flex flex-column align-items-center'>
+    <div className='w-100 d-flex flex-column align-items-center'  style={{overflow:"scroll"}}>
       <div className={`${isMobile ? "w-100" : "w-100"}`}>
         <h2>Prenotazioni in Attesa di Conferma</h2>
         <Table striped bordered hover className="table-container">

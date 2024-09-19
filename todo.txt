@@ -12,3 +12,16 @@ possibili future:
 -modifica orari pren
 
 -limita periodico se sett succ no pren
+
+
+
+
+
+
+
+
+pulsante elimina autodistruzione
+
+trascina prenotazioni
+
+mobile calendario verticale

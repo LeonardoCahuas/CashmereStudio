@@ -9,8 +9,9 @@ const calcolaOre = (inizio, fine) => {
   if (!inizio || !fine) return 0;
   const inizioDate = inizio.toDate();
   const fineDate = fine.toDate();
+
   const differenzaMs = fineDate - inizioDate;
-  return differenzaMs / (1000 * 60 * 60);
+  return fineDate < inizioDate ? differenzaMs / (1000 * 60 * 60) + 24 : differenzaMs / (1000 * 60 * 60);
 };
 
 const BookingModal = ({ show, onHide, prenotazione, findFonico }) => (
@@ -45,7 +46,7 @@ const BookingModal = ({ show, onHide, prenotazione, findFonico }) => (
           <p>Studio: {prenotazione.studio}</p>
           <p>Fonico: {findFonico(prenotazione.fonico)}</p>
           <p>Note: {prenotazione.note ? prenotazione.note : ""}</p>
-          <p>Prenotato da: {prenotazione.prenotatoDa }</p>
+          <p>Prenotato da: {prenotazione.prenotatoDa}</p>
         </div>
       )}
     </Modal.Body>
@@ -193,7 +194,6 @@ const Bookings = () => {
             <option value="desc">Decrescente</option>
           </Form.Control>
         </Form.Group>
-        <hr />
         <br />
         <Form.Group controlId="selectedDate">
           <Form.Label style={{ fontWeight: "600" }}>Filtra per Data</Form.Label>
@@ -203,7 +203,6 @@ const Bookings = () => {
             onChange={(e) => setSelectedDate(e.target.value)}
           />
         </Form.Group>
-        <hr />
         <br />
         <Form.Group controlId="selectedStudio">
           <Form.Label style={{ fontWeight: "600" }}>Filtra per Studio</Form.Label>
@@ -213,7 +212,6 @@ const Bookings = () => {
             <option value="2">Studio 2</option>
             <option value="3">Studio 3</option>
           </Form.Control>
-          <hr />
           <br />
           <Form.Label style={{ fontWeight: "600" }}>Filtra per fonico</Form.Label>
           <Form.Control as="select" onChange={(e) => setSelectedFonico(e.target.value)} value={selectedFonico}>
@@ -227,7 +225,6 @@ const Bookings = () => {
               Senza fonico
             </option>
           </Form.Control>
-          <hr />
           <br />
           <Form.Group controlId="usernameFilter">
             <Form.Label style={{ fontWeight: "600" }}>Filtra per Nome Utente</Form.Label>

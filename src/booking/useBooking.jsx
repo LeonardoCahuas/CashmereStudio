@@ -39,7 +39,8 @@ const usePrenotazioni = (selectedDateTime) => {
     };
 
     fetchData();
-  }, [selectedDateTime]);
+    setChange(0)
+  }, [selectedDateTime, change]);
 
 
   const updateLocalStorage = (prenotazioniData, foniciData) => {
@@ -56,12 +57,21 @@ const usePrenotazioni = (selectedDateTime) => {
   const addPrenotazione = async (prenotazione) => {
     try {
       const docRef = await addDoc(collection(db, 'prenotazioni'), prenotazione);
-      const updatedPrenotazioni = [...prenotazioni, { id: docRef.id, ...prenotazione }];
-      updateLocalStorage(updatedPrenotazioni, fonici);
+      
+      // Usa la funzione updater per garantire che React aggiorni correttamente lo stato
+      setPrenotazioni(prevPrenotazioni => [
+        ...prevPrenotazioni, 
+        { id: docRef.id, ...prenotazione }
+      ]);
+  
+      // Aggiorna localStorage usando il valore passato direttamente
+      updateLocalStorage([...prenotazioni, { id: docRef.id, ...prenotazione }], fonici);
+      setChange(1)
     } catch (err) {
       setError(err.message);
     }
   };
+  
 
   const updatePrenotazioneStato = async (id, newStato, fonico) => {
     try {
@@ -155,19 +165,49 @@ const usePrenotazioni = (selectedDateTime) => {
 
   const handleDeleteAllPeriodPren = async (uid) => {
     try {
-        // Filtra le prenotazioni che hanno il period uguale a uid
-        const prenotazioniToDelete = prenotazioni.filter(prenotazione => prenotazione.period === uid);
-        
-        // Elimina ogni prenotazione filtrata
-        await Promise.all(prenotazioniToDelete.map(prenotazione => eliminaPrenotazione(prenotazione.id)));
+      // Filtra le prenotazioni che hanno il period uguale a uid
+      const prenotazioniToDelete = prenotazioni.filter(prenotazione => prenotazione.period === uid);
 
-        // Aggiorna lo stato delle prenotazioni
-        const updatedPrenotazioni = prenotazioni.filter(prenotazione => prenotazione.period !== uid);
-        updateLocalStorage(updatedPrenotazioni, fonici);
+      // Elimina ogni prenotazione filtrata
+      await Promise.all(prenotazioniToDelete.map(prenotazione => eliminaPrenotazione(prenotazione.id)));
+
+      // Aggiorna lo stato delle prenotazioni
+      const updatedPrenotazioni = prenotazioni.filter(prenotazione => prenotazione.period !== uid);
+      updateLocalStorage(updatedPrenotazioni, fonici);
     } catch (err) {
-        setError(err.message);
+      setError(err.message);
     }
-}
+
+
+  }
+
+  const addMultiplePrenotazioni = async (prenotazioniArray) => {
+    try {
+      // Usa Promise.all per inserire tutte le prenotazioni contemporaneamente
+      const batchAdd = prenotazioniArray.map(prenotazione =>
+        addDoc(collection(db, 'prenotazioni'), prenotazione)
+      );
+
+      const newPrenotazioniRefs = await Promise.all(batchAdd);
+
+      // Una volta inserite, aggiungi le nuove prenotazioni con gli ID ottenuti dal database
+      const newPrenotazioni = newPrenotazioniRefs.map((docRef, index) => ({
+        id: docRef.id,
+        ...prenotazioniArray[index],
+      }));
+
+      // Usa la funzione updater di setPrenotazioni per garantire che React gestisca correttamente lo stato
+      setPrenotazioni(prevPrenotazioni => [...prevPrenotazioni, ...newPrenotazioni]);
+
+      // Aggiorna il localStorage con il nuovo stato aggiornato
+      updateLocalStorage([...prenotazioni, ...newPrenotazioni], fonici);
+      setChange(1)
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+
 
   return {
     prenotazioni,
@@ -184,7 +224,8 @@ const usePrenotazioni = (selectedDateTime) => {
     addFonico,
     eliminaFonico,
     setChange,
-    handleDeleteAllPeriodPren
+    handleDeleteAllPeriodPren,
+    addMultiplePrenotazioni
   };
 };
 

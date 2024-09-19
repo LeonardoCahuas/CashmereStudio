@@ -219,6 +219,7 @@ const Step2 = ({ setBooking, goBack, studio }) => {
           onClick={() => isSlotClickable && handleSlotClick(time)}
           style={{
             pointerEvents: isSlotClickable ? 'auto' : 'none',
+            opacity: isOccupied ? 1 : isSelectedStart ? 1 : isSlotClickable ? 1 : 0.5,
           }}
         >
           {time}

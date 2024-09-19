@@ -9,8 +9,9 @@ const calcolaOre = (inizio, fine) => {
   if (!inizio || !fine) return 0;
   const inizioDate = inizio.toDate();
   const fineDate = fine.toDate();
+
   const differenzaMs = fineDate - inizioDate;
-  return differenzaMs / (1000 * 60 * 60);
+  return fineDate < inizioDate ? differenzaMs / (1000 * 60 * 60) + 24 : differenzaMs / (1000 * 60 * 60);
 };
 
 const Bookings = () => {
@@ -115,8 +116,10 @@ const Bookings = () => {
 
   // Calcolo delle ore totali per le statistiche filtrate
   const calcolaTotaleOreStat = (prenotazioni) => {
-    return prenotazioni.reduce((total, prenotazione) => total + calcolaOre(prenotazione.inizio, prenotazione.fine), 0);
+    const totale = prenotazioni.reduce((total, prenotazione) => total + calcolaOre(prenotazione.inizio, prenotazione.fine), 0);
+    return Math.round(totale);  // Arrotonda al numero intero più vicino
   };
+
 
   // Calcolo delle ore per fonico per mese per le statistiche filtrate
   const orePerFonicoPerMeseStat = fonici.map(fonico => {
@@ -170,7 +173,7 @@ const Bookings = () => {
             {fonici.filter(f => f.id != 1).map(fonico => (
               <ListGroup.Item key={fonico.id}>
                 {fonico.nome}
-                <p variant="danger" style={{ float: 'right', color:"black", borderBottom:"1px solid black", margin:"0px" }} onClick={() => handleDeleteFonico(fonico.id)}>Rimuovi</p>
+                <p variant="danger" style={{ float: 'right', color: "black", borderBottom: "1px solid black", margin: "0px" }} onClick={() => handleDeleteFonico(fonico.id)}>Rimuovi</p>
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -180,11 +183,11 @@ const Bookings = () => {
           <Col xs={12} md={4} className="w-100 h-100" style={{ backgroundColor: '#f8f9fa' }}>
             <div style={{ padding: '20px', marginBottom: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px' }}>
               <h4>Statistiche Generali</h4>
-              <Form.Group controlId="statSelectedFonico" style={{ margin:"0px", marginTop: '10px' }}>
+              <Form.Group controlId="statSelectedFonico" style={{ margin: "0px", marginTop: '10px' }}>
                 <Form.Label>Filtra per Fonico</Form.Label>
                 <Form.Control as="select" value={statSelectedFonico} onChange={(e) => setStatSelectedFonico(e.target.value)} style={{ marginBottom: '10px', borderRadius: '5px' }}>
                   <option value="">Tutti i Fonici</option>
-                  {fonici.filter(item => item.id != 1 ).map(fonico => (
+                  {fonici.filter(item => item.id != 1).map(fonico => (
                     <option key={fonico.id} value={fonico.id}>{fonico.nome}</option>
                   ))}
                 </Form.Control>
@@ -199,13 +202,13 @@ const Bookings = () => {
                 </Form.Control>
               </Form.Group>
               <div style={{ marginTop: '20px' }}>
-                <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border:"1px solid black" }}>
+                <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border: "1px solid black" }}>
                   <strong>Ore Totali:</strong> {calcolaTotaleOreStat(filteredStatPrenotazioni)} ore
                 </div>
-                {(statSelectedFonico ? orePerFonicoPerMeseStat.filter(item => item.id === statSelectedFonico ) : orePerFonicoPerMeseStat).filter(item => item.id != 1 ).map((item, index) => (
-                  <div key={index} style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border:"1px solid black" }}>
+                {(statSelectedFonico ? orePerFonicoPerMeseStat.filter(item => item.id === statSelectedFonico) : orePerFonicoPerMeseStat).filter(item => item.id != 1).map((item, index) => (
+                  <div key={index} style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border: "1px solid black" }}>
                     <strong>{item.fonico}:</strong> {Object.entries(item.orePerMese).map(([mese, ore], i) => (
-                      <div key={i}>{mese}: {ore} ore</div>
+                      <div key={i}>{mese}: {Math.ceil(ore)} ore</div>
                     ))}{statSelectedFonico !== "" &&
                       <div><strong>Disponibilità settimanale:</strong> {fonici.find(f => f.id == (statSelectedFonico || item.id))?.disp?.length} slot</div>
                     }</div>
@@ -265,14 +268,14 @@ const Bookings = () => {
                     <td>{fonici.find(f => f.id === prenotazione.fonico)?.nome}</td>
                     {!isMobile && <td>{calcolaOre(prenotazione.inizio, prenotazione.fine)}</td>}
                     <td>
-                      <p variant="primary" onClick={() => handleView(prenotazione)} style={{ marginRight: '5px', borderBottom:"1px solid black" }}>Vedi</p>
-                      <p variant="danger" onClick={() => handleDelete(prenotazione)} style={{ borderBottom:"1px solid black" }}>Elimina</p>
+                      <p variant="primary" onClick={() => handleView(prenotazione)} style={{ marginRight: '5px', borderBottom: "1px solid black" }}>Vedi</p>
+                      <p variant="danger" onClick={() => handleDelete(prenotazione)} style={{ borderBottom: "1px solid black" }}>Elimina</p>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </Table>
-            <Pagination className="justify-content-center d-flex flex-row" style={{ marginTop: '20px', flexWrap:"wrap" }}>
+            <Pagination className="justify-content-center d-flex flex-row" style={{ marginTop: '20px', flexWrap: "wrap" }}>
               {Array.from({ length: totalPages }, (_, i) => (
                 <Pagination.Item key={i + 1} active={i + 1 === currentPage} onClick={() => setCurrentPage(i + 1)}>
                   {i + 1}

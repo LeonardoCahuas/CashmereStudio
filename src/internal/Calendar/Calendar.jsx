@@ -11,7 +11,7 @@ import { Timestamp } from 'firebase/firestore';
 
 import { Table, Button, Modal, Form } from 'react-bootstrap';
 
-const hours = Array.from({ length: 18 }, (_, i) => { // Cambiato da 13 a 18 per includere le ore fino alle 4
+const hours = Array.from({ length: 19 }, (_, i) => { // Cambiato da 13 a 18 per includere le ore fino alle 4
     const hour = (i + 10) % 24; // Calcola l'ora in formato 24 ore
     return String(hour).padStart(2, '0') + ':00';
 });
@@ -202,7 +202,7 @@ const Calendar = () => {
         return fonico && fonico.nome ? fonico.nome : ""
     }
 
-    const { prenotazioni, addPrenotazione, fonici, modificaPrenotazione, eliminaPrenotazione, handleDeleteAllPeriodPren } = usePrenotazioni(selectedDay);
+    const { prenotazioni, addPrenotazione, fonici, modificaPrenotazione, eliminaPrenotazione, handleDeleteAllPeriodPren, addMultiplePrenotazioni } = usePrenotazioni(selectedDay);
     const [username, setUsername] = useState('');
     const [phone, setPhone] = useState('');
 
@@ -416,7 +416,7 @@ const Calendar = () => {
         }
 
         // Inserisci le prenotazioni
-        mergedSlots.forEach(({ inizio, fine }) => {
+        /* mergedSlots.forEach(({ inizio, fine }) => {
             addPrenotazione({
                 nomeUtente: username || 'Blocco',
                 studio: value,
@@ -430,7 +430,26 @@ const Calendar = () => {
                 prenotatoDa: "gestionale",
                 period: uid
             });
+        }); */
+        const prens = mergedSlots.map(({ inizio, fine }) => {
+            return ({
+                nomeUtente: username || 'Blocco',
+                studio: value,
+                telefono: phoneNumber || 'Blocco',
+                services,
+                inizio,
+                fine,
+                stato: 2,
+                fonico: selectedFonico,
+                note: "",
+                prenotatoDa: "gestionale",
+                period: uid
+            });
         });
+
+        console.log("prens")
+        console.log(prens)
+        addMultiplePrenotazioni(prens)
 
         // Reset dello stato
         setServiceModalShow(false);
@@ -447,13 +466,13 @@ const Calendar = () => {
 
         console.log(selectedDay)
 
-        const combinedDateTimeInizio = view == "weekly" ?  `${selectedDay.date}T${inizio}:00` : `${selectedDay}T${inizio}:00`
+        const combinedDateTimeInizio = view == "weekly" ? `${selectedDay.date}T${inizio}:00` : `${selectedDay}T${inizio}:00`
 
         // Crea un oggetto Date dalla stringa ISO
         const baseDateInizio = new Date(combinedDateTimeInizio);
         const timestampnewInizio = Timestamp.fromDate(baseDateInizio);
 
-        const combinedDateTimeFine = view == "weekly" ?  `${selectedDay.date}T${fine}:00` : `${selectedDay}T${fine}:00`
+        const combinedDateTimeFine = view == "weekly" ? `${selectedDay.date}T${fine}:00` : `${selectedDay}T${fine}:00`
 
         // Crea un oggetto Date dalla stringa ISO
         const baseDateFine = new Date(combinedDateTimeFine);
@@ -670,6 +689,145 @@ const Calendar = () => {
             setStudioBookings([]);
         }
     }, [prenotazioni, value, selectedDay]);
+
+    const renderSingleDay = (day) => {
+        const bookingsByDay = prenotazioni
+            .filter(pren => {
+                try {
+                    const prenDate = pren.inizio.toDate();
+                    return pren.studio === value &&
+                        getFormattedDate(prenDate) === day.date && pren.stato === 2;
+                } catch (err) {
+                    console.log(err.message);
+                    return false;
+                }
+            })
+            .map(pren => {
+                const startHour = pren.inizio.toDate().getHours();
+                const endHour = pren.fine.toDate().getHours();
+                return {
+                    ...pren,
+                    startHour,
+                    endHour
+                };
+            });
+
+        const occupiedSlots = {};
+
+        return (
+            <div className="w-100 d-flex flex-column custom-slider-container">
+                <Table striped bordered hover className="table-container" style={{ whiteSpace: "nowrap", overflow: "hidden" }}>
+                    <thead>
+                        <tr>
+                            <th style={{ width: '80px', border: "1px solid black" }}>Orario</th>
+                            <th>{day.label} {day.date === selectedDay ? "  (oggi)" : ""}</th>
+                        </tr>
+                    </thead>
+                    <tbody style={{ overflow: "hidden" }}>
+                        {Array.from({ length: 19 }, (_, i) => {
+                            const hour = (i + 10) % 24; // Calcola l'ora in formato 24 ore
+                            const timeSlot = `${String(hour).padStart(2, '0')}:00`;
+                            const isNextDay = hour < 10; // Controlla se è un'ora del giorno successivo
+
+                            if (occupiedSlots[`${day.date}-${hour}`]) {
+                                return (
+                                    <tr key={timeSlot}>
+                                        <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle', backgroundColor: "white" }}>
+                                            {timeSlot}
+                                        </td>
+                                    </tr>
+                                );
+                            }
+
+                            const currentBookings = bookingsByDay.filter(b => {
+                                const startHour = b.startHour % 24;
+                                let endHour = b.endHour % 24;
+
+                                if (endHour < startHour) {
+                                    endHour += 24;
+                                }
+
+                                return (startHour <= hour && endHour > hour) || (isNextDay && startHour < 10 && endHour >= 24);
+                            });
+
+                            let cellContent = null;
+                            let rowSpan = 1;
+                            let idEl;
+
+                            if (currentBookings.length > 0) {
+                                const booking = currentBookings[0];
+
+                                if (booking.endHour < booking.startHour) {
+                                    rowSpan = (24 - booking.startHour) + booking.endHour;
+                                } else {
+                                    rowSpan = booking.endHour - booking.startHour;
+                                }
+
+                                for (let r = 0; r < rowSpan; r++) {
+                                    occupiedSlots[`${day.date}-${(hour + r) % 24}`] = true;
+                                }
+
+                                const fonico = booking.fonico ? booking.fonico : "nope";
+                                idEl = uuidv4();
+                                cellContent = (
+                                    <div style={{
+                                        backgroundColor: fonicoColors[fonico] || "grey",
+                                        color: 'white',
+                                        padding: '10px',
+                                        borderRadius: '5px',
+                                        height: "100%",
+                                        display: 'flex',
+                                        flexDirection: "column",
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxSizing: 'border-box'
+                                    }}
+                                        id={idEl} onClick={() => {
+                                            setSelectedDay(day)
+                                            blockMode ? null : handleShowModal(booking)
+                                        }}>
+                                        <b style={{ fontWeight: 900 }}>{booking.nomeUtente}, {findFonico(fonico) !== "" ? findFonico(fonico) : "senza fonico"}</b>
+                                        <b style={{ fontWeight: 900 }}>{booking.note ? booking.note : ""}</b>
+                                        <b>{booking.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} - {booking.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</b>
+                                    </div>
+                                );
+                            } else {
+                                cellContent = (
+                                    <div style={{ color: "transparent", cursor: blockMode ? 'pointer' : 'default' }} onClick={() => blockMode ? handleSlotClick(day.date, hour) : addBook(formatDate(day.date), timeSlot)}>
+                                        {timeSlot}
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <tr key={timeSlot}>
+                                    <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle', backgroundColor: "white" }}>
+                                        {timeSlot}
+                                    </td>
+                                    <td
+                                        rowSpan={rowSpan}
+                                        style={{
+                                            backgroundColor: cellContent && currentBookings.length > 0 ? fonicoColors[currentBookings[0]?.fonico] || "#bcb8b6" : 'white',
+                                            verticalAlign: 'middle',
+                                            padding: '0',
+                                            whiteSpace: "nowrap"
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            document.getElementById(idEl).click();
+                                        }}
+                                    >
+                                        {cellContent}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </Table>
+            </div>
+        );
+    };
+
 
     const renderDays = () => {
         const bookingsByDay = getMonthDays().reduce((acc, day) => {
@@ -962,56 +1120,70 @@ const Calendar = () => {
 
             rows.push(row);
         }
+        if (!isMobile) {
+            return (
 
-        return (
-            <div className="w-100 d-flex flex-column custom-slider-container overflow-scroll">
-                <Table striped bordered hover className="table-container" >
-                    <thead>
-                        <tr>
-                            <th style={{ width: '80px', border: "1px solid black", fontWeight: 900 }}>Orario</th>
-                            {currentWeek.map(day => (
-                                <th key={day.date} style={{ textAlign: 'center', backgroundColor: day.date === selectedDay ? '#08B1DF' : 'white', color: day.date === selectedDay ? 'white' : 'black', border: day.date === selectedDay ? "1px solid #08B1DF" : "1px solid black" }}>
-                                    {day.label} {day.date === selectedDay ? "  (oggi)" : ""}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows.map(({ timeSlot, cells }) => (
-                            <tr key={timeSlot}>
-                                <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle', backgroundColor: "white", border: "1px solid black", fontWeight: "900" }}>
-                                    {timeSlot}
-                                </td>
-                                {cells.map((cell, colIndex) => {
-                                    if (!cell) return null; // Salta le celle già occupate
-
-                                    const { content, rowSpan, isContent, fonico, idEl } = cell;
-
-                                    return (
-                                        <td
-                                            key={currentWeek[colIndex].date}
-                                            rowSpan={rowSpan}
-                                            style={{
-                                                textAlign: 'center',
-                                                backgroundColor: isContent && fonicoColors[fonico] != undefined ? fonicoColors[fonico] : isContent && fonicoColors[fonico] == undefined ? "grey" : selectedSlots.some(s => s.getTime() === new Date(`${currentWeek[colIndex].date}T${timeSlot}`).getTime()) ? 'black' : 'white',
-                                                verticalAlign: 'middle',
-                                                padding: '0',
-                                            }}
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // Blocca la propagazione per evitare loop
-                                                document.getElementById(idEl).click(); // Simula il click sul pulsante interno
-                                            }}
-                                        >
-                                            {content}
-                                        </td>
-                                    );
-                                })}
+                <div className="w-100 d-flex flex-column custom-slider-container overflow-scroll">
+                    <Table striped bordered hover className="table-container" >
+                        <thead>
+                            <tr>
+                                <th style={{ width: '80px', border: "1px solid black", fontWeight: 900 }}>Orario</th>
+                                {currentWeek.map(day => (
+                                    <th key={day.date} style={{ textAlign: 'center', backgroundColor: day.date === selectedDay ? '#08B1DF' : 'white', color: day.date === selectedDay ? 'white' : 'black', border: day.date === selectedDay ? "1px solid #08B1DF" : "1px solid black" }}>
+                                        {day.label} {day.date === selectedDay ? "  (oggi)" : ""}
+                                    </th>
+                                ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            </div>
-        );
+                        </thead>
+                        <tbody>
+                            {rows.map(({ timeSlot, cells }) => (
+                                <tr key={timeSlot}>
+                                    <td style={{ width: '80px', textAlign: 'right', paddingRight: '10px', verticalAlign: 'middle', backgroundColor: "white", border: "1px solid black", fontWeight: "900" }}>
+                                        {timeSlot}
+                                    </td>
+                                    {cells.map((cell, colIndex) => {
+                                        if (!cell) return null; // Salta le celle già occupate
+
+                                        const { content, rowSpan, isContent, fonico, idEl } = cell;
+
+                                        return (
+                                            <td
+                                                key={currentWeek[colIndex].date}
+                                                rowSpan={rowSpan}
+                                                style={{
+                                                    textAlign: 'center',
+                                                    backgroundColor: isContent && fonicoColors[fonico] != undefined ? fonicoColors[fonico] : isContent && fonicoColors[fonico] == undefined ? "grey" : selectedSlots.some(s => s.getTime() === new Date(`${currentWeek[colIndex].date}T${timeSlot}`).getTime()) ? 'black' : 'white',
+                                                    verticalAlign: 'middle',
+                                                    padding: '0',
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Blocca la propagazione per evitare loop
+                                                    document.getElementById(idEl).click(); // Simula il click sul pulsante interno
+                                                }}
+                                            >
+                                                {content}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </div>
+
+            )
+        } else {
+            return (
+                <div className='d-flex flex-column'>
+                    {currentWeek.map((day, index) => (
+                        // Aggiungi una chiave quando usi map per rendere componenti
+                        <div key={index}>
+                            {renderSingleDay(day)} {/* Assicurati che renderSingleDay restituisca JSX */}
+                        </div>
+                    ))}
+                </div>
+            );
+        }
     };
 
 
@@ -1030,7 +1202,7 @@ const Calendar = () => {
 
     return (
         <div>
-            <Box className="d-flex flex-row align-items-center justify-content-between" sx={{ borderBottom: 1, borderColor: 'divider', marginBottom: '20px' }}>
+            <Box className={`d-flex flex-${isMobile ? "column" : "row"} align-items-center justify-content-between`} sx={{ borderBottom: 1, borderColor: 'divider', marginBottom: '20px', gap: isMobile ? "20px" : "0px" }}>
                 <Tabs onChange={handleChange} aria-label="basic tabs example">
                     <Tab className='studiointernalbbutt p-1' onClick={() => setBlockMode(false)} label="Studio 1" style={{ background: value === 1 ? "black" : "white", color: value === 1 ? "white" : "black", border: "1px solid black" }} />
                     <Tab label="Studio 2" className='p-1' onClick={() => setBlockMode(false)} style={{ background: value === 2 ? "black" : "white", color: value === 2 ? "white" : "black", border: "1px solid black" }} />
@@ -1054,7 +1226,7 @@ const Calendar = () => {
 
                 )}
                 <FormControl variant="outlined">
-                    <Select
+                    <select
                         value={view}
                         onChange={(e) => {
                             setView(e.target.value);
@@ -1066,9 +1238,9 @@ const Calendar = () => {
                         style={{ paddingRight: "100px" }}
                         displayEmpty
                     >
-                        <MenuItem value="daily">Giornaliero</MenuItem>
-                        <MenuItem value="weekly">Settimanale</MenuItem>
-                    </Select>
+                        <option value="daily">Giornaliero</option>
+                        <option value="weekly">Settimanale</option>
+                    </select>
                 </FormControl>
                 {view === 'weekly' && (
 

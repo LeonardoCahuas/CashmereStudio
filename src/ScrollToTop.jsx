@@ -27,7 +27,7 @@ const ScrollToTop = ({ children }) => {
     setShowGif(true);
     const timer = setTimeout(() => {
       setShowGif(false);
-    }, 1500);
+    }, 1000);
 
     // Cleanup del timer quando cambia il percorso
     return () => clearTimeout(timer);

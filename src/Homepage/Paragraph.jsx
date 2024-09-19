@@ -34,13 +34,13 @@ const Paragraph = () => {
                 gap:"20px"
             }}
         >
-            <div className="w-100 d-flex align-items-center justify-content-start" style={{  paddingLeft: isMobile ? "0px" : "50px", paddingRight: isMobile ? "0px" : "50px", flexDirection: isMobile ?"column" : "row", gap:"20px" }}>
+            <div className="w-100 d-flex align-items-center justify-content-start" style={{  paddingLeft: isMobile ? "0px" : "0px", paddingRight: isMobile ? "0px" : "50px", flexDirection: isMobile ?"column" : "row", gap:"20px" }}>
                 <img src={logo} alt="Cashmere Studio Logo" style={{ width:  '40px', marginRight: isMobile ? "5px" : '20px' }} />
                 <h1 className="title m-0" style={{fontSize: isMobile ? "28px" : "45px", whiteSpace:"nowrap", width:"100%", textAlign:"start"}}> {/* Applica la classe CSS */}
                     CASHMERE STUDIO MILANO
                 </h1>
             </div>
-            <div style={{ textAlign: 'left', color: 'black', paddingLeft: isMobile ? "0px" : "50px", paddingRight: isMobile ? "0px" : "50px" }}>
+            <div className='w-100 d-flex flex-row align-items-center' style={{ textAlign: 'start', color: 'black', paddingLeft: isMobile ? "0px" : "0px", paddingRight: isMobile ? "0px" : "50px" }}>
                 <p style={{fontSize:"15px"}}>
                     Cashmere Studio è il tuo punto di riferimento per la registrazione e la produzione musicale a Milano. <br/><br/>
                     Offriamo un ambiente professionale e attrezzature di alta qualità per garantire risultati eccezionali. 
