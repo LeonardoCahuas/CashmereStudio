@@ -2,18 +2,15 @@ import React, { useState } from 'react';
 import { auth } from '../firebase-config';
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
-function AdminLogin({ doLogin }) {
+function AdminLogin({ doLogin, setUser }) {
     const [error, setError] = useState(false);
-
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
         try {
             const result = await signInWithPopup(auth, provider);
-            console.log(result);
             const user = result.user;
+            setUser(user.email);  // Set email specifically
             doLogin(true);
-            alert('Login riuscito');
-            // Reindirizza al pannello di amministrazione
         } catch (error) {
             doLogin(false);
             setError(true);
@@ -24,7 +21,7 @@ function AdminLogin({ doLogin }) {
 
     return (
         <div>
-            <h2>Login Amministratore</h2>
+            <h2>Login Google</h2>
             <button onClick={handleGoogleLogin}>Accedi con Google</button>
             {error ? <p className='text-red'>Login non riuscito</p> : null}
         </div>

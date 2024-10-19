@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import CardStu from "./CardStu"
 function Step1({ setStudio }) {
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 802);
 
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 602);
+            setIsMobile(window.innerWidth <= 802);
         };
 
         window.addEventListener('resize', handleResize);

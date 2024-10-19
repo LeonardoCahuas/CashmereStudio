@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 
-const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, studio, goBack, services, needFonico }) => {
+const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, studio, goBack, services, needFonico, selectedFonico }) => {
     const [nomeUtente, setNomeUtente] = useState('');
     const [telefono, setTelefono] = useState('+39');
     const [email, setEmail] = useState('');
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
+    const [note, setNote] = useState('');
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 902);
     const navigation = useNavigate()
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 602);
+            setIsMobile(window.innerWidth <= 902);
         };
 
         window.addEventListener('resize', handleResize);
@@ -28,6 +29,22 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
         const fine = new Date(`${selectedDay}T${selectedEnd}:00`);
 
         try {
+            if(selectedFonico){
+                await onAddPrenotazione({
+                    nomeUtente,
+                    inizio,
+                    fine,
+                    telefono,
+                    studio,
+                    stato: 1,
+                    services: services,
+                    sessionWithFonico: needFonico,
+                    prenotatoDa:"sito web",
+                    note:note,
+                    fonico: selectedFonico,
+                    createdAt: new Date()
+                });
+            }else{
             await onAddPrenotazione({
                 nomeUtente,
                 inizio,
@@ -38,12 +55,15 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
                 services: services,
                 sessionWithFonico: needFonico,
                 prenotatoDa:"sito web",
-                note:""
+                note:note,
+                createdAt: new Date()
             });
+        }
             alert("Prenotazione richiesta con successo. Cashmere Studio ti confermerà l'appuntamento il prima possibile");
             setNomeUtente('');
             setTelefono('');
-            setEmail('');;  // Redirect to /home after successful submission
+            setNote('');
+            setEmail('');
             navigation("/")
 
         } catch (error) {
@@ -57,7 +77,7 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
     return (
         
             <div className='d-flex flex-column align-items-center' style={{ paddingBottom: "70px" }}>
-                <div className="mt-5 text-start" style={{ border: "1px solid black", padding: isMobile ? "30px" : "50px", borderRadius: "15px", width: isMobile ? "80%" : "33%" }}>
+                <div className="mt-5 text-start" style={{ border: "1px solid black", padding: isMobile ? "30px" : "50px", borderRadius: "15px", width: isMobile ? "80%" : "43%" }}>
                     <p style={{ textDecoration: "underline", cursor: "pointer", width: "fit-content", color: "#08B1DF" }} onClick={() => goBack()}>{"< Indietro"}</p>
                     <h3 className="mb-3 fs-2" style={{ fontWeight: 900 }}>Inserisci i tuoi dati</h3>
                     <form onSubmit={handleSubmit}>
@@ -72,6 +92,11 @@ const Step4 = ({ selectedDay, selectedStart, selectedEnd, onAddPrenotazione, stu
                                     e.preventDefault();
                                 }
                             }}  onChange={(e) => setTelefono(e.target.value)} required placeholder='Numero Whatsapp' style={{ backgroundColor: "rgb(240, 240, 240)", padding: "15px" }} />
+                        </div>
+
+                        <div className="mt-5">
+                            <label htmlFor="nomeUtente" className="form-label d-flex flex-row align-items-center" style={{ fontSize: "17px" }}> <i class="fa-regular fa-clipboard" style={{ fontSize: "25px", color: "black", marginRight: "10px" }}></i> Note sulla sessione</label>
+                            <input type="text" className="form-control" id="nomeUtente" value={note} onChange={(e) => setNote(e.target.value)}  placeholder='Es. fonico, microfono, dettagli...' style={{ backgroundColor: "rgb(240, 240, 240)", padding: "15px" }} />
                         </div>
 
 

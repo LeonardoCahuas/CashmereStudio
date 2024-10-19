@@ -39,6 +39,10 @@ function Confirm() {
   const [idToContact, setIdToContact] = useState("")
   const [prenToContact, setPrenToContact] = useState({})
 
+  const findFonico = (id) => {
+    const fonico = fonici.find((fon) => fon.id == id);
+    return fonico && fonico.nome ? fonico.nome : "";
+  };
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 602);
@@ -89,6 +93,7 @@ function Confirm() {
     console.log("modale conferma")
     setContactConfirm(true)
   }
+
   const redirectWhatsapp = () => {
     updatePrenotazioneStato(idToContact, 3, 0)
   }
@@ -104,27 +109,35 @@ function Confirm() {
   const totalItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1 || prenotazione.stato === 3).length;
 
   return (
-    <div className='w-100 d-flex flex-column align-items-center'  style={{overflow:"scroll"}}>
+    <div className='w-100 d-flex flex-column align-items-center' style={{ overflow: "scroll" }}>
       <div className={`${isMobile ? "w-100" : "w-100"}`}>
         <h2>Prenotazioni in Attesa di Conferma</h2>
         <Table striped bordered hover className="table-container">
           <thead>
             <tr>
+              <th>Giorno richiesta</th>
               <th>Nome Instagram</th>
               <th>Telefono</th>
-              <th>Stato</th>
               {!isMobile && <th>Servizi</th>}
-
-              {!isMobile && <th>Inizio</th>}
-              {!isMobile && <th>Fine</th>}
+              {!isMobile && <th>Note</th>}
+              {!isMobile && <th>Data e ora</th>}
               {!isMobile && <th>Studio</th>}
               {!isMobile && <th>Fonico</th>}
               <th>Azioni</th>
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((prenotazione) => (
+            {currentItems.sort((p1, p2) => p2.createdAt - p1.createdAt).map((prenotazione) => (
               <tr key={prenotazione.id}>
+                <td>
+                  {prenotazione.createdAt.toDate().toLocaleDateString('it-IT', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  }) + " ore " +
+                    prenotazione.createdAt.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                </td>
                 <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}>{prenotazione.nomeUtente}</a>}</td>
                 <td>
                   <button onClick={() => {
@@ -134,11 +147,8 @@ function Confirm() {
                     confirmContact()
                   }} style={{ color: prenotazione.stato == 1 ? "red" : "green", backgroundColor: "transparent", background: "transparent" }}><i className="fa fa-phone"></i>{prenotazione.telefono}</button>
                 </td>
-                <td>
-                  {prenotazione.stato == 1 ? "da contattare" : "contattato" }
-                </td>
                 {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
-
+                {!isMobile && <td>{prenotazione.note && prenotazione.note}</td>}
                 {!isMobile && <td>
                   {prenotazione.inizio.toDate().toLocaleDateString('it-IT', {
                     weekday: 'long',
@@ -146,19 +156,11 @@ function Confirm() {
                     month: 'long',
                     day: 'numeric'
                   }) + " ore " +
-                    prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                    prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + "-" + prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} 
                 </td>}
-                {!isMobile && <td>
-                  {prenotazione.fine.toDate().toLocaleDateString('it-IT', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  }) + " ore " +
-                    prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                </td>}
+                
                 {!isMobile && <td>{prenotazione.studio}</td>}
-                {!isMobile && <td>{prenotazione.sessionWithFonico ? "si" : "no"}</td>}
+                {!isMobile && <td>{!prenotazione.sessionWithFonico ? "no" : prenotazione.fonico ? findFonico(prenotazione.fonico) : "si"}</td>}
                 <td>
                   <p style={{ textDecoration: "underline", cursor: "pointer", margin: "0px" }} onClick={() => handleShowModal(prenotazione)}>Visualizza</p>
                 </td>
@@ -213,13 +215,20 @@ function Confirm() {
                 }) + " ore " +
                   selectedPrenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
               </p>
+              <p>Richiesta il : {selectedPrenotazione.createdAt.toDate().toLocaleDateString('it-IT', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }) + " ore " +
+                selectedPrenotazione.createdAt.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</p>
               <p>Studio: {selectedPrenotazione.studio}</p>
               <p>Stato: {selectedPrenotazione.stato}</p>
-              <select onChange={(e) => handleFonicoSelection(e.target.value)}>
+              <select onChange={(e) => handleFonicoSelection(e.target.value)} value={selectedPrenotazione.fonico}>
                 {
                   selectedPrenotazione.sessionWithFonico ?
                     fonici.map((fonico) => (
-                      <option key={fonico.id} value={fonico.id}>
+                      <option key={fonico.id} value={fonico.id} selected={selectedFonico.fonico == fonico.id}>
                         {fonico.nome}
                       </option>
                     ))

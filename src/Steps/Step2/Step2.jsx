@@ -8,6 +8,10 @@ const months = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'l
 
 const giorniSettimana = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
 
+const getSlotNumber = (hour, dayOffset) => {
+  return dayOffset * 18 + (hour - 10) + 1; // Restituisce il numero dello slot
+};
+
 const NextArrow = (props) => {
   const { className, style, onClick } = props;
   return (
@@ -83,9 +87,9 @@ const getMonthDays = () => {
   return days;
 };
 
-const Step2 = ({ setBooking, goBack, studio }) => {
+const Step2 = ({ setBooking, goBack, studio, setStudio, service, selectedFonico }) => {
   const [selectedDay, setSelectedDay] = useState(null);
-  const { prenotazioni, loading, error, addPrenotazione } = usePrenotazioni(selectedDay);
+  const { prenotazioni, loading, error, addPrenotazione, fonici } = usePrenotazioni(selectedDay);
   const [selectedStart, setSelectedStart] = useState(null);
   const [selectedEnd, setSelectedEnd] = useState(null);
   const [bookingTime, setBookingTime] = useState({});
@@ -122,45 +126,40 @@ const Step2 = ({ setBooking, goBack, studio }) => {
     setSelectedEnd(null)
   }
 
-  const handleSlotClick = (time) => {
-    const [selectedStartHourPart, selectedStartMinutePart] = selectedStart ? selectedStart.split(':') : [null, null];
-    const selectedStartHour = selectedStartHourPart ? parseFloat(selectedStartHourPart) + (selectedStartMinutePart === '30' ? 0.5 : 0) : null;
-    const [currentHourPart, currentMinutePart] = time.split(':');
-    const currentHour = parseFloat(currentHourPart) + (currentMinutePart === '30' ? 0.5 : 0);
+  const handleSlotClick = (startTime, endTime = null) => {
+    if (!endTime) {
+      const [selectedStartHourPart, selectedStartMinutePart] = selectedStart ? selectedStart.split(':') : [null, null];
+      const selectedStartHour = selectedStartHourPart ? parseFloat(selectedStartHourPart) + (selectedStartMinutePart === '30' ? 0.5 : 0) : null;
+      const [currentHourPart, currentMinutePart] = startTime.split(':');
+      const currentHour = parseFloat(currentHourPart) + (currentMinutePart === '30' ? 0.5 : 0);
 
-    if (!selectedStart || (selectedStart && selectedEnd) || (selectedStart && currentHour < selectedStartHour + 1)) {
-      setSelectedStart(time);
-      setSelectedEnd(null);
-    } else if (time > selectedStart) {
-      setSelectedEnd(time);
+      if (!selectedStart || (selectedStart && selectedEnd) || (selectedStart && currentHour < selectedStartHour + 1)) {
+        setSelectedStart(startTime);
+        setSelectedEnd(null);
+      } else if (startTime > selectedStart) {
+        setSelectedEnd(startTime);
+      } else {
+        setSelectedStart(startTime);
+        setSelectedEnd(null);
+      }
     } else {
-      setSelectedStart(time)
-      setSelectedEnd(null)
+      setSelectedStart(startTime);
+      setSelectedEnd(endTime);
     }
   };
+
 
   const handleNextStep = () => {
     setBooking(bookingTime);
   };
 
   const renderSlots = () => {
+    const daysCode = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     const slots = [];
     const selectedDayPrenotazioni = prenotazioni.filter(
-      (p) => getFormattedDate(new Date(p.inizio.seconds * 1000)) === selectedDay && p.studio == studio && p.stato == 2
+      (p) => getFormattedDate(new Date(p.inizio.seconds * 1000)) === selectedDay && p.stato == 2 && (p.studio == studio || (selectedFonico && p.fonico === selectedFonico))
     );
     let occupied = [];
-    console.log(selectedDayPrenotazioni)
-    // Collect slots that need to be marked as occupied
-    selectedDayPrenotazioni.forEach((p) => {
-      const startDate = new Date(p.inizio.seconds * 1000);
-      const endDate = new Date(p.fine.seconds * 1000);
-      const startHour = startDate.getHours();
-      const endHour = endDate.getHours();
-
-      for (let hour = startHour; hour < endHour; hour++) {
-        occupied.push(hour);
-      }
-    });
 
     const isTimeAvailable = (time) => {
       if (!selectedStart) return true;
@@ -184,52 +183,128 @@ const Step2 = ({ setBooking, goBack, studio }) => {
       return currentHour - selectedStartHour >= 1 && isWithinMaxDuration;
     };
 
-    for (let hour = 10; hour <= 22; hour++) {
-      const time = `${String(hour).padStart(2, '0')}:00`;
+    selectedDayPrenotazioni.forEach((p) => {
+      const startDate = new Date(p.inizio.seconds * 1000);
+      const endDate = new Date(p.fine.seconds * 1000);
+      const startHour = startDate.getHours();
+      const endHour = endDate.getHours();
 
-      // Adjusting occupied slots if start time is selected
-      const adjustedOccupied = selectedStart ? occupied.map(h => h + 1) : occupied;
+      for (let hour = startHour; hour < endHour; hour++) {
+        occupied.push(hour);
+      }
 
-      const isOccupied = adjustedOccupied.includes(hour);
-      const isSelectedStart = selectedStart === time && selectedEnd;
-      const isSelectedStartNot = selectedStart === time && !selectedEnd;
-      const isSelectedEnd = selectedEnd === time;
-      const isSelectedRange = selectedStart && selectedEnd && hour > parseInt(selectedStart.split(':')[0], 10) && hour < parseInt(selectedEnd.split(':')[0], 10);
-      const isClickable = isTimeAvailable(time);
-      const canSelectEnd = isEndValid(time);
+      if (endHour < startHour) {
+        for (let hour = startHour; hour < 24; hour++) {
+          occupied.push(hour);
+        }
+      }
+    });
 
-      const slotClass = (() => {
-        if (isSelectedStart) return 'selected-start-not';
-        if (isSelectedStartNot) return 'selected-start';
-        if (isSelectedRange) return 'selected-range';
-        if (isOccupied) return 'occupied';
-        if (isSelectedEnd) return 'selected-end';
-        return '';
-      })();
+    const fonicoDisponibilita = fonici.find(f => f.id === selectedFonico)?.disp || [];
+    const fonicoDisponibilita1 = fonici.find(f => f.id === selectedFonico)?.disponibilita || [];
 
-      const isSlotClickable = (
-        (!selectedStart && !isOccupied) ||  // Non è stato selezionato l'inizio e non è occupato
-        (selectedStart && (isSelectedStart || (isClickable && canSelectEnd)))  // È stato selezionato l'inizio e l'ora è selezionata o è cliccabile
-    ) && !isOccupied; // Aggiunto per assicurarsi che non sia occupato
+    // Calcola il giorno della settimana (0 per lunedì, 1 per martedì, ecc.)
+    const currentDate = new Date(selectedDay);
+    const dayOffset = (currentDate.getDay() + 6) % 7; 
+    // Calcola tutte le ore dalle 10 alle 22
+    for (let hour = 10; hour < 23; hour++) {
+      console.log(currentDate.getDay())
+      const slotNumber = getSlotNumber(hour, dayOffset); // Passa dayOffset alla funzione
+      const isAvailable = fonicoDisponibilita1.some(d => {
+        const val = d.split('-');
+        return daysCode[currentDate.getDay()] === val[0] && hour >= val[1] && hour < val[2];
+    });
+      // Controlla se l'ora è disponibile
+      if (!isAvailable) {
+        console.log(selectedFonico)
+        occupied.push(hour); // Aggiungi l'ora non disponibile
+      }
+    }
 
-      slots.push(
-        <div
-          key={time}
-          className={`slot ${slotClass}`}
-          onClick={() => isSlotClickable && handleSlotClick(time)}
-          style={{
-            pointerEvents: isSlotClickable ? 'auto' : 'none',
-            opacity: isOccupied ? 1 : isSelectedStart ? 1 : isSlotClickable ? 1 : 0.5,
-          }}
-        >
-          {time}
-        </div>
-      );
+    const isPackageSelected = service && (service.includes("2h + mix&master") || service.includes("2h + mix&master + beat") || service.includes("4h + 2 mix&master"));
+    let packageDuration = service && service.includes("4h") ? 4 : 2;
+    service.forEach((s) => {
+      if (s.includes("4h")) {
+        packageDuration = 4
+      }
+    })
+    if (isPackageSelected) {
+      for (let hour = 10; hour <= 22 - packageDuration + 1; hour++) {
+        const startTime = `${String(hour).padStart(2, '0')}:00`;
+        const endTime = `${String(hour + packageDuration).padStart(2, '0')}:00`;
+
+        const isSlotOccupied = Array.from({ length: packageDuration }, (_, i) => hour + i)
+          .some(h => occupied.includes(h));
+
+        if (!isSlotOccupied) {
+          slots.push(
+            <div
+              key={startTime}
+              className={`slot ${selectedStart === startTime ? 'selected-start' : ''}`}
+              onClick={() => {
+                handleSlotClick(startTime, endTime)
+              }}
+            >
+              {`${startTime} - ${endTime}`}
+            </div>
+          );
+        }
+      }
+    } else {
+      for (let hour = 10; hour <= 22; hour++) {
+        const time = `${String(hour).padStart(2, '0')}:00`;
+        const adjustedOccupied = selectedStart ? occupied.map(h => h + 1) : occupied;
+        const isOccupied = adjustedOccupied.includes(hour);
+        const isSelectedStart = selectedStart === time && selectedEnd;
+        const isSelectedStartNot = selectedStart === time && !selectedEnd;
+        const isSelectedEnd = selectedEnd === time;
+        const isSelectedRange = selectedStart && selectedEnd && hour > parseInt(selectedStart.split(':')[0], 10) && hour < parseInt(selectedEnd.split(':')[0], 10);
+        const isClickable = isTimeAvailable(time);
+        const canSelectEnd = isEndValid(time);
+
+        const slotClass = isSelectedStart ? 'selected-start-not' :
+          isSelectedStartNot ? 'selected-start' :
+            isSelectedRange ? 'selected-range' :
+              isOccupied ? 'occupied' :
+                isSelectedEnd ? 'selected-end' : '';
+
+        const isSlotClickable = ((!selectedStart && !isOccupied) || (selectedStart && (isSelectedStart || (isClickable && canSelectEnd)))) && !isOccupied;
+
+        slots.push(
+          <div
+            key={time}
+            className={`slot ${slotClass}`}
+            onClick={() => isSlotClickable && handleSlotClick(time)}
+            style={{
+              pointerEvents: isSlotClickable ? 'auto' : 'none',
+              opacity: isOccupied ? 1 : isSelectedStart ? 1 : isSlotClickable ? 1 : 0.5,
+            }}
+          >
+            {time}
+          </div>
+        );
+      }
     }
 
     slots.push(
-      <div className=' slot d-flex flex-row align-items-center justify-content-center ripristina' onClick={() => annulla()} style={{ paddingBottom: "0px", gap: "4px", height: "30px", border: "1px solid black", paddingRight: "15px", paddingLeft: "15px" }}>
+      <div className='slot d-flex flex-row align-items-center justify-content-center ripristina' onClick={() => annulla()} style={{ paddingBottom: "0px", gap: "4px", height: "30px", border: "1px solid black", paddingRight: "15px", paddingLeft: "15px" }}>
         <p className='m-0 p-0'>Ripristina</p>
+      </div>
+    );
+    slots.push(
+      <div className='slot d-flex flex-row align-items-center justify-content-center altristu' onClick={() => {
+        annulla()
+        setStudio(studio == 1 ? 2 : 1)
+      }} style={{ paddingBottom: "0px", gap: "4px", height: "30px", border: "1px solid black", paddingRight: "15px", paddingLeft: "15px" }}>
+        <p className='m-0 p-0'>{studio == 1 ? "Studio 2" : "Studio 1"}</p>
+      </div>
+    );
+    slots.push(
+      <div className='slot d-flex flex-row align-items-center justify-content-center altristu' onClick={() => {
+        annulla()
+        setStudio(studio == 3 ? 2 : 3)
+      }} style={{ paddingBottom: "0px", gap: "4px", height: "30px", border: "1px solid black", paddingRight: "15px", paddingLeft: "15px" }}>
+        <p className='m-0 p-0'>{studio == 3 ? "Studio 2" : "Studio 3"}</p>
       </div>
     );
 
@@ -237,67 +312,67 @@ const Step2 = ({ setBooking, goBack, studio }) => {
   };
 
   return (
-      <div className="container mt-5 text-start" style={{paddingBottom:isMobile ? "50px" : "250px"}}>
-        <div style={{ paddingLeft: isMobile ? "20px" : "0px" }}>
-          <p style={{ textDecoration: "underline", cursor: "pointer", width: "fit-content" }} onClick={() => goBack()}>{"< Indietro"}</p>
-          <h2 className="mb-3 text-start fs-1" style={{ fontWeight: '800' }}>
-            Data e ora della sessione
-          </h2>
-          <h6 className="mt-5 fs-5 mb-4">Seleziona data</h6>
-        </div>
-        <div className="w-100 d-flex flex-row custom-slider-container" style={{ height: '130px' }}>
-          <Slider {...settings} className="week-slider custom-slider w-100" style={{ height: '100px', padding: isMobile ? "0px" : '0px', paddingLeft:"30px", paddingRight:"30px" }}>
-            {getMonthDays()
-              .filter((day) => day)
-              .map((day, index) => (
-                <div key={index} className="day-slide" style={{ backgroundColor: "transparent" }}>
-                  <button
-                    className={`day-button ${day.date === selectedDay ? 'selected' : ''} d-flex flex-column justify-content-center`}
-                    onClick={() => setSelectedDay(day.date)}
-                    style={{ width: isMobile ? "130px" : '150px', backgroundColor: "white", border: day.date === selectedDay ? "2px solid #08B1DF" : "2px solid black", color: day.date === selectedDay ? "white" : "black", textAlign: "start", paddingTop: "15px", paddingBottom: "15px", height: "fit-content" }}
-                  >
-                    <p className='text-start w-100 fs-5'>
-                      {`${giorniSettimana[new Date(day.date).getDay()]}`}
-                    </p>
-                    <p className='text-start w-100 fs-6' style={{ fontWeight: 800, marginTop: "-20px", marginBottom: '0px', whiteSpace: "nowrap" }}>
-                      {`${new Date(day.date).getDate()} ${months[new Date(day.date).getMonth()]}`}
-                    </p>
-                  </button>
-                </div>
-              ))}
-          </Slider>
-        </div>
-        {
-          selectedDay &&
-          <div className='d-flex flex-row align-items-start justify-content-between' style={{ width: "100%" }}>
-            <div>
-              <h3 className=" mt-5">Seleziona fascia oraria </h3>
-              <p className='mb-3' style={{ marginTop: "-10px" }}>(minimo 1 ora)</p>
-            </div>
-
-          </div>
-        }
-        {
-          selectedDay && (
-            <p style={{ color: "lightgrey", fontWeight: 700, marginTop: "0px", marginBottom: "0px" }}>({giorniSettimana[new Date(selectedDay).getDay()]} {new Date(selectedDay).getDate()} {months[new Date(selectedDay).getMonth()]})</p>
-          )
-        }
-        {
-          selectedDay &&
-          <div className={`slots-container ${isMobile ? "p-4" : ""} ${selectedStart && selectedEnd ? "" : "mb-4"}`}>{renderSlots()}</div>
-        }
-        <p className='mb-3 mt-1'>(Per prenotazioni superiori alle 4 ore scrivici su Whatsapp al numero <a href="https://wa.me/+393514206294" style={{ color: "black" }}><b>351 420 6294</b> </a>  o su Instagram a: <b>@cashmerestudiomilano</b>)</p>
-
-        {
-          selectedStart && selectedEnd && (
-            <div className='w-100 d-flex flex-column align-items-center'>
-              <button className="btn btn-primary mt-4 mb-4" onClick={handleNextStep} disabled={!!!bookingTime.start} style={{ border: "1px solid #08B1DF", paddingTop: "12px", paddingBottom: "12px", paddingRight: "50px", paddingLeft: "50px", fontSize: "20px", fontWeight: 700 }}>
-                Avanti
-              </button>
-            </div>
-          )
-        }
+    <div className="container mt-5 text-start" style={{ paddingBottom: isMobile ? "50px" : "250px" }}>
+      <div style={{ paddingLeft: isMobile ? "20px" : "0px" }}>
+        <p style={{ textDecoration: "underline", cursor: "pointer", width: "fit-content" }} onClick={() => goBack()}>{"< Indietro"}</p>
+        <h2 className="mb-3 text-start fs-1" style={{ fontWeight: '800' }}>
+          Data e ora della sessione
+        </h2>
+        <h6 className="mt-5 fs-5 mb-4">Seleziona data</h6>
       </div>
+      <div className="w-100 d-flex flex-row custom-slider-container" style={{ height: '130px' }}>
+        <Slider {...settings} className="week-slider custom-slider w-100" style={{ height: '100px', padding: isMobile ? "0px" : '0px', paddingLeft: "30px", paddingRight: "30px" }}>
+          {getMonthDays()
+            .filter((day) => day)
+            .map((day, index) => (
+              <div key={index} className="day-slide" style={{ backgroundColor: "transparent" }}>
+                <button
+                  className={`day-button ${day.date === selectedDay ? 'selected' : ''} d-flex flex-column justify-content-center`}
+                  onClick={() => setSelectedDay(day.date)}
+                  style={{ width: isMobile ? "130px" : '150px', backgroundColor: "white", border: day.date === selectedDay ? "2px solid #08B1DF" : "2px solid black", color: day.date === selectedDay ? "white" : "black", textAlign: "start", paddingTop: "15px", paddingBottom: "15px", height: "fit-content" }}
+                >
+                  <p className='text-start w-100 fs-5'>
+                    {`${giorniSettimana[new Date(day.date).getDay()]}`}
+                  </p>
+                  <p className='text-start w-100 fs-6' style={{ fontWeight: 800, marginTop: "-20px", marginBottom: '0px', whiteSpace: "nowrap" }}>
+                    {`${new Date(day.date).getDate()} ${months[new Date(day.date).getMonth()]}`}
+                  </p>
+                </button>
+              </div>
+            ))}
+        </Slider>
+      </div>
+      {
+        selectedDay &&
+        <div className='d-flex flex-row align-items-start justify-content-between' style={{ width: "100%" }}>
+          <div>
+            <h3 className=" mt-5">Seleziona fascia oraria </h3>
+            <p className='mb-3' style={{ marginTop: "-10px" }}>(minimo 1 ora)</p>
+          </div>
+
+        </div>
+      }
+      {
+        selectedDay && (
+          <p style={{ color: "lightgrey", fontWeight: 700, marginTop: "0px", marginBottom: "0px" }}>({giorniSettimana[new Date(selectedDay).getDay()]} {new Date(selectedDay).getDate()} {months[new Date(selectedDay).getMonth()]})</p>
+        )
+      }
+      {
+        selectedDay &&
+        <div className={`slots-container ${isMobile ? "p-4" : ""} ${selectedStart && selectedEnd ? "" : "mb-4"}`}>{renderSlots()}</div>
+      }
+      <p className='mb-3 mt-1'>(Per prenotazioni superiori alle 4 ore scrivici su Whatsapp al numero <a href="https://wa.me/+393514206294" style={{ color: "black" }}><b>351 420 6294</b> </a>  o su Instagram a: <b>@cashmerestudiomilano</b>)</p>
+
+      {
+        selectedStart && selectedEnd && (
+          <div className='w-100 d-flex flex-column align-items-center'>
+            <button className="btn btn-primary mt-4 mb-4" onClick={handleNextStep} disabled={!!!bookingTime.start} style={{ border: "1px solid #08B1DF", paddingTop: "12px", paddingBottom: "12px", paddingRight: "50px", paddingLeft: "50px", fontSize: "20px", fontWeight: 700 }}>
+              Avanti
+            </button>
+          </div>
+        )
+      }
+    </div>
   );
 };
 

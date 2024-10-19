@@ -5,7 +5,7 @@ import prod from "../assets/Produzione.jpg"
 const info = {
     "rec": {
         image:rec,
-        title: "REC",
+        title: "REGISTRAZIONE",
         parag1: "La fase di registrazione è quella in cui l'artista viene al microfono e registra le sue parti vocali. Il fonico si occupa di posizionare i microfoni, regolare i livelli audio e assicurarsi che la qualità della registrazione sia ottimale.",
         title2: "Nelle nostre ore di rec sono compresi:",
         infos: ["⁠Un fonico del team Cashmere a disposizione per l’artista", "⁠l’uso dell’autotune", "⁠Un PRE MIX alla canzone."]

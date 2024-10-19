@@ -40,9 +40,9 @@ const services = [
 
 const descriptions = [
     "",
-    { to: "/rec", img: rec, title: "Registrazioni", desc: "La fase di registrazione è quella in cui l'artista viene al microfono e registra le sue parti vocali." },
+    { to: "/rec", img: rec, title: "Registrazione", desc: "La fase di registrazione è quella in cui l'artista viene al microfono e registra le sue parti vocali." },
     { to: "/mixmaster", img: mem, title: "Mix & Master", desc: "Processo finale di lavorazione sul beat e sulla voce, è l’attività che fa suonare professionale una canzone." },
-    { to: "/prod", img: prod, title: "Produzione", desc: "La fase di registrazione è quella in cui l'artista viene al microfono e registra le sue parti vocali." }
+    { to: "/prod", img: prod, title: "Produzione", desc: "Il nostro servizio di produzione musicale offre beat personalizzati di alta qualità su misura per l'artista." }
 ];
 
 export function Navbar({ isHome }) {
@@ -58,7 +58,7 @@ export function Navbar({ isHome }) {
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 602);
+            setIsMobile(window.innerWidth <= 1002);
         };
 
         window.addEventListener('resize', handleResize);
@@ -124,47 +124,50 @@ export function Navbar({ isHome }) {
                         <NavDropdown title="Studi" id="studio-dropdown" className="mx-3">
                             {[1, 2, 3].map((i) => (
                                 <NavDropdown.Item as={Link} to={`/studio${i}`} key={i}>
-                                    <img src={cashblue} alt="Logo Cashmere Studio"   style={{ width: "23px", marginRight: "10px" }} />    Studio {i}
+                                    <img src={cashblue} alt="Logo Cashmere Studio" style={{ width: "23px", marginRight: "10px" }} />    Studio {i}
                                 </NavDropdown.Item>
                             ))}
                         </NavDropdown>
                         <NavDropdown title="Servizi" id="services-dropdown" className="mx-3">
                             {[1, 2, 3].map((i) => (
                                 <NavDropdown.Item as={Link} to={descriptions[i].to} key={i}>
-                                    <img src={descriptions[i].img} style={{ width: descriptions[i].to == "/rec" ? "17px" : descriptions[i].to == "/prod" ? "15px" : "20px", marginRight: descriptions[i].to == "/mixmaster" ? "12px" : "15px" }} alt="Servizio Cashmere Studio"  />{descriptions[i].title}
+                                    <img src={descriptions[i].img} style={{ width: descriptions[i].to == "/rec" ? "17px" : descriptions[i].to == "/prod" ? "15px" : "20px", marginRight: descriptions[i].to == "/mixmaster" ? "12px" : "15px" }} alt="Servizio Cashmere Studio" />{descriptions[i].title}
                                 </NavDropdown.Item>
                             ))}
                         </NavDropdown>
                         <NavDropdown title="Contatti" id="contact-dropdown" className="mx-3" style={{ display: "flex", flexDirection: "row", gap: "100px" }}>
                             <NavDropdown.Item href="https://maps.google.com/?q=Via+Oreste+Salomone+61+Milano">
-                                <img src={pos} style={{ width: "17px", marginRight: "10px" }} alt="Icona Posizione"  /> Posizione
+                                <img src={pos} style={{ width: "17px", marginRight: "10px" }} alt="Icona Posizione" /> Posizione
                             </NavDropdown.Item>
                             <NavDropdown.Item href="tel:+393514206294" >
                                 <img src={cell} style={{ width: "17px", marginRight: "10px" }} alt="Icona telefono" /> Telefono
                             </NavDropdown.Item>
                             <NavDropdown.Item href="mailto:cashmerestudiomilano@gmail.com">
-                                <img src={mail} style={{ width: "17px", marginRight: "10px" }} alt="Icona email"/> Email
+                                <img src={mail} style={{ width: "17px", marginRight: "10px" }} alt="Icona email" /> Email
                             </NavDropdown.Item>
                             <NavDropdown.Item href="https://instagram.com/cashmerestudiomilano">
-                                <img src={insta} style={{ width: "16px", marginRight: "10px" }} alt="Icona Instagram"/> Instagram
+                                <img src={insta} style={{ width: "16px", marginRight: "10px" }} alt="Icona Instagram" /> Instagram
                             </NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                     {isHome &&
-                        <div style={{ width: "22vw", justifyContent: "center" }} className='d-flex flex-row align-items-center' >
+                        <div style={{ width: "22vw", justifyContent: "end", gap:"30px" }} className='d-flex flex-row align-items-center' >
                             <Link to="/book" style={{ textDecoration: "none" }}>
                                 <button type="button" className="book-button w-100 ml-auto" style={{ fontWeight: 600, fontSize: "14px", paddingLeft: "25px", paddingRight: "25px" }}>Prenota una sessione</button>
+                            </Link>
+                            <Link to="/admin" style={{ textDecoration: "none" }}>
+                                <i class="fa-solid fa-lock" style={{ color: "grey", fontSize:"20px" }}></i>
                             </Link>
                         </div>
                     }
                 </BootstrapNavbar.Collapse>
             </Container>
-            <Link style={{display:"none"}} to="/admin">admin</Link>
+            <Link style={{ display: "none" }} to="/admin">admin</Link>
         </BootstrapNavbar>
     );
 
     const renderMobileNavbar = () => (
-        <div className="d-flex flex-row align-items-center justify-content-between text-white navbar-container bg-black p-3 position-fixed m-0" style={{ paddingTop: "0px", zIndex: "999", top: "0px" }}>
+        <div className="w-100 d-flex flex-row align-items-center justify-content-between text-white navbar-container bg-black p-3 position-fixed m-0" style={{ paddingTop: "0px", zIndex: "999", top: "0px" }}>
             <div className='w-25 pr-5  d-flex flex-column align-items-start' style={{ paddingLeft: "25px" }}>
                 <button style={{ background: "transparent", color: "white" }} className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon">
@@ -173,14 +176,17 @@ export function Navbar({ isHome }) {
                 </button>
             </div>
             <div className='w-50'>
-                <Link to="/" className={`navlogo w-100 d-flex flex-column ${isHome ? 'align-items-center' : 'align-items-end'}`} style={{paddingRight: isHome ? "0px" : "20px"}}>
-                    <img src={logo} style={{ width: "25%" }} alt="Logo Cashmere Studio" />
+                <Link to="/" className={`navlogo w-100 d-flex flex-column ${isHome ? 'align-items-center' : 'align-items-end'}`} style={{ paddingRight: isHome ? "0px" : "20px" }}>
+                    <img src={logo} style={{ width: "25%", maxWidth: "70px" }} alt="Logo Cashmere Studio" />
                 </Link>
             </div>
             {isHome &&
-                <div className='w-25'>
+                <div className='w-25 d-flex flex-row align-items-center justify-content-end' style={{gap:"20px", paddingRight:"1px"}}>
                     <Link to="/book">
                         <button type="button" className="book-button p-2" style={{ fontWeight: 900 }}>Prenota</button>
+                    </Link>
+                    <Link to="/admin" style={{ textDecoration: "none" }}>
+                        <i class="fa-solid fa-lock" style={{ color: "grey" }}></i>
                     </Link>
                 </div>
             }
@@ -194,7 +200,7 @@ export function Navbar({ isHome }) {
 
                 <ul className="navbar-nav">
                     <li className="w-100 nav-item d-flex flex-column align-items-start" style={{ paddingLeft: "30px" }} >
-                        <Link className="nav-link" to="/"  data-toggle="collapse" data-target="#navbarNavDropdown" aria-label="Close" style={{ fontSize: "25px", fontWeight: 900 }}>Home</Link>
+                        <Link className="nav-link" to="/" data-toggle="collapse" data-target="#navbarNavDropdown" aria-label="Close" style={{ fontSize: "25px", fontWeight: 900 }}>Home</Link>
                     </li>
                     <li className="nav-item w-100">
                         <div className="nav-link w-100" onClick={() => openItem('studi')}>
@@ -205,7 +211,7 @@ export function Navbar({ isHome }) {
                                         <div className="w-50 d-flex flex-column align-items-left mt-4 mb-3" style={{ gap: "30px", paddingLeft: "20px" }}>
                                             {studios.slice(1, 4).map((studio, index) => (
                                                 <Link to={`/studio${index + 1}`} className="w-100 d-flex flex-row align-items-center justify-content-center" style={{ gap: "30px", textDecoration: "none", }} key={index} data-toggle="collapse" data-target="#navbarNavDropdown" aria-label="Close">
-                                                    <img src={studio} alt={`Studio ${index + 1}`} style={{ width: "25%" }}/>
+                                                    <img src={studio} alt={`Studio ${index + 1}`} style={{ width: "25%" }} />
                                                     <span style={{ color: "white", fontWeight: 100, fontSize: "18px" }}>Studio {index + 1}</span>
                                                 </Link>
                                             ))}
@@ -248,32 +254,32 @@ export function Navbar({ isHome }) {
                             {openContatti && (
                                 <div className="" aria-labelledby="navbarDropdownMenuLink">
                                     <div className="d-flex flex-column p-2 pt-1">
-                                        <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
+                                        <div className="contact-item d-flex align-items-center p-2" style={{ gap: "10px" }}>
                                             <i className="fas fa-map-marker-alt" style={{ color: "grey", fontSize: "14px" }}></i>
                                             <div>
                                                 <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Indirizzo:</label>
-                                                <a href="https://www.google.com/maps?q=via+oreste+salomone+61+milano" className="ms-2"  style={{fontSize: "14px", color:"white" }} >Via Oreste Salomone 61, Milano</a>
+                                                <a href="https://www.google.com/maps?q=via+oreste+salomone+61+milano" className="ms-2" style={{ fontSize: "14px", color: "white" }} >Via Oreste Salomone 61, Milano</a>
                                             </div>
                                         </div>
-                                        <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
+                                        <div className="contact-item d-flex align-items-center p-2" style={{ gap: "10px" }}>
                                             <i className="fas fa-phone-alt text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
                                                 <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Telefono:</label>
-                                                <a href="https://wa.me/+393514206294" className="ms-2"  style={{fontSize: "14px", color:"white" }} >+39 351 420 6294</a>
+                                                <a href="https://wa.me/+393514206294" className="ms-2" style={{ fontSize: "14px", color: "white" }} >+39 351 420 6294</a>
                                             </div>
                                         </div>
-                                        <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
+                                        <div className="contact-item d-flex align-items-center p-2" style={{ gap: "10px" }}>
                                             <i className="fas fa-envelope text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
                                                 <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Email:</label>
-                                                <a href="mailto:cashmerestudiomilano@gmail.com" className="ms-2"  style={{fontSize: "14px", color:"white" }} >cashmerestudiomilano@gmail.com</a>
+                                                <a href="mailto:cashmerestudiomilano@gmail.com" className="ms-2" style={{ fontSize: "14px", color: "white" }} >cashmerestudiomilano@gmail.com</a>
                                             </div>
                                         </div>
-                                        <div className="contact-item d-flex align-items-center p-2" style={{gap:"10px"}}>
+                                        <div className="contact-item d-flex align-items-center p-2" style={{ gap: "10px" }}>
                                             <i className="fab fa-instagram text-gray" style={{ color: "grey", fontSize: "16px" }}></i>
                                             <div>
                                                 <label className="text-gray mb-0" style={{ color: "grey", fontSize: "14px" }}>Instagram:</label>
-                                                <a href="https://www.instagram.com/cashmerestudiomilano?igsh=MWY0eXZxeTZ0OW9uaQ==" className="ms-2"  style={{fontSize: "14px", color:"white" }} >@cashmerestudiomilano</a>
+                                                <a href="https://www.instagram.com/cashmerestudiomilano?igsh=MWY0eXZxeTZ0OW9uaQ==" className="ms-2" style={{ fontSize: "14px", color: "white" }} >@cashmerestudiomilano</a>
                                             </div>
                                         </div>
                                     </div>
@@ -283,7 +289,7 @@ export function Navbar({ isHome }) {
                     </li>
                 </ul>
             </div>
-            <Link style={{display:"none"}}  to="/admin"></Link>
+            <Link style={{ display: "none" }} to="/admin"></Link>
         </div>
     );
 
@@ -291,4 +297,3 @@ export function Navbar({ isHome }) {
 }
 
 export default Navbar;
- 

@@ -82,16 +82,25 @@ const Studios = () => {
   const getStudioStatus = (studioNumber) => {
     const studioPrenotazioni = prenotazioni.filter(prenotazione => prenotazione.studio === studioNumber && prenotazione.stato === 2);
     const currentPrenotazione = studioPrenotazioni.find(prenotazione => {
-      let inizio
-      try{
+      let inizio, fine;
+      try {
         inizio = prenotazione.inizio.toDate();
-      }catch{
-        console.log(prenotazione)
+        fine = prenotazione.fine.toDate();
+      } catch {
+        console.log(prenotazione);
+        return false;
       }
-      const fine = prenotazione.fine.toDate();
-      return new Date(selectedDateTime) >= inizio && new Date(selectedDateTime) <= fine;
+  
+      const selectedDate = new Date(selectedDateTime);
+      
+      // Handle bookings that span across midnight
+      if (fine < inizio) {
+        fine.setDate(fine.getDate() + 1);
+      }
+  
+      return selectedDate >= inizio && selectedDate <= fine;
     });
-
+  
     return currentPrenotazione ? { occupato: true, prenotazione: currentPrenotazione } : { occupato: false, prenotazione: null };
   };
 

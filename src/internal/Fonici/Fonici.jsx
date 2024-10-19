@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import usePrenotazioni from '../../booking/useBooking';
 import { Modal, Button, Table, Pagination, Form, Row, Col, Card, Container, ListGroup } from 'react-bootstrap';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase-config';
-import FonicoCalendar from '../FonicoCalendar/FonicoCalendar';
+import FonicoCalendar from './FonicoCalendar/FonicoCalendar';
+import CompleteCalendar from './CompleteCalendar/CompleteCalendar';
+import FonicoCalendar2 from './FonicoCalendar2/FonicoCalendar2';
+import { Calendar } from './Calendar/FonicoCalendar';
+import { Priority } from './Priorita/Priorita';
 
 const calcolaOre = (inizio, fine) => {
   if (!inizio || !fine) return 0;
@@ -14,7 +18,7 @@ const calcolaOre = (inizio, fine) => {
   return fineDate < inizioDate ? differenzaMs / (1000 * 60 * 60) + 24 : differenzaMs / (1000 * 60 * 60);
 };
 
-const Bookings = () => {
+const Fonici = ({ isAdmin, fonico }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -96,13 +100,18 @@ const Bookings = () => {
     }
   };
 
+
+
   // Filtraggio delle prenotazioni per la lista
-  const filteredPrenotazioni = prenotazioni.filter(p => {
-    const matchesFonico = selectedFonico ? p.fonico === selectedFonico : true;
-    const matchesUsername = usernameFilter ? p.nomeUtente.toLowerCase().includes(usernameFilter.toLowerCase()) : true;
-    const matchesMonth = selectedMonth ? p.inizio.toDate().toLocaleString('it-IT', { month: 'long', year: 'numeric' }) === selectedMonth : true;
-    return matchesFonico && matchesUsername && matchesMonth;
-  });
+  const filteredPrenotazioni = useMemo(() => {
+    return prenotazioni.filter(p => {
+      const matchesFonico = selectedFonico ? p.fonico === selectedFonico : true;
+      const matchesUsername = usernameFilter ? p.nomeUtente.toLowerCase().includes(usernameFilter.toLowerCase()) : true;
+      const matchesMonth = selectedMonth ? p.inizio.toDate().toLocaleString('it-IT', { month: 'long', year: 'numeric' }) === selectedMonth : true;
+      return matchesFonico && matchesUsername && matchesMonth;
+    });
+  }, [prenotazioni, selectedFonico, usernameFilter, selectedMonth]);
+
 
   // Filtraggio delle prenotazioni per le statistiche
   const filteredStatPrenotazioni = prenotazioni.filter(p => {
@@ -150,11 +159,14 @@ const Bookings = () => {
   };
 
   return (
-    <div style={{ marginTop: '20px', margin: '0px', width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Gestione Prenotazioni</h3>
-      <FonicoCalendar />
+    <div style={{ marginTop: '20px', margin: '0px', width: "100%", display: "flex", flexDirection: "column", alignItems: "start" }}>
+      <Priority/>
+      <Calendar isAdmin={isAdmin} /> 
+      <h3 style={{ width: "100%", textAlign: 'center', marginBottom: '20px' }}>Gestione Fonici</h3>
+      {isAdmin && <CompleteCalendar isAdmin={isAdmin} />}
+      {/* <FonicoCalendar fonico={fonico} isAdmin={isAdmin} /> */}
       <div className={`w-100 d-flex flex-${isMobile ? "column" : "row"} align-items-${isMobile ? "center" : "start"}`}>
-        <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width: isMobile ? "100%" : "50%" }}>
+        {isAdmin && (<div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', width: isMobile ? "100%" : "50%" }}>
           <h4>Gestione Fonici</h4>
           <Button variant="primary" onClick={() => setShowInput(true)}>Aggiungi Fonico</Button>
           {showInput && (
@@ -177,7 +189,7 @@ const Bookings = () => {
               </ListGroup.Item>
             ))}
           </ListGroup>
-        </div>
+        </div>)}
 
         <Row className="statistics mb-4 d-flex flex-column align-items-center h-100" style={{ justifyContent: 'space-between', backgroundColor: '#f8f9fa', width: isMobile ? "100%" : "50%" }}>
           <Col xs={12} md={4} className="w-100 h-100" style={{ backgroundColor: '#f8f9fa' }}>
@@ -187,7 +199,7 @@ const Bookings = () => {
                 <Form.Label>Filtra per Fonico</Form.Label>
                 <Form.Control as="select" value={statSelectedFonico} onChange={(e) => setStatSelectedFonico(e.target.value)} style={{ marginBottom: '10px', borderRadius: '5px' }}>
                   <option value="">Tutti i Fonici</option>
-                  {fonici.filter(item => item.id != 1).map(fonico => (
+                  {fonici.filter(item => isAdmin ? item.id != 1 : item.id == fonico).map(fonico => (
                     <option key={fonico.id} value={fonico.id}>{fonico.nome}</option>
                   ))}
                 </Form.Control>
@@ -205,7 +217,7 @@ const Bookings = () => {
                 <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border: "1px solid black" }}>
                   <strong>Ore Totali:</strong> {calcolaTotaleOreStat(filteredStatPrenotazioni)} ore
                 </div>
-                {(statSelectedFonico ? orePerFonicoPerMeseStat.filter(item => item.id === statSelectedFonico) : orePerFonicoPerMeseStat).filter(item => item.id != 1).map((item, index) => (
+                {(statSelectedFonico ? orePerFonicoPerMeseStat.filter(item => item.id === statSelectedFonico) : isAdmin ? orePerFonicoPerMeseStat : orePerFonicoPerMeseStat.filter(item => item.id === fonico)).filter(item => item.id != 1).map((item, index) => (
                   <div key={index} style={{ padding: '10px', backgroundColor: 'white', borderRadius: '5px', marginBottom: '10px', border: "1px solid black" }}>
                     <strong>{item.fonico}:</strong> {Object.entries(item.orePerMese).map(([mese, ore], i) => (
                       <div key={i}>{mese}: {Math.ceil(ore)} ore</div>
@@ -269,7 +281,7 @@ const Bookings = () => {
                     {!isMobile && <td>{calcolaOre(prenotazione.inizio, prenotazione.fine)}</td>}
                     <td>
                       <p variant="primary" onClick={() => handleView(prenotazione)} style={{ marginRight: '5px', borderBottom: "1px solid black" }}>Vedi</p>
-                      <p variant="danger" onClick={() => handleDelete(prenotazione)} style={{ borderBottom: "1px solid black" }}>Elimina</p>
+                      {isAdmin && <p variant="danger" onClick={() => handleDelete(prenotazione)} style={{ borderBottom: "1px solid black" }}>Elimina</p>}
                     </td>
                   </tr>
                 ))}
@@ -331,4 +343,4 @@ const ConfirmDeleteModal = ({ show, onHide, onDelete }) => (
   </Modal>
 );
 
-export default Bookings;
+export default Fonici;

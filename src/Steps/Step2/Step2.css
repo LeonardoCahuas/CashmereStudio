@@ -220,7 +220,7 @@
 .slot.selected-start {
   background-color: #08B1DF;
   color: #fff;
-  border:1px solid #08B1DF !important;
+  border: 1px solid #08B1DF !important;
 }
 
 .slot.selected-start-not {
@@ -231,7 +231,7 @@
   border-bottom-left-radius: 10px;
   margin-right: -5px;
   padding-right: 40px;
-  border:1px solid #08B1DF !important;
+  border: 1px solid #08B1DF !important;
 }
 
 .selected-end {
@@ -240,8 +240,8 @@
   border-bottom-right-radius: 10px;
   background-color: #08B1DF;
   color: white;
-  border:1px solid #08B1DF !important;
-  
+  border: 1px solid #08B1DF !important;
+
 }
 
 .slot.selected-range {
@@ -251,7 +251,7 @@
   margin-right: -5px;
   padding-left: 35px;
   padding-right: 35px;
-  border:1px solid #08B1DF !important;
+  border: 1px solid #08B1DF !important;
 }
 
 .slots-container {
@@ -348,4 +348,18 @@
 .ripristina {
   background-color: black;
   color: white
+}
+
+.altristu:hover {
+  background-color: #08B1DF;
+  transition: all 0.3s;
+  color: white
+}
+
+
+.altristu {
+  background-color: white;
+  color: #08B1DF;
+
+  border: 1px solid #08B1DF !important
 }

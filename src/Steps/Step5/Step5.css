@@ -1,0 +1,45 @@
+.fonico-item {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .fonico-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .fonico-item input[type="radio"] {
+    display: none;
+  }
+  
+  .fonico-item label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .fonico-item.selected {
+    border: 2px solid #08B1DF;
+    background-color: #e6f7fc;
+  }
+  
+  .fonico-item.selected .fonico-name,
+  .fonico-item.selected .fonico-description {
+    color: #08B1DF;
+  }
+  
+  .fonico-name {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .fonico-description {
+    font-size: 14px;
+    color: #666;
+  }

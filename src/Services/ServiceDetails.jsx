@@ -48,7 +48,7 @@ function ServiceDetails({ service }) {
                 </div>
                 <div style={{ backgroundColor: 'black', color: 'white', height:"100%", width: isMobile ? "100%" : "50%" }}>
                     <div className={`text-start ${isMobile ? 'w-100 p-4' : 'w-75'}`} style={{ margin: isMobile ? '0 auto' : '', padding: isMobile ? "20px" : "50px", paddingTop:"50px" , paddingBottom:"50px"  }}>
-                        <div className='d-flex flex-row align-items-center' style={{gap:"15px"}}><h1 style={{ fontWeight: 'bold', fontSize:isMobile ? '2.8em' : "4em" }}>{info[service].title}</h1><img src={servicesimage[service]} alt="Foto servizio Cashmere Studio"  style={{height:"3em", marginBottom:"12px"}}/></div> 
+                        <div className='d-flex flex-row align-items-center' style={{gap:"15px"}}><h1 style={{ fontWeight: 'bold', fontSize:isMobile ? '2em' : "4em" }}>{info[service].title}</h1><img src={servicesimage[service]} alt="Foto servizio Cashmere Studio"  style={{height:"3em", marginBottom:"12px"}}/></div> 
                         <p style={{ fontWeight: 600, marginTop: "50px" }}>Descrizione:</p>
                         <p style={{ color: "grey" }}>{info[service].parag1}</p>
                         {info[service].title2 && <p style={{ fontWeight: 600, marginTop: "100px" }}>{info[service].title2}</p>}
