@@ -46,6 +46,7 @@ function Book() {
 
         if (skipFonicoSelection) {
             setService(null)
+            setSelectedFonico(null)
         } else {
             setService(null)
             setSelectedFonico(null)
@@ -85,7 +86,7 @@ function Book() {
                 )  : (!selectedFonico && !skipFonicoSelection) ? (
                     <Step5 setSelectedFonico={setSelectedFonico} goBack={goBack3} />
                 )  : !bookingTime.start ? (
-                    <Step2 studio={stu} setBooking={setBooking} goBack={goBack5} selectedFonico={selectedFonico == "every" ? null : selectedFonico} service={service} setStudio={setStudio} />
+                    <Step2 studio={stu} setBooking={setBooking} goBack={goBack5} selectedFonico={selectedFonico == "every" || skipFonicoSelection || !selectedFonico ? null : selectedFonico} service={service} setStudio={setStudio} />
                 ) : (
                     <Step4 goBack={goBack2} onAddPrenotazione={addPrenotazione} selectedDay={bookingTime.day} selectedEnd={bookingTime.end} selectedStart={bookingTime.start} studio={stu} services={service} selectedFonico={selectedFonico == "every" ? null : selectedFonico} needFonico={!skipFonicoSelection} />
                 )}

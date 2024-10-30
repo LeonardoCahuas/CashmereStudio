@@ -4,7 +4,7 @@ import { Modal, Button, Table, Pagination, Form } from 'react-bootstrap';
 
 function createWhatsAppLink(prenotazione) {
   const { telefono, nomeUtente, inizio, fine, services } = prenotazione;
-
+  
   // Assicurati che inizio e fine siano oggetti Date
   const inizioDate = inizio.toDate();
   const fineDate = fine.toDate();
@@ -28,7 +28,7 @@ function createWhatsAppLink(prenotazione) {
 }
 
 function Confirm() {
-  const { prenotazioni, loading, error, updatePrenotazioneStato, fonici } = usePrenotazioni();
+  const { prenotazioni, loading, error, updatePrenotazioneStato, fonici, disponibilitaOre } = usePrenotazioni();
   const [showModal, setShowModal] = useState(false);
   const [selectedPrenotazione, setSelectedPrenotazione] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +38,7 @@ function Confirm() {
   const [userToContact, setUserToContact] = useState("")
   const [idToContact, setIdToContact] = useState("")
   const [prenToContact, setPrenToContact] = useState({})
+  const [dispfonici, setDispfonici] = useState([])
 
   const findFonico = (id) => {
     const fonico = fonici.find((fon) => fon.id == id);
@@ -89,6 +90,74 @@ function Confirm() {
     setContactConfirm(false)
   };
 
+  const getSortedFonici = (p) => {
+    const daysCode = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const iniziodate = p.inizio.toDate()
+    const finedate = p.fine.toDate()
+    console.log(iniziodate.getHours())
+    console.log(finedate.getHours())
+    let oreinizio
+    let orefine
+    oreinizio = iniziodate.getHours()
+    orefine = finedate.getHours()
+    if (iniziodate.getHours() < 10) {
+      oreinizio = iniziodate.getHours() + 24
+    }
+    if (finedate.getHours() < 10) {
+      orefine = finedate.getHours() + 24
+    }
+    
+    let fonicidisp = []
+    fonici.filter(f => f.id != 1).forEach((d) => {
+      d.disponibilita.forEach((dis) => {
+        const [day, start, end] = dis.split('-')
+        console.log(daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine <= end)
+        if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine < end) {
+          dispfonici.push(d.id)
+        }
+        if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine > end ) {
+          if(d.disponibilita.includes(`${daysCode[iniziodate.getDay()]}-${Number(start) + 3}-${Number(end) + 3}`) && d.disponibilita.includes(`${daysCode[iniziodate.getDay()]}-${Number(start)}-${Number(end)}`)){
+            dispfonici.push(d.id)
+          }
+        }
+      })
+    })
+    let foniciSorted = []
+    disponibilitaOre.forEach((d) => {
+      const [day, start, end] = d.ore.split('-')
+      if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine < end) {
+        d.fonici.forEach((f) => {
+          if(dispfonici.includes(f)){
+            foniciSorted.push(f)
+          }
+        })
+      }
+      if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine > end ) {
+        const otherDis = disponibilitaOre.find(o => o.ore == `${daysCode[iniziodate.getDay()]}-${Number(start) + 3}-${Number(end) + 3}`)
+        console.log(otherDis)
+        console.log(`${daysCode[iniziodate.getDay()]}-${Number(start) + 3}-${Number(end) + 3}`)
+        d.fonici.forEach((f) => {
+          if(dispfonici.includes(f) && otherDis && otherDis.fonici.includes(f)){
+            console.log(f)
+            foniciSorted.push(f)
+          }
+        })
+      }
+    })
+    foniciSorted = foniciSorted.filter(f => {
+      return !prenotazioni.some(prenotazione => {
+          const prenotazioneInizio = prenotazione.inizio.toDate();
+          const prenotazioneFine = prenotazione.fine.toDate();
+          return prenotazione.fonico === f && (
+              (prenotazioneFine > iniziodate && prenotazioneFine <= finedate) || // Prenotazione finisce dopo l'inizio
+              (prenotazioneInizio >= iniziodate && prenotazioneInizio < finedate) || // Prenotazione inizia prima della fine
+              (prenotazioneInizio <= iniziodate && prenotazioneFine >= finedate) // Prenotazione è completamente compresa
+          );
+      });
+  });
+    setDispfonici(foniciSorted)
+  }
+
   const confirmContact = () => {
     console.log("modale conferma")
     setContactConfirm(true)
@@ -138,7 +207,7 @@ function Confirm() {
                   }) + " ore " +
                     prenotazione.createdAt.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                 </td>
-                <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`}>{prenotazione.nomeUtente}</a>}</td>
+                <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`} target="_blank" rel="noopener noreferrer"><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`} target="_blank" rel="noopener noreferrer">{prenotazione.nomeUtente}</a>}</td>
                 <td>
                   <button onClick={() => {
                     setUserToContact(createWhatsAppLink(prenotazione))
@@ -156,13 +225,16 @@ function Confirm() {
                     month: 'long',
                     day: 'numeric'
                   }) + " ore " +
-                    prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + "-" + prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} 
+                    prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + "-" + prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                 </td>}
-                
+
                 {!isMobile && <td>{prenotazione.studio}</td>}
                 {!isMobile && <td>{!prenotazione.sessionWithFonico ? "no" : prenotazione.fonico ? findFonico(prenotazione.fonico) : "si"}</td>}
                 <td>
-                  <p style={{ textDecoration: "underline", cursor: "pointer", margin: "0px" }} onClick={() => handleShowModal(prenotazione)}>Visualizza</p>
+                  <p style={{ textDecoration: "underline", cursor: "pointer", margin: "0px" }} onClick={() => {
+                    getSortedFonici(prenotazione)
+                    handleShowModal(prenotazione)
+                  }}>Visualizza</p>
                 </td>
               </tr>
             ))}
@@ -224,9 +296,20 @@ function Confirm() {
                 selectedPrenotazione.createdAt.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</p>
               <p>Studio: {selectedPrenotazione.studio}</p>
               <p>Stato: {selectedPrenotazione.stato}</p>
+
               <select onChange={(e) => handleFonicoSelection(e.target.value)} value={selectedPrenotazione.fonico}>
                 {
-                  selectedPrenotazione.sessionWithFonico ?
+                  selectedPrenotazione.sessionWithFonico && dispfonici?.length > 0 ?
+                    fonici.filter(f => dispfonici.includes(f.id)).map((fonico) => {
+                      const isSelected = selectedFonico ? selectedFonico.fonico == fonico.id : dispfonici[0] === fonico.id;
+                      return (
+                        <option key={fonico.id} value={fonico.id} selected={isSelected}>
+                          {fonico.nome}
+                        </option>
+                      );
+                    })
+                    :
+                    selectedPrenotazione.sessionWithFonico ?
                     fonici.map((fonico) => (
                       <option key={fonico.id} value={fonico.id} selected={selectedFonico.fonico == fonico.id}>
                         {fonico.nome}

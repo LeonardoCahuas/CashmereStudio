@@ -215,7 +215,7 @@ const Step2 = ({ setBooking, goBack, studio, setStudio, service, selectedFonico 
         return daysCode[currentDate.getDay()] === val[0] && hour >= val[1] && hour < val[2];
     });
       // Controlla se l'ora è disponibile
-      if (!isAvailable) {
+      if (!isAvailable && selectedFonico) {
         console.log(selectedFonico)
         occupied.push(hour); // Aggiungi l'ora non disponibile
       }

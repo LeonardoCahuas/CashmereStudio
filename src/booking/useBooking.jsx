@@ -242,7 +242,7 @@ const usePrenotazioni = (selectedDateTime) => {
 
       if (snapshot.empty) {
         // Se non esiste, creiamo un nuovo record
-        const newDocRef = await addDoc(collection(db, 'disponibilita'), { ore, foniciOrder });
+        const newDocRef = await addDoc(collection(db, 'disponibilita'), { ore: ore, fonici: foniciOrder });
         // Aggiorna lo stato e il localStorage
         const newDisponibilita = { id: newDocRef.id, ore, foniciOrder };
         setDisponibilitaOre(prev => [...prev, newDisponibilita]);

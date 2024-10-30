@@ -153,7 +153,7 @@ export const Calendar = ({ isAdmin, fonico }) => {
                     {hours.map((hour, hourIndex) => {
                         return (
                             <React.Fragment key={hourIndex}>
-                                <div style={{ textAlign: 'center', fontWeight: 'bold', width: "fit-content", marginTop: (hourIndex) % 3 == 0 && hourIndex != 0 ? "30px" : "0px" }}>{hour}</div>
+                                <div style={{ textAlign: 'center', fontWeight: 'bold', width: "fit-content", marginTop: (hourIndex) % 3 == 0 && hourIndex != 0 ? "30px" : "0px" }}>{hourIndex + 10 > 23 ? `${(hourIndex + 10) - 24}:00` : hour}</div>
                                 {weekDates.map((date, dayIndex) => {
                                     let code
                                     switch (Math.floor((hourIndex) / 3)) {

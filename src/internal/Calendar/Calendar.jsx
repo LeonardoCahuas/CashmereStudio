@@ -1456,7 +1456,7 @@ const Calendar = ({ isAdmin }) => {
                                 ) : (
                                     <div>
                                         <p>ID: {selectedPrenotazione.id}</p>
-                                        <a href={`https://www.instagram.com/${selectedPrenotazione.nomeUtente}`}> <p>Instagram: {selectedPrenotazione.nomeUtente}</p></a>
+                                        <a href={`https://www.instagram.com/${selectedPrenotazione.nomeUtente}`} target="_blank" rel="noopener noreferrer"> <p>Instagram: {selectedPrenotazione.nomeUtente}</p></a>
                                         <p>Telefono: {selectedPrenotazione.telefono}</p>
                                         <div className='d-flex flex-row align-items-center justify-content-start mb-3'>Servizi: <p className='text-white'>...</p> {selectedPrenotazione.services && selectedPrenotazione.services.map((servi) => <p key={servi} className="m-0">{servi}, {" "}</p>)}</div>
                                         <p>

@@ -90,9 +90,13 @@ export const Priority = () => {
                         </div>
                     ))}
                     {hoursSlots.map((slot, slotIndex) => {
+                         const [startHour, endHour] = slot.split('-').map(Number); // Estrai le ore di inizio e fine
+                         const displayStartHour = startHour > 23 ? `${startHour - 24}` : startHour; // Modifica la visualizzazione se startHour > 23
+                         const displayEndHour = endHour > 24 ? `${endHour - 24}` : endHour; // Modifica la visualizzazione se endHour > 24
+                         const displaySlot = `${displayStartHour}-${displayEndHour}`;
                         return (
                             <React.Fragment key={slotIndex}>
-                                <div style={{ textAlign: 'center', fontWeight: 'bold', width: "50px" }}>{slot}</div>
+                                <div style={{ textAlign: 'center', fontWeight: 'bold', width: "50px" }}>{displaySlot}</div>
                                 {weekDates.map((date, dayIndex) => {
                                     const slotCode = `${daysCode[date.getDay()]}-${slot}`;
                                     return (

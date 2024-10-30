@@ -49,7 +49,7 @@ const Step5 = ({ setSelectedFonico, goBack }) => {
                         <span className="fonico-name">Primo fonico disponibile</span>
                     </label>
                 </div>
-                {fonici.filter(f => f.id !== 1).map((fonico) => (
+                {fonici.filter(f => f.id != 1).map((fonico) => (
                     <div 
                         key={fonico.id} 
                         className={`fonico-item ${selectedFonico === fonico.id ? 'selected' : ''}`}

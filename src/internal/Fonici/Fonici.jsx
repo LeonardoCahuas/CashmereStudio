@@ -160,8 +160,8 @@ const Fonici = ({ isAdmin, fonico }) => {
 
   return (
     <div style={{ marginTop: '20px', margin: '0px', width: "100%", display: "flex", flexDirection: "column", alignItems: "start" }}>
-      <Priority/>
-      <Calendar isAdmin={isAdmin} /> 
+      {isAdmin && <Priority/>}
+      <Calendar isAdmin={isAdmin} fonico={fonico} /> 
       <h3 style={{ width: "100%", textAlign: 'center', marginBottom: '20px' }}>Gestione Fonici</h3>
       {isAdmin && <CompleteCalendar isAdmin={isAdmin} />}
       {/* <FonicoCalendar fonico={fonico} isAdmin={isAdmin} /> */}
