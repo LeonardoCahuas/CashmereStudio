@@ -1,0 +1,36 @@
+.bookservice {
+    margin-top: 50px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    color: white;
+    background: linear-gradient(to right, #08B1DF, #6FC7DF);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.1s, color 0.1s, linear 0.1s
+    /* Transizioni per il cambio di sfondo e colore */
+}
+
+.infobutton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    color: white;
+    background: linear-gradient(to right, #08B1DF, #6FC7DF);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.1s, color 0.1s, linear 0.1s
+    /* Transizioni per il cambio di sfondo e colore */
+}
+
+.card-services-page{
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.1s, color 0.1s;
+}
+.card-services-page:hover{
+    transform: scale(1.05);
+}

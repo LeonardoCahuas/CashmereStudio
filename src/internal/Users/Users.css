@@ -1,0 +1,33 @@
+.container {
+    margin-top: 20px;
+  }
+  
+  .controls {
+    margin-bottom: 20px;
+  }
+  
+  .controls .form-group {
+    margin-right: 20px;
+  }
+  
+  .table-container {
+    margin-top: 20px;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .custom-modal {
+    max-width: 90vw; /* Adjust the modal width to 90% of the viewport width */
+  }
+  
+  .custom-modal .modal-dialog {
+    width: 100%;
+  }
+  
+  .custom-modal .modal-body {
+    overflow-x: auto; /* Add horizontal scroll if content overflows */
+  }
+  
