@@ -40,10 +40,17 @@ function Confirm() {
   const [prenToContact, setPrenToContact] = useState({})
   const [dispfonici, setDispfonici] = useState([])
 
+  useEffect(() => {
+     if(selectedPrenotazione?.fonico){
+      setSelectedFonico(selectedPrenotazione.fonico)
+     }
+  },[selectedPrenotazione])
+
   const findFonico = (id) => {
     const fonico = fonici.find((fon) => fon.id == id);
     return fonico && fonico.nome ? fonico.nome : "";
   };
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 602);
@@ -164,7 +171,7 @@ function Confirm() {
   }
 
   const redirectWhatsapp = () => {
-    updatePrenotazioneStato(idToContact, 3, 0)
+    updatePrenotazioneStato(idToContact, 3)
   }
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -297,7 +304,7 @@ function Confirm() {
               <p>Studio: {selectedPrenotazione.studio}</p>
               <p>Stato: {selectedPrenotazione.stato}</p>
 
-              <select onChange={(e) => handleFonicoSelection(e.target.value)} value={selectedPrenotazione.fonico}>
+              <select onChange={(e) => handleFonicoSelection(e.target.value)} value={selectedFonico}>
                 {
                   selectedPrenotazione.sessionWithFonico && dispfonici?.length > 0 ?
                     fonici.filter(f => dispfonici.includes(f.id)).map((fonico) => {
@@ -338,7 +345,7 @@ function Confirm() {
             </Modal.Header>
             <Modal.Body>
               <p>Sei sicuro di voler contattare il clinete in attesa di conferma?</p>
-              <a href={createWhatsAppLink(prenToContact)} style={{ textDecoration: "underline", color: "green", marginRight: "20px" }} onClick={redirectWhatsapp}>Si, Conferma</a>
+              <a href={createWhatsAppLink(prenToContact)} style={{ textDecoration: "underline", color: "green", marginRight: "20px" }} target="_blank"  onClick={redirectWhatsapp}>Si, Conferma</a>
               <a onClick={() => setContactConfirm(false)} style={{ textDecoration: "underline", color: "red" }} >No, Chiudi</a>
 
             </Modal.Body>

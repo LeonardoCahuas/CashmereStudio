@@ -85,13 +85,25 @@ const usePrenotazioni = (selectedDateTime) => {
 
 
   const updatePrenotazioneStato = async (id, newStato, fonico) => {
+    console.log(fonico)
     try {
-      const prenotazioneRef = doc(db, 'prenotazioni', id);
-      await updateDoc(prenotazioneRef, { stato: newStato, fonico: fonico });
+      let updatedPrenotazioni
+      if (fonico) {
+        const prenotazioneRef = doc(db, 'prenotazioni', id);
+        await updateDoc(prenotazioneRef, { stato: newStato, fonico: fonico });
 
-      const updatedPrenotazioni = prenotazioni.map(prenotazione =>
-        prenotazione.id === id ? { ...prenotazione, stato: newStato, fonico: fonico } : prenotazione
-      );
+        updatedPrenotazioni = prenotazioni.map(prenotazione =>
+          prenotazione.id === id ? { ...prenotazione, stato: newStato, fonico: fonico } : prenotazione
+        );
+      } else {
+        const prenotazioneRef = doc(db, 'prenotazioni', id);
+        await updateDoc(prenotazioneRef, { stato: newStato });
+
+        updatedPrenotazioni = prenotazioni.map(prenotazione =>
+          prenotazione.id === id ? { ...prenotazione, stato: newStato } : prenotazione
+        );
+      }
+
 
       updateLocalStorage(updatedPrenotazioni, fonici, disponibilitaOre);
     } catch (err) {
@@ -268,7 +280,7 @@ const usePrenotazioni = (selectedDateTime) => {
         const docRef = snapshot.docs[0].ref;
         await updateDoc(docRef, { fonici: foniciOrder });
         // Aggiorna lo stato e il localStorage
-        const updatedDisponibilita = disponibilitaOre.map(d => 
+        const updatedDisponibilita = disponibilitaOre.map(d =>
           d.ore === ore ? { ...d, foniciOrder } : d
         );
         setDisponibilitaOre(updatedDisponibilita);
