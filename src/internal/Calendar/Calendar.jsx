@@ -368,6 +368,7 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
     }
 
     const handleSlotClick = (date, hour) => {
+        console.log(date)
         const slot = new Date(`${date}T${String(hour).padStart(2, '0')}:00:00`);
         if (selectedSlots.some(s => s.getTime() === slot.getTime())) {
             setSelectedSlots(selectedSlots.filter(s => s.getTime() !== slot.getTime()));
@@ -638,11 +639,12 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
 
 
     const handleSaveNewPrenotazione = () => {
-        console.log(newPrenotazione.fine)
+        console.log(newPrenStart)
         try {
             let startDate;
-            if (newPrenStart.day && typeof newPrenStart.day === 'object' && newPrenStart.day.date) {
-                const dateStr = newPrenStart.day.date;
+            if (newPrenStart.day && typeof newPrenStart === 'object') {
+                console.log(newPrenStart)
+                const dateStr = newPrenStart.day;
                 const dateParts = dateStr.split('-');
                 if (dateParts.length === 3 && dateParts[0].length === 4 && dateParts[1].length === 2 && dateParts[2].length === 2) {
                     const year = parseInt(dateParts[0], 10);
@@ -1043,7 +1045,7 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
                                     );
                                 } else {
                                     cellContent = (
-                                        <div style={{ color: "lightgrey", cursor: blockMode ? 'pointer' : 'default', fontSize: "12px" }} onClick={() => blockMode ? handleSlotClick(day.date, hour) : isAdmin ? addBook(day, timeSlot) : null}>
+                                        <div style={{ color: "lightgrey", cursor: blockMode ? 'pointer' : 'default', fontSize: "12px" }} onClick={() => blockMode ? handleSlotClick(day.date, hour) : isAdmin ? addBook(selectedDay, timeSlot) : null}>
                                             {timeSlot}
                                         </div>
                                     );
