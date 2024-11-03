@@ -639,6 +639,77 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
 
 
     const handleSaveNewPrenotazione = () => {
+        console.log(newPrenotazione.fine)
+        try {
+            let startDate;
+            if (newPrenStart.day && typeof newPrenStart.day === 'object' && newPrenStart.day.date) {
+                const dateStr = newPrenStart.day.date;
+                const dateParts = dateStr.split('-');
+                if (dateParts.length === 3 && dateParts[0].length === 4 && dateParts[1].length === 2 && dateParts[2].length === 2) {
+                    const year = parseInt(dateParts[0], 10);
+                    const month = parseInt(dateParts[1], 10) - 1;
+                    const day = parseInt(dateParts[2], 10);
+                    startDate = new Date(year, month, day);
+                } else {
+                    throw new Error('Invalid start day format');
+                }
+            } else {
+                throw new Error('Invalid start day object or property missing');
+            }
+
+            if (isNaN(startDate.getTime())) {
+                throw new Error('Invalid start date');
+            }
+            console.log(newPrenotazione)
+            const [startHour, startMinute] = (newPrenStart.time || '00:00').split(':').map(Number);
+            if (isNaN(startHour) || isNaN(startMinute)) {
+                throw new Error('Invalid start time format');
+            }
+            startDate.setHours(startHour, startMinute);
+            console.log(newPrenotazione.fine)
+            const endHour = newPrenotazione.fine
+            if (isNaN(endHour)) {
+                throw new Error('Invalid end time format');
+            }
+            const endDate = new Date(startDate);
+            endDate.setHours(endHour, "00");
+
+            for (let i = 0; i < (repeat || 1); i++) {
+                const newInizio = new Date(startDate);
+                const newFine = new Date(endDate);
+                newInizio.setDate(startDate.getDate() + i * 7);
+                newFine.setDate(endDate.getDate() + i * 7);
+
+                const newPrenotazioneWithTimestamps = {
+                    ...newPrenotazione,
+                    inizio: newInizio,
+                    fine: newFine,
+                    studio: studioPren,
+                    prenotatoDa: "gestionale"
+                };
+                console.log(newPrenotazioneWithTimestamps)
+                addPrenotazione(newPrenotazioneWithTimestamps);
+            }
+
+            setNewPrenotazione({
+                nomeUtente: "",
+                inizio: "",
+                fine: "",
+                telefono: "",
+                studio: 0,
+                stato: 2,
+                services: []
+            });
+
+            setAdding(false);
+            handleServiceModalClose()
+
+        } catch (error) {
+            console.error('Error saving new reservation:', error);
+        }
+    };
+
+    const handleSaveNewPrenotazione2 = () => {
         console.log(newPrenStart)
         try {
             let startDate;
@@ -1688,7 +1759,7 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
                         <Button variant="secondary" onClick={() => setAdding(false)}>
                             Annulla
                         </Button>
-                        <Button variant="primary" onClick={handleSaveNewPrenotazione}>
+                        <Button variant="primary" onClick={view == "weekly" ? handleSaveNewPrenotazione : handleSaveNewPrenotazione2}>
                             Salva Prenotazione
                         </Button>
                     </Modal.Footer>
