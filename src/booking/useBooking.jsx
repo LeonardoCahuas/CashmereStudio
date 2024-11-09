@@ -12,6 +12,7 @@ const usePrenotazioni = (selectedDateTime) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log("fetching")
       setLoading(true);
       setError(null);
       try {
@@ -46,7 +47,7 @@ const usePrenotazioni = (selectedDateTime) => {
 
     fetchData();
     setChange(0)
-  }, [selectedDateTime, change]);
+  }, [ change]);
 
 
   const updateLocalStorage = (prenotazioniData, foniciData, disponibilitaData) => {
