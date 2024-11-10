@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import usePrenotazioni from '../../booking/useBooking';
+import usePrenotazioni from '../../contexts/PrenotazioniContext';
 import './Step5.css';
 
 const Step5 = ({ setSelectedFonico, goBack }) => {

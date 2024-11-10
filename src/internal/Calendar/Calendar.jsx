@@ -5,7 +5,7 @@ import { Box, MenuItem, Select, FormControl, InputLabel, Button as MuiButton } f
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
-import usePrenotazioni from '../../booking/useBooking';
+import usePrenotazioni from '../../contexts/PrenotazioniContext';
 import { v4 as uuidv4 } from 'uuid';
 import { Timestamp } from 'firebase/firestore';
 

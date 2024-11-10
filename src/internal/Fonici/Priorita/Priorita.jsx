@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import usePrenotazioni from '../../../booking/useBooking';
+import usePrenotazioni from '../../../contexts/PrenotazioniContext';
 
 export const Priority = () => {
     const { fonici, setDisponibilitaPriority, disponibilitaOre } = usePrenotazioni();

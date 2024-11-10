@@ -1,4 +1,4 @@
-import usePrenotazioni from '../../../booking/useBooking';
+import usePrenotazioni from '../../../contexts/PrenotazioniContext';
 import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { InputLabel, MenuItem, Select } from '@mui/material';

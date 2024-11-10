@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { InputLabel, MenuItem, Select } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import usePrenotazioni from '../../../booking/useBooking';
+import usePrenotazioni from '../../../contexts/PrenotazioniContext';
 
 const FonicoCalendar2 = ({ fonico, isAdmin }) => {
     const { fonici, prenotazioni, setDisponibilita, setNonDisponibilita } = usePrenotazioni();

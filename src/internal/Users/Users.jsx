@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Modal, Button, Table, Form } from 'react-bootstrap';
-import usePrenotazioni from '../../booking/useBooking';
+import usePrenotazioni from '../../contexts/PrenotazioniContext';
 import './Users.css'; // Import the CSS file
 
 const UserBookingsModal = ({ show, onHide, bookings }) => (

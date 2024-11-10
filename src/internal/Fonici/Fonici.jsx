@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import usePrenotazioni from '../../booking/useBooking';
+import usePrenotazioni from '../../contexts/PrenotazioniContext';
 import { Modal, Button, Table, Pagination, Form, Row, Col, Card, Container, ListGroup } from 'react-bootstrap';
 import { deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase-config';

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import usePrenotazioni from "../booking/useBooking"
+import usePrenotazioni from "../contexts/PrenotazioniContext"
 import Navbar from "../components/Navbar/Navbar"
 import Step1 from "./Step1/Step1"
 import Step3 from "./Step3/Step3"

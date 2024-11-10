@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import usePrenotazioni from '../../booking/useBooking';
+import usePrenotazioni from '../../contexts/PrenotazioniContext';
 import { Modal, Button, Table, Pagination, Form } from 'react-bootstrap';
 
 function createWhatsAppLink(prenotazione) {

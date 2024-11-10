@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import usePrenotazioni from '../../booking/useBooking';
+import usePrenotazioni from '../../contexts/PrenotazioniContext';
 import './Studios.css';
 import stu1 from "../../assets/stu1.png";
 import stu2 from "../../assets/Studio2/CV1A3606.jpg";

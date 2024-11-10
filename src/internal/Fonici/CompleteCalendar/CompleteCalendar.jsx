@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import usePrenotazioni from '../../../booking/useBooking';
+import usePrenotazioni from '../../../contexts/PrenotazioniContext';
 
 const CompleteCalendar = ({ isAdmin }) => {
     const { fonici, prenotazioni } = usePrenotazioni();

@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import NavbarAdmin from "./Navbar/Navbar"
 import Calendar from "./Calendar/Calendar"
 import Fonici from "./Fonici/Fonici"
-import usePrenotazioni from "../booking/useBooking"
+import usePrenotazioni from "../contexts/PrenotazioniContext"
 
 function Dashboard({ user }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 602);
