@@ -4,7 +4,7 @@ import { Modal, Button, Table, Pagination, Form } from 'react-bootstrap';
 
 function createWhatsAppLink(prenotazione) {
   const { telefono, nomeUtente, inizio, fine, services } = prenotazione;
-  
+
   // Assicurati che inizio e fine siano oggetti Date
   const inizioDate = inizio.toDate();
   const fineDate = fine.toDate();
@@ -27,7 +27,7 @@ function createWhatsAppLink(prenotazione) {
   return `https://wa.me/${telefono}?text=${testo}`;
 }
 
-function Confirm() {
+function Confirm({user}) {
   const { prenotazioni, loading, error, updatePrenotazioneStato, fonici, disponibilitaOre } = usePrenotazioni();
   const [showModal, setShowModal] = useState(false);
   const [selectedPrenotazione, setSelectedPrenotazione] = useState(null);
@@ -39,12 +39,14 @@ function Confirm() {
   const [idToContact, setIdToContact] = useState("")
   const [prenToContact, setPrenToContact] = useState({})
   const [dispfonici, setDispfonici] = useState([])
+  const [selectedStato , setSelectedStato] = useState(1)
+  const [editState, setEditState] = useState(false)
 
   useEffect(() => {
-     if(selectedPrenotazione?.fonico){
+    if (selectedPrenotazione?.fonico) {
       setSelectedFonico(selectedPrenotazione.fonico)
-     }
-  },[selectedPrenotazione])
+    }
+  }, [selectedPrenotazione])
 
   const findFonico = (id) => {
     const fonico = fonici.find((fon) => fon.id == id);
@@ -69,13 +71,22 @@ function Confirm() {
     console.log("fonici")
     console.log(fonici)
   }, [fonici])
+
   const handleConferma = (id) => {
-    updatePrenotazioneStato(id, 2, selectedFonico);
+    updatePrenotazioneStato(id, 2, selectedFonico, user);
     setShowModal(false);
   };
 
+  const handleConfermaStato = () => {
+    updatePrenotazioneStato(selectedPrenotazione.id, selectedStato, null, null);
+    
+    setEditState(false);
+  };
+
+
+
   const handleRifiuta = (id) => {
-    updatePrenotazioneStato(id, 0, 0);
+    updatePrenotazioneStato(id, 0, 0, null);
     setShowModal(false);
   };
 
@@ -95,6 +106,7 @@ function Confirm() {
     setSelectedPrenotazione(null);
     setShowModal(false);
     setContactConfirm(false)
+    setEditState(false)
   };
 
   const getSortedFonici = (p) => {
@@ -113,7 +125,7 @@ function Confirm() {
     if (finedate.getHours() < 10) {
       orefine = finedate.getHours() + 24
     }
-    
+
     let fonicidisp = []
     fonici.filter(f => f.id != 1).forEach((d) => {
       d.disponibilita.forEach((dis) => {
@@ -122,8 +134,8 @@ function Confirm() {
         if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine < end) {
           dispfonici.push(d.id)
         }
-        if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine > end ) {
-          if(d.disponibilita.includes(`${daysCode[iniziodate.getDay()]}-${Number(start) + 3}-${Number(end) + 3}`) && d.disponibilita.includes(`${daysCode[iniziodate.getDay()]}-${Number(start)}-${Number(end)}`)){
+        if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine > end) {
+          if (d.disponibilita.includes(`${daysCode[iniziodate.getDay()]}-${Number(start) + 3}-${Number(end) + 3}`) && d.disponibilita.includes(`${daysCode[iniziodate.getDay()]}-${Number(start)}-${Number(end)}`)) {
             dispfonici.push(d.id)
           }
         }
@@ -134,17 +146,17 @@ function Confirm() {
       const [day, start, end] = d.ore.split('-')
       if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine < end) {
         d.fonici.forEach((f) => {
-          if(dispfonici.includes(f)){
+          if (dispfonici.includes(f)) {
             foniciSorted.push(f)
           }
         })
       }
-      if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine > end ) {
+      if (daysCode[iniziodate.getDay()] == day && oreinizio >= start && orefine > end) {
         const otherDis = disponibilitaOre.find(o => o.ore == `${daysCode[iniziodate.getDay()]}-${Number(start) + 3}-${Number(end) + 3}`)
         console.log(otherDis)
         console.log(`${daysCode[iniziodate.getDay()]}-${Number(start) + 3}-${Number(end) + 3}`)
         d.fonici.forEach((f) => {
-          if(dispfonici.includes(f) && otherDis && otherDis.fonici.includes(f)){
+          if (dispfonici.includes(f) && otherDis && otherDis.fonici.includes(f)) {
             console.log(f)
             foniciSorted.push(f)
           }
@@ -153,15 +165,15 @@ function Confirm() {
     })
     foniciSorted = foniciSorted.filter(f => {
       return !prenotazioni.some(prenotazione => {
-          const prenotazioneInizio = prenotazione.inizio.toDate();
-          const prenotazioneFine = prenotazione.fine.toDate();
-          return prenotazione.fonico === f && (
-              (prenotazioneFine > iniziodate && prenotazioneFine <= finedate) || // Prenotazione finisce dopo l'inizio
-              (prenotazioneInizio >= iniziodate && prenotazioneInizio < finedate) || // Prenotazione inizia prima della fine
-              (prenotazioneInizio <= iniziodate && prenotazioneFine >= finedate) // Prenotazione è completamente compresa
-          );
+        const prenotazioneInizio = prenotazione.inizio.toDate();
+        const prenotazioneFine = prenotazione.fine.toDate();
+        return prenotazione.fonico === f && (
+          (prenotazioneFine > iniziodate && prenotazioneFine <= finedate) || // Prenotazione finisce dopo l'inizio
+          (prenotazioneInizio >= iniziodate && prenotazioneInizio < finedate) || // Prenotazione inizia prima della fine
+          (prenotazioneInizio <= iniziodate && prenotazioneFine >= finedate) // Prenotazione è completamente compresa
+        );
       });
-  });
+    });
     setDispfonici(foniciSorted)
   }
 
@@ -171,7 +183,7 @@ function Confirm() {
   }
 
   const redirectWhatsapp = () => {
-    updatePrenotazioneStato(idToContact, 3)
+    updatePrenotazioneStato(idToContact, 3, null, null)
   }
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -181,8 +193,8 @@ function Confirm() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1 || prenotazione.stato === 3).slice(indexOfFirstItem, indexOfLastItem);
-  const totalItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1 || prenotazione.stato === 3).length;
+  const currentItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1 || prenotazione.stato === 3 || prenotazione.stato === 4 || prenotazione.stato === 5).slice(indexOfFirstItem, indexOfLastItem);
+  const totalItems = prenotazioni.filter(prenotazione => prenotazione.stato === 1 || prenotazione.stato === 3 || prenotazione.stato === 4 || prenotazione.stato === 5).length;
 
   return (
     <div className='w-100 d-flex flex-column align-items-center' style={{ overflow: "scroll" }}>
@@ -192,13 +204,14 @@ function Confirm() {
           <thead>
             <tr>
               <th>Giorno richiesta</th>
-              <th>Nome Instagram</th>
+              <th>Instagram</th>
               <th>Telefono</th>
-              {!isMobile && <th>Servizi</th>}
-              {!isMobile && <th>Note</th>}
               {!isMobile && <th>Data e ora</th>}
               {!isMobile && <th>Studio</th>}
               {!isMobile && <th>Fonico</th>}
+              {!isMobile && <th>Servizi</th>}
+              {!isMobile && <th>Note</th>}
+              {!isMobile && <th>Stato</th>}
               <th>Azioni</th>
             </tr>
           </thead>
@@ -207,12 +220,13 @@ function Confirm() {
               <tr key={prenotazione.id}>
                 <td>
                   {prenotazione.createdAt.toDate().toLocaleDateString('it-IT', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  }) + " ore " +
-                    prenotazione.createdAt.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                    day: '2-digit',
+                    month: '2-digit'
+                  }) + " alle " +
+                    prenotazione.createdAt.toDate().toLocaleTimeString('it-IT', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                 </td>
                 <td>{isMobile ? <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`} target="_blank" rel="noopener noreferrer"><i class="fa fa-instagram"></i> {prenotazione.nomeUtente}</a> : <a href={`https://www.instagram.com/${prenotazione.nomeUtente}`} target="_blank" rel="noopener noreferrer">{prenotazione.nomeUtente}</a>}</td>
                 <td>
@@ -221,10 +235,8 @@ function Confirm() {
                     setIdToContact(prenotazione.id)
                     setPrenToContact(prenotazione)
                     confirmContact()
-                  }} style={{ color: prenotazione.stato == 1 ? "red" : "green", backgroundColor: "transparent", background: "transparent" }}><i className="fa fa-phone"></i>{prenotazione.telefono}</button>
+                  }} style={{ color: prenotazione.stato == 1 ? "red" : "green", backgroundColor: "transparent", background: "transparent" }}><i className="fa fa-phone"></i></button>
                 </td>
-                {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
-                {!isMobile && <td>{prenotazione.note && prenotazione.note}</td>}
                 {!isMobile && <td>
                   {prenotazione.inizio.toDate().toLocaleDateString('it-IT', {
                     weekday: 'long',
@@ -234,14 +246,25 @@ function Confirm() {
                   }) + " ore " +
                     prenotazione.inizio.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + "-" + prenotazione.fine.toDate().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                 </td>}
-
                 {!isMobile && <td>{prenotazione.studio}</td>}
+
                 {!isMobile && <td>{!prenotazione.sessionWithFonico ? "no" : prenotazione.fonico ? findFonico(prenotazione.fonico) : "si"}</td>}
+                {!isMobile && <td>{prenotazione.services && prenotazione?.services.map((servi) => <p>{servi}</p>)}</td>}
+                {!isMobile && <td>{prenotazione.note && prenotazione.note}</td>}
+                {!isMobile && <td>{
+                  prenotazione.stato == 1 ? "Da contattare" : prenotazione.stato == 3 ? "Contattato" : prenotazione.stato == 4 ? "Da confermare" : prenotazione.stato == 5 ? "Da spostare" : "Nullo"
+                }</td>}
+
                 <td>
                   <p style={{ textDecoration: "underline", cursor: "pointer", margin: "0px" }} onClick={() => {
                     getSortedFonici(prenotazione)
                     handleShowModal(prenotazione)
                   }}>Visualizza</p>
+                  <p style={{ textDecoration: "underline", cursor: "pointer", margin: "0px" }} onClick={() => {
+                    setSelectedStato(prenotazione.stato)
+                    setEditState(true)
+                    setSelectedPrenotazione(prenotazione)
+                  }}>Modifica stato</p>
                 </td>
               </tr>
             ))}
@@ -317,15 +340,15 @@ function Confirm() {
                     })
                     :
                     selectedPrenotazione.sessionWithFonico ?
-                    fonici.map((fonico) => (
-                      <option key={fonico.id} value={fonico.id} selected={selectedFonico.fonico == fonico.id}>
-                        {fonico.nome}
+                      fonici.map((fonico) => (
+                        <option key={fonico.id} value={fonico.id} selected={selectedFonico.fonico == fonico.id}>
+                          {fonico.nome}
+                        </option>
+                      ))
+                      :
+                      <option key={1} value={1}>
+                        Senza fonico
                       </option>
-                    ))
-                    :
-                    <option key={1} value={1}>
-                      Senza fonico
-                    </option>
                 }
               </select>
 
@@ -345,12 +368,66 @@ function Confirm() {
             </Modal.Header>
             <Modal.Body>
               <p>Sei sicuro di voler contattare il clinete in attesa di conferma?</p>
-              <a href={createWhatsAppLink(prenToContact)} style={{ textDecoration: "underline", color: "green", marginRight: "20px" }} target="_blank"  onClick={redirectWhatsapp}>Si, Conferma</a>
+              <a href={createWhatsAppLink(prenToContact)} style={{ textDecoration: "underline", color: "green", marginRight: "20px" }} target="_blank" onClick={redirectWhatsapp}>Si, Conferma</a>
               <a onClick={() => setContactConfirm(false)} style={{ textDecoration: "underline", color: "red" }} >No, Chiudi</a>
 
             </Modal.Body>
           </Modal>
         )}
+
+        {editState && (
+          <Modal show={editState} onHide={handleCloseModal}>
+            <Modal.Header closeButton>
+              <Modal.Title>Modifica Stato</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <form>
+                <div>
+                  <input
+                    type="radio"
+                    name="stato"
+                    checked={selectedStato === 1}
+                    value={1}
+                    onChange={() => setSelectedStato(1)}
+                  /> Da Contattare
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    name="stato"
+                    checked={selectedStato === 3}
+                    value={3}
+                    onChange={() => setSelectedStato(3)}
+                  /> Contattato
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    name="stato"
+                    checked={selectedStato === 4}
+                    value={4}
+                    onChange={() => setSelectedStato(4)}
+                  /> Da confermare
+                </div>
+                <div>
+                  <input
+                    type="radio"
+                    name="stato"
+                    checked={selectedStato === 5}
+                    value={5}
+                    onChange={() => setSelectedStato(5)}
+                  /> Da spostare
+                </div>
+              </form>
+
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>Chiudi</Button>
+              <Button variant="success" onClick={handleConfermaStato}>Conferma</Button>
+            </Modal.Footer>
+          </Modal>
+        )}
+
       </div>
     </div>
   );

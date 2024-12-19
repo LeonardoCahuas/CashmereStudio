@@ -47,6 +47,9 @@ const BookingModal = ({ show, onHide, prenotazione, findFonico }) => (
           <p>Fonico: {findFonico(prenotazione.fonico)}</p>
           <p>Note: {prenotazione.note ? prenotazione.note : ""}</p>
           <p>Prenotato da: {prenotazione.prenotatoDa}</p>
+          <p>Prenotato da: {prenotazione.addedBy ? prenotazione.addedBy : ""}</p>
+          <p>Modificato da: {prenotazione.editedBy ? prenotazione.editedBy : ""}</p>
+          <p>Confermato da: {prenotazione.confirmedBy ? prenotazione.confirmedBy : ""}</p>
         </div>
       )}
     </Modal.Body>

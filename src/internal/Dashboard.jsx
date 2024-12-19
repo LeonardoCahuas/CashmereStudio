@@ -83,9 +83,9 @@ function Dashboard({ user }) {
           page == 0 ?
             <Studios /> :
             page == 1 ?
-              <Calendar  isAdmin={adminMail.includes(user)} day={selectedDay} week={selectedWeek} setDay={setDay} setWeek={setWeek}format={selectedeFormat} setFormat={setFormat}  /> :
+              <Calendar  isAdmin={adminMail.includes(user)} day={selectedDay} week={selectedWeek} setDay={setDay} setWeek={setWeek}format={selectedeFormat} setFormat={setFormat}  user={user} /> :
               page == 2 ?
-                <Confirm /> :
+                <Confirm user={user} /> :
                 page == 3 ?
                   <Bookings /> :
                   page == 4 ?

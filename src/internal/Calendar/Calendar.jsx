@@ -117,9 +117,9 @@ const getCurrentWeek = () => {
     return weekDays;
 };
 
-const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) => {
+const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat, user }) => {
     const [value, setValue] = useState(1);
-    const [selectedDay, setSelectedDay] = useState(day ? day :getFormattedDate(new Date()));
+    const [selectedDay, setSelectedDay] = useState(day ? day : getFormattedDate(new Date()));
     const [showModal, setShowModal] = useState(false);
     const [studioBookings, setStudioBookings] = useState([]);
     const [selectedPrenotazione, setSelectedPrenotazione] = useState(null);
@@ -478,7 +478,8 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
                         fonico: selectedFonico,
                         note: "",
                         prenotatoDa: "gestionale",
-                        period: uid
+                        period: uid,
+                        addedBy: user
                     });
                 }
             } else {
@@ -525,7 +526,8 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
         modificaPrenotazione(selectedPrenotazione.id, {
             ...selectedPrenotazione,
             inizio: timestampnewInizio,
-            fine: timestampnewFine
+            fine: timestampnewFine,
+            editedBy: user
         })
         setSelectedPrenotazione({
             ...selectedPrenotazione,
@@ -685,7 +687,8 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
                     inizio: newInizio,
                     fine: newFine,
                     studio: studioPren,
-                    prenotatoDa: "gestionale"
+                    prenotatoDa: "gestionale",
+                    addedBy: user
                 };
                 console.log(newPrenotazioneWithTimestamps)
                 addPrenotazione(newPrenotazioneWithTimestamps);
@@ -757,7 +760,8 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
                     inizio: newInizio,
                     fine: newFine,
                     studio: studioPren,
-                    prenotatoDa: "gestionale"
+                    prenotatoDa: "gestionale",
+                    addedBy: user
                 };
                 console.log(newPrenotazioneWithTimestamps)
                 addPrenotazione(newPrenotazioneWithTimestamps);
@@ -1621,6 +1625,9 @@ const Calendar = ({ isAdmin, day, week, setDay, setWeek, format, setFormat }) =>
                                         <p>Fonico: {findFonico(selectedPrenotazione.fonico)}</p>
                                         <p>Note: {selectedPrenotazione.note ? selectedPrenotazione.note : ""}</p>
                                         <p>Prenotato da: {selectedPrenotazione.prenotatoDa ? selectedPrenotazione.prenotatoDa : ""}</p>
+                                        <p>Aggiunta da da: {selectedPrenotazione.addedBy ? selectedPrenotazione.addedBy : ""}</p>
+                                        <p>Modificata da da: {selectedPrenotazione.editedBy ? selectedPrenotazione.editedBy : ""}</p>
+                                        <p>confermata da da: {selectedPrenotazione.confirmedBy ? selectedPrenotazione.confirmedBy : ""}</p>
                                     </div>
                                 )}
                             </div>

@@ -4,6 +4,7 @@ import './Studios.css';
 import stu1 from "../../assets/stu1.png";
 import stu2 from "../../assets/Studio2/CV1A3606.jpg";
 import stu3 from "../../assets/stu3.png";
+import Search from './Search';
 
 const getLocalDateTimeString = () => {
   const now = new Date();
@@ -138,6 +139,8 @@ const Studios = () => {
             <Studio occupato={studio4.occupato} prenotazione={studio4.prenotazione} index={4} />
           </div>
         </div>
+
+        <Search/>
       
     </div>
   );

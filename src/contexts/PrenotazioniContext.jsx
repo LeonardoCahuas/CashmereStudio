@@ -63,17 +63,31 @@ export const PrenotazioniProvider = ({ children }) => {
     }
   };
 
-  const updatePrenotazioneStato = async (id, newStato, fonico) => {
+  const updatePrenotazioneStato = async (id, newStato, fonico = null, confirmedBy = null) => {
     try {
       const prenotazioneRef = doc(db, 'prenotazioni', id);
-      const updateData = fonico ? { stato: newStato, fonico } : { stato: newStato };
+      
+      // Costruzione dinamica dell'oggetto di aggiornamento
+      const updateData = { stato: newStato };
+  
+      if (fonico) {
+        updateData.fonico = fonico;
+      }
+  
+      if (confirmedBy) {
+        updateData.confirmedBy = confirmedBy;
+      }
+  
+      // Aggiornamento del documento
       await updateDoc(prenotazioneRef, updateData);
-
-      fetchData()
+  
+      // Richiamo della funzione fetchData
+      fetchData();
     } catch (err) {
       setError(err.message);
     }
   };
+  
 
   const eliminaPrenotazione = async (id) => {
     try {
