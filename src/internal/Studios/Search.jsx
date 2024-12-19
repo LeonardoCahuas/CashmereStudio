@@ -19,6 +19,29 @@ const formatHour = (hour) => {
   return String(hour).padStart(2, '0');
 };
 
+const isHourInFonicoAvailability = (hour, disponibilita, dayOfWeek) => {
+  return disponibilita.some(d => {
+    const [day, startStr, endStr] = d.split('-');
+    if (day !== dayOfWeek) return false;
+    
+    let startHour = parseInt(startStr, 10);
+    let endHour = parseInt(endStr, 10);
+    
+    // Normalizza l'ora da controllare per il confronto
+    let checkHour = hour;
+    if (checkHour < 10) { // Se l'ora è dopo mezzanotte
+      checkHour += 24;
+    }
+    
+    // Se l'ora di fine è minore dell'ora di inizio, significa che va oltre mezzanotte
+    if (endHour < startHour) {
+      endHour += 24;
+    }
+    
+    return checkHour >= startHour && checkHour < endHour;
+  });
+};
+
 const Search = () => {
   const [selectedStudio, setSelectedStudio] = useState('');
   const [selectedFonico, setSelectedFonico] = useState('');
@@ -63,7 +86,8 @@ const Search = () => {
       const dayOfWeek = daysCode[currentDate.getDay()];
 
       // Studio base hours (10:00-04:00)
-      let studioHours = Array.from({ length: 18 }, (_, i) => (i + 10));
+      // Genera le ore da 10 a 28 (04:00 del giorno dopo)
+      let studioHours = Array.from({ length: 19 }, (_, i) => (i + 10));
       let fonicoHours = [...studioHours];
 
       // Get studio occupied slots
@@ -103,19 +127,9 @@ const Search = () => {
           fonicoHours = [];
         } else {
           // Filter by availability schedule
-          fonicoHours = fonicoHours.filter(hour => {
-            const hourMod24 = hour % 24;
-            return selectedFonicoData.disponibilita.some(d => {
-              const [day, start, end] = d.split('-');
-              if (day !== dayOfWeek) return false;
-              let startHour = parseInt(start, 10);
-              let endHour = parseInt(end, 10);
-              if (endHour <= startHour) {
-                endHour += 24;
-              }
-              return hourMod24 >= startHour && hourMod24 < endHour;
-            });
-          });
+          fonicoHours = fonicoHours.filter(hour => 
+            isHourInFonicoAvailability(hour % 24, selectedFonicoData.disponibilita, dayOfWeek)
+          );
 
           // Filter by fonico bookings
           const fonicoOccupiedSlots = new Set();
@@ -146,7 +160,7 @@ const Search = () => {
         studioHours.filter(hour => fonicoHours.includes(hour)) :
         selectedStudio ? studioHours : fonicoHours;
 
-      // Convert to slots format
+      // Convert to slots format, ensuring proper handling of hours > 24
       const availableDaySlots = availableHours
         .map(hour => `${formatHour(hour % 24)}:00`);
 
